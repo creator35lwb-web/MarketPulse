@@ -1,0 +1,52 @@
+direction: right
+
+ScheduleTrigger: "Schedule Trigger\n(8:00 AM Daily)" {
+  shape: hexagon
+}
+
+FearAndGreed: "Get Fear & Greed Index\n(HTTP Request)" {
+  shape: rectangle
+}
+
+YahooNews: "Get Yahoo Finance News\n(RSS Feed)" {
+  shape: rectangle
+}
+
+MarketWatchNews: "Get MarketWatch News\n(RSS Feed)" {
+  shape: rectangle
+}
+
+MergeNews: "Merge News\n(Append)" {
+  shape: diamond
+}
+
+FilterArticles: "Filter Articles\n(Code Node)" {
+  shape: rectangle
+}
+
+SummarizeAI: "Summarize with AI\n(Groq LLM)" {
+  shape: rectangle
+}
+
+FormatMessage: "Format Message\n(Code Node)" {
+  shape: rectangle
+}
+
+SendTelegram: "Send to Telegram" {
+  shape: parallelogram
+}
+
+ScheduleTrigger -> FearAndGreed
+ScheduleTrigger -> YahooNews
+ScheduleTrigger -> MarketWatchNews
+
+YahooNews -> MergeNews
+MarketWatchNews -> MergeNews
+
+MergeNews -> FilterArticles
+FilterArticles -> SummarizeAI
+
+FearAndGreed -> FormatMessage
+SummarizeAI -> FormatMessage
+
+FormatMessage -> SendTelegram

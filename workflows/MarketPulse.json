@@ -1,0 +1,170 @@
+{
+  "name": "MarketPulse - Daily Stock Sentiment Analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+        "options": {}
+      },
+      "id": "fear-greed",
+      "name": "Get Fear & Greed Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, -100]
+    },
+    {
+      "parameters": {
+        "url": "https://finance.yahoo.com/rss/topstories"
+      },
+      "id": "yahoo-rss",
+      "name": "Get Yahoo Finance News",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.content.dowjones.io/public/rss/mw_topstories"
+      },
+      "id": "marketwatch-rss",
+      "name": "Get MarketWatch News",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-news",
+      "name": "Merge News",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [440, 150]
+    },
+    {
+      "parameters": {
+        "jsCode": "const keywords = ['earnings', 'fed', 'inflation', 'ai', 'rate cut', 'recession', 'gdp', 'jobs'];\nconst items = $input.all();\n\nconst filteredItems = items.filter(item => {\n  const title = (item.json.title || '').toLowerCase();\n  const description = (item.json.description || '').toLowerCase();\n  return keywords.some(keyword => title.includes(keyword) || description.includes(keyword));\n});\n\n// Limit to top 10 items to save memory\nreturn filteredItems.slice(0, 10);"
+      },
+      "id": "filter-articles",
+      "name": "Filter Articles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 150]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a financial analyst. Analyze the following news headlines and provide:\n1. Overall market sentiment (Bullish, Bearish, or Neutral)\n2. Three key bullet points summarizing the most important market movers\n3. For each point, cite the source\n\nHeadlines:\n{{ $json.headlines }}\n\nProvide a concise, professional summary.",
+        "options": {}
+      },
+      "id": "ai-summarize",
+      "name": "Summarize with AI",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [880, 150],
+      "notes": "Configure with Groq or Gemini credentials"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fearAndGreed = $('Get Fear & Greed Index').first().json.fear_and_greed?.score || 'N/A';\nconst summary = $input.first().json.text || 'Unable to generate summary';\nconst date = new Date().toDateString();\n\nlet sentimentEmoji = '😐';\nconst summaryLower = summary.toLowerCase();\nif (summaryLower.includes('bullish')) sentimentEmoji = '🐂';\nif (summaryLower.includes('bearish')) sentimentEmoji = '🐻';\n\nconst message = `📈 **Market Pulse** - ${date}\n\n**Sentiment:** ${sentimentEmoji}\n**Fear & Greed Index:** ${fearAndGreed}\n\n${summary}\n\n---\n*Disclaimer: This is automated market sentiment analysis for informational purposes only. Not investment advice. Do your own research.*`;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "format-message",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 50]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, 50],
+      "notes": "Configure with your Telegram Bot credentials"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          { "node": "Get Fear & Greed Index", "type": "main", "index": 0 },
+          { "node": "Get Yahoo Finance News", "type": "main", "index": 0 },
+          { "node": "Get MarketWatch News", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Yahoo Finance News": {
+      "main": [
+        [{ "node": "Merge News", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get MarketWatch News": {
+      "main": [
+        [{ "node": "Merge News", "type": "main", "index": 1 }]
+      ]
+    },
+    "Merge News": {
+      "main": [
+        [{ "node": "Filter Articles", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter Articles": {
+      "main": [
+        [{ "node": "Summarize with AI", "type": "main", "index": 0 }]
+      ]
+    },
+    "Summarize with AI": {
+      "main": [
+        [{ "node": "Format Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Fear & Greed Index": {
+      "main": [
+        [{ "node": "Format Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format Message": {
+      "main": [
+        [{ "node": "Send to Telegram", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "marketpulse-v1"
+  },
+  "pinData": {},
+  "versionId": "1.0.0",
+  "triggerCount": 1
+}
