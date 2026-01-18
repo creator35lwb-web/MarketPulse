@@ -29,7 +29,7 @@
     },
     {
       "parameters": {
-        "url": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+        "url": "https://api.alternative.me/fng/?limit=1",
         "options": {
           "timeout": 30000,
           "retry": {

@@ -2,6 +2,23 @@
 
 All notable changes to MarketPulse are documented in this file.
 
+## [2.1.1] - 2026-01-18 (API Fix)
+
+### Fixed
+- **Fear & Greed API:** Switched from CNN endpoint (now blocked with 418 error) to Alternative.me API
+- **Old endpoint:** `https://production.dataviz.cnn.io/index/fearandgreed/graphdata` (deprecated)
+- **New endpoint:** `https://api.alternative.me/fng/?limit=1` (working)
+
+### Changed
+- Updated workflow to parse Alternative.me API response format
+- Fear & Greed Index now shows "Crypto" indicator (Alternative.me tracks crypto market sentiment)
+- Updated Bias Monitoring Log to use new API data structure
+
+### Note
+The Alternative.me Fear & Greed Index tracks crypto market sentiment, which often correlates with traditional market sentiment. For stock-specific sentiment, the workflow relies on RSS feed analysis and LLM sentiment scoring.
+
+---
+
 ## [2.1.0] - 2026-01-18 (Security Enhanced)
 
 ### Security Fixes (5 Vulnerabilities Resolved)
