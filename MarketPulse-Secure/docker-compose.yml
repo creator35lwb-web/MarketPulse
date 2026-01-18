@@ -47,7 +47,7 @@ services:
   # Security-hardened configuration
   # ============================================
   n8n:
-    image: n8nio/n8n:1.70.3  # PINNED VERSION - Do not use :latest
+    image: n8nio/n8n:2.3.6  # PINNED VERSION - Do not use :latest
     container_name: marketpulse-n8n
     restart: unless-stopped
     user: "1000:1000"

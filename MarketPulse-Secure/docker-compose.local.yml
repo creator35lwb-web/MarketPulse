@@ -1,0 +1,69 @@
+# MarketPulse Local Testing Configuration
+# Use: docker compose -f docker-compose.local.yml up -d
+
+services:
+  n8n:
+    image: n8nio/n8n:2.3.6
+    container_name: marketpulse-n8n-local
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Basic Configuration
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=${TIMEZONE:-UTC}
+
+      # Authentication
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD_FILE=/run/secrets/n8n_password
+
+      # Encryption
+      - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n_encryption_key
+
+      # Security Settings
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=true
+
+      # Execution Settings
+      - EXECUTIONS_MODE=regular
+      - EXECUTIONS_TIMEOUT=300
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+
+      # Logging
+      - N8N_LOG_LEVEL=info
+      - N8N_LOG_OUTPUT=console
+
+      # Memory Optimization
+      - NODE_OPTIONS=--max-old-space-size=512
+
+      # Disable Telemetry
+      - N8N_DIAGNOSTICS_ENABLED=false
+    secrets:
+      - n8n_password
+      - n8n_encryption_key
+    volumes:
+      - n8n-data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  default:
+    name: marketpulse-local
+
+volumes:
+  n8n-data:
+    driver: local
+
+secrets:
+  n8n_password:
+    file: ./secrets/n8n_password
+  n8n_encryption_key:
+    file: ./secrets/n8n_encryption_key
