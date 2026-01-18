@@ -1,0 +1,405 @@
+{
+  "name": "MarketPulse v2.1 - Enhanced Security",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 7AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// SANITIZED ERROR HANDLER\n// Vulnerability #3 Fix: Prevent information leakage\n// ============================================\n\nconst error = $input.first().json;\n\n// NEVER expose these in alerts\nconst REDACT_PATTERNS = [\n  /api[_-]?key/gi,\n  /token/gi,\n  /password/gi,\n  /secret/gi,\n  /credential/gi,\n  /bearer/gi,\n  /authorization/gi,\n  /\\b[A-Za-z0-9_-]{20,}\\b/g,  // Long tokens\n  /gsk_[A-Za-z0-9]+/g,         // Groq API keys\n  /AIza[A-Za-z0-9]+/g,         // Google API keys\n  /\\b\\d{9,}:[A-Za-z0-9_-]+\\b/g // Telegram tokens\n];\n\nfunction sanitizeMessage(text) {\n  if (typeof text !== 'string') return '[non-string value]';\n  \n  let sanitized = text;\n  \n  // Redact sensitive patterns\n  REDACT_PATTERNS.forEach(pattern => {\n    sanitized = sanitized.replace(pattern, '[REDACTED]');\n  });\n  \n  // Limit length to prevent data exfiltration\n  if (sanitized.length > 500) {\n    sanitized = sanitized.substring(0, 500) + '... [truncated]';\n  }\n  \n  return sanitized;\n}\n\n// Extract safe error info only\nconst safeError = {\n  errorCode: error.error?.code || 'UNKNOWN',\n  errorType: error.error?.name || 'Error',\n  // Sanitize the message\n  message: sanitizeMessage(error.error?.message || 'No message'),\n  // Only include node name, not full execution details\n  failedNode: error.execution?.lastNodeExecuted || 'Unknown',\n  // Timestamp only, no execution IDs\n  timestamp: new Date().toISOString(),\n  // Generic workflow identifier\n  workflow: 'MarketPulse'\n};\n\n// Generate sanitized alert message\nconst alertMessage = `⚠️ *MarketPulse Alert*\n\nType: ${safeError.errorType}\nCode: ${safeError.errorCode}\nNode: ${safeError.failedNode}\nTime: ${safeError.timestamp}\n\nDetails: ${safeError.message}\n\n_Check n8n dashboard for full details._`;\n\nreturn [{ json: { alertMessage, safeError } }];"
+      },
+      "id": "sanitize-error",
+      "name": "Sanitize Error (No Leakage)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 600]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMIN_CHAT_ID }}",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "admin-alert",
+      "name": "Send to Admin Channel (Separate)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [700, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000,
+            "retryOnTimeout": true
+          }
+        }
+      },
+      "id": "fear-greed-fetch",
+      "name": "Fetch Fear & Greed Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "feedUrls",
+              "value": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^GSPC&region=US&lang=en-US"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-feed-urls",
+      "name": "Set RSS Feed URLs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [480, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.feedUrls }}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000,
+            "retryOnTimeout": true
+          }
+        }
+      },
+      "id": "rss-fetch",
+      "name": "Fetch RSS Feeds",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "batch-processor",
+      "name": "Batch Processor (Memory Safe)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [920, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// ENHANCED INPUT VALIDATION & SANITIZATION\n// Vulnerability #4 Fix: Defense-in-depth validation\n// ============================================\n\nconst items = $input.all();\nconst validatedItems = [];\nconst MAX_ITEMS = 20;\nconst MAX_TEXT_LENGTH = 2000;\n\n// Validation rules\nconst VALIDATION_RULES = {\n  // Block potentially malicious patterns\n  BLOCKED_PATTERNS: [\n    /<script[^>]*>/gi,           // Script tags\n    /javascript:/gi,              // JS protocol\n    /on\\w+\\s*=/gi,               // Event handlers\n    /data:/gi,                    // Data URLs\n    /vbscript:/gi,               // VBScript\n    /expression\\s*\\(/gi,         // CSS expressions\n    /\\{\\{.*\\}\\}/g,               // Template injection\n    /\\$\\{.*\\}/g,                 // Template literals\n    /eval\\s*\\(/gi,               // Eval calls\n    /Function\\s*\\(/gi            // Function constructor\n  ],\n  \n  // Required field validation\n  REQUIRED_FIELDS: ['title'],\n  \n  // Field length limits\n  FIELD_LIMITS: {\n    title: 500,\n    description: 2000,\n    link: 500\n  }\n};\n\n// Sanitization function\nfunction sanitize(str, maxLength = MAX_TEXT_LENGTH) {\n  if (typeof str !== 'string') return '';\n  \n  let clean = str;\n  \n  // Remove HTML tags\n  clean = clean.replace(/<[^>]*>/g, '');\n  \n  // Check for blocked patterns\n  for (const pattern of VALIDATION_RULES.BLOCKED_PATTERNS) {\n    if (pattern.test(clean)) {\n      console.log(`Blocked pattern detected: ${pattern}`);\n      clean = clean.replace(pattern, '[BLOCKED]');\n    }\n  }\n  \n  // Encode special characters\n  clean = clean\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;')\n    .replace(/\"/g, '&quot;')\n    .replace(/'/g, '&#x27;');\n  \n  // Normalize whitespace\n  clean = clean.replace(/\\s+/g, ' ').trim();\n  \n  // Enforce length limit\n  if (clean.length > maxLength) {\n    clean = clean.substring(0, maxLength);\n  }\n  \n  return clean;\n}\n\n// URL validation\nfunction isValidUrl(url) {\n  if (typeof url !== 'string') return false;\n  \n  try {\n    const parsed = new URL(url);\n    // Only allow http and https\n    return ['http:', 'https:'].includes(parsed.protocol);\n  } catch {\n    return false;\n  }\n}\n\n// Date validation\nfunction isValidDate(dateStr) {\n  if (!dateStr) return false;\n  const date = new Date(dateStr);\n  return !isNaN(date.getTime());\n}\n\n// Process each item\nlet blockedCount = 0;\nlet validCount = 0;\n\nfor (const item of items) {\n  if (!item.json) {\n    blockedCount++;\n    continue;\n  }\n  \n  const data = item.json;\n  \n  // Check required fields\n  const hasRequired = VALIDATION_RULES.REQUIRED_FIELDS.every(\n    field => data[field] && typeof data[field] === 'string' && data[field].trim().length > 0\n  );\n  \n  if (!hasRequired) {\n    blockedCount++;\n    continue;\n  }\n  \n  // Validate URL if present\n  if (data.link && !isValidUrl(data.link)) {\n    blockedCount++;\n    continue;\n  }\n  \n  // Build validated item\n  const validated = {\n    title: sanitize(data.title, VALIDATION_RULES.FIELD_LIMITS.title),\n    description: sanitize(data.description || '', VALIDATION_RULES.FIELD_LIMITS.description),\n    link: data.link || '',\n    pubDate: isValidDate(data.pubDate) ? data.pubDate : new Date().toISOString(),\n    _validated: true,\n    _timestamp: new Date().toISOString()\n  };\n  \n  // Final check - ensure title is not empty after sanitization\n  if (validated.title.length > 0) {\n    validatedItems.push({ json: validated });\n    validCount++;\n  } else {\n    blockedCount++;\n  }\n  \n  // Enforce max items limit\n  if (validatedItems.length >= MAX_ITEMS) break;\n}\n\nconsole.log(`Validation complete: ${validCount} valid, ${blockedCount} blocked`);\n\n// Return validated items or empty set with metadata\nif (validatedItems.length === 0) {\n  return [{ json: { \n    _noData: true, \n    _message: 'No valid items after validation',\n    _blockedCount: blockedCount\n  }}];\n}\n\nreturn validatedItems;"
+      },
+      "id": "input-validator",
+      "name": "Enhanced Input Validation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json._noData }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-valid-data",
+      "name": "Has Valid Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1360, 400]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a financial sentiment analyst. Analyze the following news headlines and provide a brief market sentiment summary. Rate the overall sentiment as Bullish, Bearish, or Neutral. Keep your response under 200 words. Do not include any financial advice or specific investment recommendations."
+            },
+            {
+              "role": "user",
+              "content": "={{ JSON.stringify($json) }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.3
+        }
+      },
+      "id": "llm-analysis",
+      "name": "LLM Sentiment Analysis",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [1580, 300],
+      "credentials": {
+        "groqApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Groq API"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// MESSAGE COMPOSER WITH DISCLAIMERS\n// Step 1: Add AI limitations disclaimer\n// ============================================\n\nconst fearGreed = $('Fetch Fear & Greed Index').first().json;\nconst sentiment = $('LLM Sentiment Analysis').first()?.json;\nconst now = new Date();\n\n// Handle potential failures gracefully\nlet fgScore = 'N/A';\nlet fgRating = 'Data unavailable';\n\nif (fearGreed && fearGreed.fear_and_greed) {\n  fgScore = Math.round(fearGreed.fear_and_greed.score);\n  fgRating = fearGreed.fear_and_greed.rating;\n}\n\nlet analysisText = 'Analysis unavailable - data source temporarily offline.';\nif (sentiment && sentiment.message && sentiment.message.content) {\n  analysisText = sentiment.message.content;\n}\n\n// DISCLAIMER - Required for financial content\nconst DISCLAIMER = `\n⚠️ *IMPORTANT DISCLAIMER*\n_This analysis is generated by AI and is for informational purposes only. It does NOT constitute financial advice, investment recommendations, or an offer to buy/sell securities. AI models may contain biases and inaccuracies. Always consult a qualified financial advisor before making investment decisions. Past performance does not guarantee future results._`;\n\nconst message = `📊 *MarketPulse Daily Digest*\n📅 ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n🎯 *Fear & Greed Index*\nScore: ${fgScore}/100\nRating: ${fgRating}\n\n📈 *AI Sentiment Analysis*\n${analysisText}\n${DISCLAIMER}\n\n---\n_MarketPulse v2.1 | Secure Edition_`;\n\nreturn [{ json: { message, timestamp: now.toISOString() } }];"
+      },
+      "id": "compose-message",
+      "name": "Compose Message with Disclaimer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to User Channel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2020, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log successful execution for bias monitoring\nconst sentiment = $('LLM Sentiment Analysis').first()?.json;\nconst fearGreed = $('Fetch Fear & Greed Index').first()?.json;\n\nconst biasLog = {\n  timestamp: new Date().toISOString(),\n  fearGreedScore: fearGreed?.fear_and_greed?.score || null,\n  fearGreedRating: fearGreed?.fear_and_greed?.rating || null,\n  sentimentRaw: sentiment?.message?.content || null,\n  // Extract sentiment direction for tracking\n  sentimentDirection: (() => {\n    const text = sentiment?.message?.content?.toLowerCase() || '';\n    if (text.includes('bullish')) return 'BULLISH';\n    if (text.includes('bearish')) return 'BEARISH';\n    return 'NEUTRAL';\n  })(),\n  articlesProcessed: $('Enhanced Input Validation').all().length\n};\n\n// This would be sent to a monitoring system in production\nconsole.log('BIAS_MONITOR:', JSON.stringify(biasLog));\n\nreturn [{ json: biasLog }];"
+      },
+      "id": "bias-monitor",
+      "name": "Bias Monitoring Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle case where no valid data was found\nreturn [{ json: { \n  message: '📊 MarketPulse: Unable to generate report today due to data validation issues. Will retry tomorrow.',\n  isError: true\n}}];"
+      },
+      "id": "no-data-handler",
+      "name": "No Valid Data Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 500]
+    }
+  ],
+  "connections": {
+    "Daily 7AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Fear & Greed Index",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set RSS Feed URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error (No Leakage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error (No Leakage)": {
+      "main": [
+        [
+          {
+            "node": "Send to Admin Channel (Separate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set RSS Feed URLs": {
+      "main": [
+        [
+          {
+            "node": "Fetch RSS Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RSS Feeds": {
+      "main": [
+        [
+          {
+            "node": "Batch Processor (Memory Safe)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Processor (Memory Safe)": {
+      "main": [
+        [
+          {
+            "node": "Enhanced Input Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced Input Validation": {
+      "main": [
+        [
+          {
+            "node": "Has Valid Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Valid Data?": {
+      "main": [
+        [
+          {
+            "node": "No Valid Data Handler",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Fear & Greed Index": {
+      "main": [
+        [
+          {
+            "node": "Compose Message with Disclaimer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Compose Message with Disclaimer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Message with Disclaimer": {
+      "main": [
+        [
+          {
+            "node": "Send to User Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to User Channel": {
+      "main": [
+        [
+          {
+            "node": "Bias Monitoring Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "timeout": 300,
+    "timezone": "UTC"
+  },
+  "tags": [
+    {"name": "MarketPulse"},
+    {"name": "v2.1"},
+    {"name": "Secure"},
+    {"name": "Financial"}
+  ],
+  "meta": {
+    "templateId": "marketpulse-secure-v2.1",
+    "securityLevel": "enhanced",
+    "disclaimerIncluded": true,
+    "biasMonitoring": true
+  }
+}

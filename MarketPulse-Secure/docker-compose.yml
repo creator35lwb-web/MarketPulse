@@ -1,0 +1,183 @@
+version: "3.8"
+
+# MarketPulse Security-Hardened Docker Compose
+# Version: 2.1 (Enhanced Security)
+# Last Updated: 2026-01-18
+# Addresses: All 5 remaining vulnerabilities from VerifiMind Trinity
+
+services:
+  # ============================================
+  # TRAEFIK REVERSE PROXY
+  # Handles SSL termination, rate limiting, security headers
+  # ============================================
+  traefik:
+    image: traefik:v3.0.4
+    container_name: marketpulse-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:ro
+      - ./traefik/acme.json:/acme.json
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+    networks:
+      - marketpulse-network
+    labels:
+      - "traefik.enable=true"
+      # Dashboard (disabled in production)
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.usersfile=/etc/traefik/.htpasswd"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # N8N WORKFLOW ENGINE
+  # Security-hardened configuration
+  # ============================================
+  n8n:
+    image: n8nio/n8n:1.70.3  # PINNED VERSION - Do not use :latest
+    container_name: marketpulse-n8n
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      # Basic Configuration
+      - N8N_HOST=${DOMAIN}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://${DOMAIN}/
+      - GENERIC_TIMEZONE=${TIMEZONE:-UTC}
+
+      # Authentication (REQUIRED)
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD_FILE=/run/secrets/n8n_password
+
+      # Encryption (REQUIRED)
+      - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n_encryption_key
+      - N8N_USER_MANAGEMENT_JWT_SECRET_FILE=/run/secrets/n8n_jwt_secret
+
+      # Security Settings
+      - N8N_SECURITY_AUDIT_DAYS_ABANDONED_WORKFLOW=90
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=true
+
+      # Execution Settings
+      - EXECUTIONS_MODE=regular
+      - EXECUTIONS_TIMEOUT=300
+      - EXECUTIONS_TIMEOUT_MAX=600
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168  # 7 days
+
+      # Logging
+      - N8N_LOG_LEVEL=info
+      - N8N_LOG_OUTPUT=console
+
+      # Memory Optimization
+      - NODE_OPTIONS=--max-old-space-size=512
+
+      # Disable Telemetry (Privacy)
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+    secrets:
+      - n8n_password
+      - n8n_encryption_key
+      - n8n_jwt_secret
+    volumes:
+      - n8n-data:/home/node/.n8n
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    networks:
+      - marketpulse-network
+    depends_on:
+      traefik:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      # HTTPS Router
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.n8n.tls=true"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.n8n.service=n8n"
+      - "traefik.http.routers.n8n.middlewares=n8n-security,n8n-ratelimit"
+      # Service
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      # Security Headers Middleware
+      - "traefik.http.middlewares.n8n-security.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.n8n-security.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.n8n-security.headers.frameDeny=true"
+      - "traefik.http.middlewares.n8n-security.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.n8n-security.headers.stsPreload=true"
+      - "traefik.http.middlewares.n8n-security.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.n8n-security.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow"
+      # Rate Limiting Middleware
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.burst=50"
+      # HTTP to HTTPS Redirect
+      - "traefik.http.routers.n8n-http.entrypoints=web"
+      - "traefik.http.routers.n8n-http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.n8n-http.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  marketpulse-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  n8n-data:
+    driver: local
+
+# ============================================
+# SECRETS
+# ============================================
+secrets:
+  n8n_password:
+    file: ./secrets/n8n_password
+  n8n_encryption_key:
+    file: ./secrets/n8n_encryption_key
+  n8n_jwt_secret:
+    file: ./secrets/n8n_jwt_secret

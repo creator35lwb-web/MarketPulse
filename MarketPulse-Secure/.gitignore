@@ -1,0 +1,92 @@
+# =============================================
+# MarketPulse Security-Hardened .gitignore
+# CRITICAL: Never commit sensitive data
+# =============================================
+
+# ===================
+# SECRETS (CRITICAL)
+# ===================
+secrets/
+*.env
+.env
+.env.*
+!.env.example
+
+# ===================
+# n8n Data
+# ===================
+n8n-data/
+*.sqlite
+*.sqlite-journal
+
+# ===================
+# Credentials & Keys
+# ===================
+**/credentials.json
+**/credentials*.json
+**/*-credentials.json
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ===================
+# SSL/TLS Certificates
+# ===================
+certs/
+traefik/acme.json
+
+# ===================
+# Backup Files
+# ===================
+backups/
+*.tar.gz
+*.tar
+*.zip
+*.bak
+*.backup
+
+# ===================
+# Logs
+# ===================
+logs/
+*.log
+
+# ===================
+# OS Generated
+# ===================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===================
+# IDE & Editors
+# ===================
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings/
+
+# ===================
+# Docker
+# ===================
+docker-compose.override.yml
+
+# ===================
+# Temporary Files
+# ===================
+tmp/
+temp/
+*.tmp
+*.temp

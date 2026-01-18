@@ -1,0 +1,56 @@
+# Traefik Dynamic Configuration - Security Middlewares
+# MarketPulse Security-Hardened Setup
+
+http:
+  middlewares:
+    # Security Headers
+    security-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customResponseHeaders:
+          X-Content-Type-Options: "nosniff"
+          X-Frame-Options: "DENY"
+          X-XSS-Protection: "1; mode=block"
+          Referrer-Policy: "strict-origin-when-cross-origin"
+          Permissions-Policy: "geolocation=(), microphone=(), camera=()"
+          X-Robots-Tag: "noindex, nofollow"
+
+    # Rate Limiting - Standard
+    rate-limit-standard:
+      rateLimit:
+        average: 100
+        period: 1m
+        burst: 50
+
+    # Rate Limiting - Strict (for auth endpoints)
+    rate-limit-strict:
+      rateLimit:
+        average: 10
+        period: 1m
+        burst: 5
+
+    # IP Allowlist (optional - uncomment and configure)
+    # ip-allowlist:
+    #   ipAllowList:
+    #     sourceRange:
+    #       - "YOUR_IP/32"
+    #       - "10.0.0.0/8"
+    #       - "172.16.0.0/12"
+    #       - "192.168.0.0/16"
+
+    # Compress responses
+    compress:
+      compress: {}
+
+    # Chain of security middlewares
+    secure-chain:
+      chain:
+        middlewares:
+          - security-headers
+          - rate-limit-standard
+          - compress

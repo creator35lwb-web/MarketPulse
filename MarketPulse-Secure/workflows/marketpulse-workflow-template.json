@@ -1,0 +1,322 @@
+{
+  "name": "MarketPulse - Daily Sentiment Analysis (Secure)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 7AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 520]
+    },
+    {
+      "parameters": {
+        "url": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000,
+            "retryOnTimeout": true
+          }
+        }
+      },
+      "id": "fear-greed-fetch",
+      "name": "Fetch Fear & Greed Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.feedUrl }}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000,
+            "retryOnTimeout": true
+          }
+        }
+      },
+      "id": "rss-fetch",
+      "name": "Fetch RSS Feeds",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "batch-processor",
+      "name": "Batch Processor",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input validation and sanitization\nconst items = $input.all();\nconst validatedItems = [];\n\nfor (const item of items) {\n  // Validate required fields exist\n  if (!item.json) continue;\n  \n  // Sanitize text content (remove potential XSS)\n  const sanitize = (str) => {\n    if (typeof str !== 'string') return '';\n    return str\n      .replace(/<[^>]*>/g, '') // Remove HTML tags\n      .replace(/[<>\"'&]/g, '') // Remove special chars\n      .substring(0, 5000); // Limit length\n  };\n  \n  validatedItems.push({\n    json: {\n      title: sanitize(item.json.title || ''),\n      description: sanitize(item.json.description || ''),\n      link: item.json.link || '',\n      pubDate: item.json.pubDate || new Date().toISOString()\n    }\n  });\n}\n\n// Limit to most recent 20 articles\nreturn validatedItems.slice(0, 20);"
+      },
+      "id": "input-validator",
+      "name": "Validate & Sanitize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 400]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a financial sentiment analyst. Analyze the following news headlines and provide a brief market sentiment summary. Rate the overall sentiment as Bullish, Bearish, or Neutral. Keep your response under 200 words."
+            },
+            {
+              "role": "user",
+              "content": "={{ JSON.stringify($json) }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.3
+        }
+      },
+      "id": "llm-analysis",
+      "name": "LLM Sentiment Analysis",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [1140, 400],
+      "credentials": {
+        "groqApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Groq API"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compose the final Telegram message\nconst fearGreed = $('Fetch Fear & Greed Index').first().json;\nconst sentiment = $('LLM Sentiment Analysis').first().json;\nconst now = new Date();\n\n// Handle potential failures gracefully\nlet fgScore = 'N/A';\nlet fgRating = 'Data unavailable';\n\nif (fearGreed && fearGreed.fear_and_greed) {\n  fgScore = Math.round(fearGreed.fear_and_greed.score);\n  fgRating = fearGreed.fear_and_greed.rating;\n}\n\nlet analysisText = 'Analysis unavailable - please check API credentials.';\nif (sentiment && sentiment.message && sentiment.message.content) {\n  analysisText = sentiment.message.content;\n}\n\nconst message = `📊 *MarketPulse Daily Digest*\n📅 ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n🎯 *Fear & Greed Index*\nScore: ${fgScore}/100\nRating: ${fgRating}\n\n📈 *Market Sentiment Analysis*\n${analysisText}\n\n---\n_Generated by MarketPulse v2.0 (Secure)_`;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "compose-message",
+      "name": "Compose Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1580, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "⚠️ *MarketPulse Error Alert*\n\nWorkflow execution failed.\n\nError: {{ $json.error.message }}\nNode: {{ $json.execution.lastNodeExecuted }}\nTime: {{ new Date().toISOString() }}\n\nPlease check the n8n dashboard for details.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "error-notification",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [480, 520],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "feedUrl",
+              "value": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^GSPC&region=US&lang=en-US"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-feed-urls",
+      "name": "Set RSS Feed URLs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [240, 400]
+    }
+  ],
+  "connections": {
+    "Daily 7AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Fear & Greed Index",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set RSS Feed URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set RSS Feed URLs": {
+      "main": [
+        [
+          {
+            "node": "Fetch RSS Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RSS Feeds": {
+      "main": [
+        [
+          {
+            "node": "Batch Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Processor": {
+      "main": [
+        [
+          {
+            "node": "Validate & Sanitize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Sanitize Input": {
+      "main": [
+        [
+          {
+            "node": "LLM Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Fear & Greed Index": {
+      "main": [
+        [
+          {
+            "node": "Compose Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Compose Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "timeout": 300,
+    "timezone": "UTC"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "MarketPulse"
+    },
+    {
+      "name": "Production"
+    },
+    {
+      "name": "Secure"
+    }
+  ],
+  "meta": {
+    "templateId": "marketpulse-secure-v2",
+    "instanceId": "CONFIGURE_ON_IMPORT"
+  }
+}

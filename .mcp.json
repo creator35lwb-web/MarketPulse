@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "verifimind": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://server.smithery.ai/creator35lwb-web/verifimind-genesis/mcp"
+      ],
+      "env": {}
+    }
+  }
+}

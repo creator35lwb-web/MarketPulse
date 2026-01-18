@@ -1,0 +1,55 @@
+# =============================================
+# MarketPulse Root .gitignore
+# =============================================
+
+# Secrets and credentials
+secrets/
+*.env
+.env
+.env.*
+!.env.example
+
+# n8n data
+n8n-data/
+*.sqlite
+*.sqlite-journal
+
+# SSL certificates
+certs/
+traefik/acme.json
+*.pem
+*.key
+*.crt
+
+# Backups
+backups/
+*.tar.gz
+*.tar.gz.enc
+*.bak
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp files
+tmp/
+temp/
+*.tmp
+nul
+
+# Claude Code local config (optional - keep if you want to share settings)
+# .claude/
+
+# Security scan reports (may contain sensitive info)
+security/reports/
