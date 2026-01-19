@@ -1,70 +1,97 @@
-# MarketPulse v4.0 Specification
+# MarketPulse v4.0 - Comprehensive Specification
 
 **Version:** 4.0
 **Date:** January 19, 2026
 
 ## 1. Goal
 
-To enhance the MarketPulse v3.0 workflow to create a powerful daily briefing for value investors, incorporating the **CNN Stock Market Fear & Greed Index** and a new **"Key Takeaway"** section to guide Perplexity research.
+To create a comprehensive daily briefing for value investors by integrating all validated data sources from the Valu-Analyst framework into MarketPulse. This includes economic indicators, stock market sentiment, and watchlist company fundamentals.
 
 ## 2. Validated Data Sources
 
-| Data Source | API Endpoint | Status |
-| :--- | :--- | :--- |
-| **CNN Fear & Greed (Stock Market)** | `https://production.dataviz.cnn.io/index/fearandgreed/graphdata` | ✅ Validated |
-| **MarketWatch RSS** | `http://www.marketwatch.com/rss/topstories` | ✅ Validated |
-| **Groq LLM** | Groq API | ✅ Validated |
-| **Telegram** | Telegram Bot API | ✅ Validated |
+| Data Source | API | Status | Notes |
+| :--- | :--- | :--- | :--- |
+| **CNN Fear & Greed** | CNN DataViz API | ⚠️ 418 Error | Use browser-like headers or fallback to feargreedmeter.com |
+| **GDP Data** | World Bank API | ✅ Validated | `https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD` |
+| **CPI/Inflation** | World Bank API | ✅ Validated | `https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL.ZG` |
+| **Unemployment** | World Bank API | ✅ Validated | `https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS` |
+| **MarketWatch RSS** | RSS Feed | ✅ Validated | `http://www.marketwatch.com/rss/topstories` |
+| **Stock Fundamentals** | Yahoo Finance | ✅ Validated | `https://query1.finance.yahoo.com/ws/insights/v2/finance/insights` |
+| **Stock Prices** | Yahoo Finance | ✅ Validated | `https://query1.finance.yahoo.com/v8/finance/chart/` |
 
 ## 3. MarketPulse v4.0 Workflow Architecture
 
-The architecture will be a streamlined version of v3.0, with the Fear & Greed data source swapped and a new LLM prompt for the Key Takeaway.
+The workflow will be a multi-stage process to gather all data points before composing the final message.
 
 ```mermaid
 graph TD
     A[Daily 7AM Trigger] --> B(Fetch CNN Fear & Greed);
-    A --> C(Fetch MarketWatch RSS);
+    A --> C(Fetch World Bank GDP);
+    A --> D(Fetch World Bank CPI);
+    A --> E(Fetch World Bank Unemployment);
+    A --> F(Fetch MarketWatch RSS);
+    A --> G(Fetch Watchlist Stocks);
 
-    C --> D(Parse RSS Data);
-    D --> E(Enhanced Input Validation);
-    E --> F{Has Valid Data?};
+    subgraph Watchlist Processing
+        G --> H{For each stock...};
+        H --> I(Fetch Price);
+        H --> J(Fetch Fundamentals);
+    end
 
-    F -- True --> G(Basic LLM Chain: Sentiment & Key Takeaway);
-    B --> H(Merge All Data);
-    G --> H;
+    F --> K(Parse RSS Data);
+    K --> L(Enhanced Input Validation);
+    L --> M{Has Valid Data?};
 
-    H --> I(Compose Telegram Message);
-    I --> J(Send to Telegram Channel);
+    M -- True --> N(Basic LLM Chain: Sentiment & Key Takeaway);
+    
+    B --> O(Merge All Data);
+    C --> O;
+    D --> O;
+    E --> O;
+    N --> O;
+    J --> O;
+
+    O --> P(Compose Telegram Message);
+    P --> Q(Send to Telegram Channel);
 
     subgraph Error Handling
-        K(Error Trigger) --> L(Sanitize Error);
-        L --> M(Send to Admin Channel);
+        R(Error Trigger) --> S(Sanitize Error);
+        S --> T(Send to Admin Channel);
     end
 ```
 
 ## 4. Key Enhancements in v4.0
 
-### 4.1. CNN Fear & Greed Index Integration
+### 4.1. Comprehensive Data Integration
 
--   The "Fetch Fear & Greed" node will be updated to call the CNN API endpoint.
--   The output will be parsed to extract the `score` and `rating`.
+-   The workflow will fetch data from all validated sources in parallel.
+-   A **Merge** node will be used to combine all data points before the final message composition.
 
-### 4.2. "Key Takeaway" Feature
+### 4.2. Watchlist Company Analysis
 
--   The **Basic LLM Chain** node will be updated with a new prompt to generate a "Key Takeaway" section.
--   This section will identify the single most important news headline or theme for the day, providing a clear focus for Perplexity deep dives.
+-   The workflow will iterate through the watchlist companies (BABA, GOOGL, SOFI, S, ONON, ASML).
+-   For each company, it will fetch the latest price and fundamental data (valuation, sector).
 
 ### 4.3. Updated LLM Prompt (for Basic LLM Chain)
 
 ```
 Analyze the sentiment of the following financial news headlines and provide a brief market sentiment summary. Also, identify the single most important "Key Takeaway" for a value investor to research further.
 
-Fear & Greed Index: {{ $json.fearGreedValue }} ({{ $json.fearGreedClassification }})
+**Economic Indicators:**
+- GDP: {{ $json.gdpValue }}
+- CPI/Inflation: {{ $json.cpiValue }}
+- Unemployment: {{ $json.unemploymentValue }}
 
-News Headlines:
+**Market Sentiment:**
+- Fear & Greed Index: {{ $json.fearGreedValue }} ({{ $json.fearGreedClassification }})
+
+**News Headlines:**
 {{ $json.headlines }}
 
-Provide:
+**Watchlist Summary:**
+{{ $json.watchlistSummary }}
+
+**Provide:**
 1. Overall market sentiment (Bullish/Bearish/Neutral)
 2. Key themes identified
 3. Brief 2-3 sentence summary
@@ -77,10 +104,11 @@ Keep the response concise and actionable.
 ## 5. Implementation Plan for Claude Code
 
 1.  **Clone** the MarketPulse repository from GitHub.
-2.  **Create** a new workflow file: `MarketPulse-Secure/workflows/marketpulse-workflow-v4.0.json`
-3.  **Update** the "Fetch Fear & Greed" node to use the CNN API endpoint.
-4.  **Update** the "Basic LLM Chain" node with the new prompt for the "Key Takeaway" feature.
-5.  **Ensure** all node connections are correct as per the architecture diagram.
-6.  **Commit** the new workflow with the message: "Add MarketPulse v4.0 workflow with CNN Fear & Greed and Key Takeaway feature"
+2.  **Create** a new workflow file: `MarketPulse-Secure/workflows/marketpulse-workflow-v4.0-complete.json`
+3.  **Implement** the multi-stage workflow as per the architecture diagram.
+4.  **Add** nodes to fetch data from all validated APIs.
+5.  **Use** a Loop node to process the watchlist companies.
+6.  **Update** the Basic LLM Chain with the comprehensive prompt.
+7.  **Commit** the new workflow with the message: "Add MarketPulse v4.0 - Complete Valu-Analyst integration"
 
-This specification provides a clear roadmap for Claude Code to implement the requested enhancements, creating a more powerful and actionable MarketPulse daily briefing.
+This specification provides a complete roadmap for Claude Code to build the most comprehensive version of MarketPulse yet.
