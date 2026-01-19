@@ -1,0 +1,578 @@
+{
+  "name": "MarketPulse v4.1 - All Issues Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 7AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 1000]
+    },
+    {
+      "parameters": {
+        "url": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.cnn.com/markets/fear-and-greed"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-fear-greed",
+      "name": "Fetch CNN Fear & Greed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?format=json&per_page=1",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-gdp",
+      "name": "Fetch World Bank GDP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 220],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL.ZG?format=json&per_page=1",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-cpi",
+      "name": "Fetch World Bank CPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 340],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS?format=json&per_page=1",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-unemployment",
+      "name": "Fetch World Bank Unemployment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 460],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.marketwatch.com/rss/topstories",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-rss",
+      "name": "Fetch MarketWatch RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 580],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PROCESS ALL DATA IN ONE NODE\n// Fixes: Proper parsing of all API responses\n// ============================================\n\nconst fearGreedInput = $('Fetch CNN Fear & Greed').first().json || {};\nconst gdpInput = $('Fetch World Bank GDP').first().json || [];\nconst cpiInput = $('Fetch World Bank CPI').first().json || [];\nconst unemploymentInput = $('Fetch World Bank Unemployment').first().json || [];\nconst rssInput = $('Fetch MarketWatch RSS').first().json || {};\n\nconst result = {\n  fearGreedValue: 'N/A',\n  fearGreedClassification: 'Data unavailable',\n  fearGreedChange1d: 'N/A',\n  fearGreedChange1w: 'N/A',\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  headlines: 'No headlines available',\n  watchlistSummary: 'N/A'\n};\n\n// Process Fear & Greed\ntry {\n  if (fearGreedInput.fear_and_greed) {\n    const fg = fearGreedInput.fear_and_greed;\n    result.fearGreedValue = Math.round(fg.score) || 'N/A';\n    result.fearGreedClassification = fg.rating || 'Unknown';\n    if (fg.previous_close) {\n      const d = Math.round(fg.score - fg.previous_close);\n      result.fearGreedChange1d = d >= 0 ? '+' + d : String(d);\n    }\n    if (fg.previous_1_week) {\n      const w = Math.round(fg.score - fg.previous_1_week);\n      result.fearGreedChange1w = w >= 0 ? '+' + w : String(w);\n    }\n  }\n} catch (e) { console.log('FG error:', e.message); }\n\n// Process GDP - World Bank returns [metadata, [data]]\ntry {\n  const gdpArr = Array.isArray(gdpInput) ? gdpInput : [];\n  if (gdpArr[1] && gdpArr[1][0]) {\n    const d = gdpArr[1][0];\n    if (d.value) result.gdpValue = '$' + (d.value / 1e12).toFixed(2) + 'T';\n    if (d.date) result.gdpYear = d.date;\n  }\n} catch (e) { console.log('GDP error:', e.message); }\n\n// Process CPI\ntry {\n  const cpiArr = Array.isArray(cpiInput) ? cpiInput : [];\n  if (cpiArr[1] && cpiArr[1][0]) {\n    const d = cpiArr[1][0];\n    if (d.value != null) result.cpiValue = d.value.toFixed(2) + '%';\n    if (d.date) result.cpiYear = d.date;\n  }\n} catch (e) { console.log('CPI error:', e.message); }\n\n// Process Unemployment\ntry {\n  const unempArr = Array.isArray(unemploymentInput) ? unemploymentInput : [];\n  if (unempArr[1] && unempArr[1][0]) {\n    const d = unempArr[1][0];\n    if (d.value != null) result.unemploymentValue = d.value.toFixed(2) + '%';\n    if (d.date) result.unemploymentYear = d.date;\n  }\n} catch (e) { console.log('Unemployment error:', e.message); }\n\n// Process RSS Headlines\ntry {\n  let items = [];\n  if (rssInput.rss && rssInput.rss.channel && rssInput.rss.channel.item) {\n    items = Array.isArray(rssInput.rss.channel.item) \n      ? rssInput.rss.channel.item \n      : [rssInput.rss.channel.item];\n  }\n  if (items.length > 0) {\n    const titles = items.slice(0, 10).map((it, i) => \n      (i + 1) + '. ' + (it.title || '').replace(/<[^>]*>/g, '').trim()\n    ).filter(t => t.length > 3);\n    if (titles.length > 0) result.headlines = titles.join('\\n');\n  }\n} catch (e) { console.log('RSS error:', e.message); }\n\nreturn [{ json: result }];"
+      },
+      "id": "process-all-data",
+      "name": "Process All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 340]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "GOOGL,BABA,ADBE,SOFI,ASML",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-watchlist",
+      "name": "Set Dynamic Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// SPLIT WATCHLIST INTO ITEMS\n// Fixed: Properly splits comma-separated string\n// ============================================\n\nconst watchlistStr = $input.first().json.watchlist || '';\nconst symbols = watchlistStr.split(',').map(s => s.trim()).filter(s => s.length > 0);\n\nreturn symbols.map(symbol => ({ json: { symbol } }));"
+      },
+      "id": "split-watchlist",
+      "name": "Split Watchlist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 700]
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/{{ $json.symbol }}?interval=1d&range=1d",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "fetch-stock-price",
+      "name": "Fetch Stock Prices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 700],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PROCESS STOCK PRICES\n// Extract prices from Yahoo Finance responses\n// ============================================\n\nconst items = $input.all();\nconst stocks = [];\n\nfor (const item of items) {\n  const json = item.json || {};\n  try {\n    if (json.chart && json.chart.result && json.chart.result[0]) {\n      const meta = json.chart.result[0].meta || {};\n      stocks.push({\n        symbol: meta.symbol || 'N/A',\n        price: meta.regularMarketPrice ? meta.regularMarketPrice.toFixed(2) : 'N/A',\n        change: meta.regularMarketChangePercent ? meta.regularMarketChangePercent.toFixed(2) + '%' : 'N/A'\n      });\n    }\n  } catch (e) {\n    console.log('Stock parse error:', e.message);\n  }\n}\n\nconst summary = stocks.length > 0\n  ? stocks.map(s => '• ' + s.symbol + ': $' + s.price + ' (' + s.change + ')').join('\\n')\n  : 'Stock data unavailable';\n\nreturn [{ json: { watchlistSummary: summary, stockCount: stocks.length } }];"
+      },
+      "id": "process-stocks",
+      "name": "Process Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 700]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-all",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 340]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMBINE DATA FOR LLM\n// Merges market data with stock data\n// ============================================\n\nconst items = $input.all();\nconst combined = {\n  fearGreedValue: 'N/A',\n  fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A',\n  fearGreedChange1w: 'N/A',\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  headlines: 'No headlines',\n  watchlistSummary: 'N/A'\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  if (j.fearGreedValue && j.fearGreedValue !== 'N/A') combined.fearGreedValue = j.fearGreedValue;\n  if (j.fearGreedClassification && j.fearGreedClassification !== 'Data unavailable') combined.fearGreedClassification = j.fearGreedClassification;\n  if (j.fearGreedChange1d && j.fearGreedChange1d !== 'N/A') combined.fearGreedChange1d = j.fearGreedChange1d;\n  if (j.fearGreedChange1w && j.fearGreedChange1w !== 'N/A') combined.fearGreedChange1w = j.fearGreedChange1w;\n  if (j.gdpValue && j.gdpValue !== 'N/A') combined.gdpValue = j.gdpValue;\n  if (j.gdpYear && j.gdpYear !== 'N/A') combined.gdpYear = j.gdpYear;\n  if (j.cpiValue && j.cpiValue !== 'N/A') combined.cpiValue = j.cpiValue;\n  if (j.cpiYear && j.cpiYear !== 'N/A') combined.cpiYear = j.cpiYear;\n  if (j.unemploymentValue && j.unemploymentValue !== 'N/A') combined.unemploymentValue = j.unemploymentValue;\n  if (j.unemploymentYear && j.unemploymentYear !== 'N/A') combined.unemploymentYear = j.unemploymentYear;\n  if (j.headlines && j.headlines !== 'No headlines available' && j.headlines !== 'No headlines') combined.headlines = j.headlines;\n  if (j.watchlistSummary && j.watchlistSummary !== 'N/A' && j.watchlistSummary !== 'Stock data unavailable') combined.watchlistSummary = j.watchlistSummary;\n}\n\nreturn [{ json: combined }];"
+      },
+      "id": "combine-data",
+      "name": "Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1380, 520]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the market data and provide sentiment analysis.\n\nEconomic Indicators (USA):\n- GDP ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n\nMarket Sentiment:\n- Fear and Greed Index: {{ $json.fearGreedValue }} ({{ $json.fearGreedClassification }})\n\nNews Headlines:\n{{ $json.headlines }}\n\nWatchlist:\n{{ $json.watchlistSummary }}\n\nProvide:\n1. Overall sentiment (Bullish/Bearish/Neutral)\n2. Key themes (2-3 bullet points)\n3. Brief summary (2-3 sentences)\n4. Confidence level (High/Medium/Low)\n5. KEY TAKEAWAY: Single most important insight for investors\n\nKeep response concise."
+      },
+      "id": "llm-chain",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1600, 520]
+    },
+    {
+      "parameters": {
+        "model": "gemini-1.5-flash",
+        "options": {}
+      },
+      "id": "gemini-model",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1620, 740],
+      "credentials": {
+        "googleGeminiApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Gemini account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-llm",
+      "name": "Merge LLM Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1820, 520]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMPOSE TELEGRAM MESSAGE\n// Fixed: Use HTML parse mode to avoid Markdown issues\n// ============================================\n\nconst items = $input.all();\nconst now = new Date();\n\nlet d = {\n  fearGreedValue: 'N/A',\n  fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A',\n  fearGreedChange1w: 'N/A',\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  watchlistSummary: 'N/A',\n  llmAnalysis: 'Analysis unavailable'\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  if (j.fearGreedValue && j.fearGreedValue !== 'N/A') d.fearGreedValue = j.fearGreedValue;\n  if (j.fearGreedClassification) d.fearGreedClassification = j.fearGreedClassification;\n  if (j.fearGreedChange1d) d.fearGreedChange1d = j.fearGreedChange1d;\n  if (j.fearGreedChange1w) d.fearGreedChange1w = j.fearGreedChange1w;\n  if (j.gdpValue && j.gdpValue !== 'N/A') d.gdpValue = j.gdpValue;\n  if (j.gdpYear) d.gdpYear = j.gdpYear;\n  if (j.cpiValue && j.cpiValue !== 'N/A') d.cpiValue = j.cpiValue;\n  if (j.cpiYear) d.cpiYear = j.cpiYear;\n  if (j.unemploymentValue && j.unemploymentValue !== 'N/A') d.unemploymentValue = j.unemploymentValue;\n  if (j.unemploymentYear) d.unemploymentYear = j.unemploymentYear;\n  if (j.watchlistSummary && j.watchlistSummary !== 'N/A') d.watchlistSummary = j.watchlistSummary;\n  if (j.text && j.text.length > 30) d.llmAnalysis = j.text;\n  if (j.response && j.response.length > 30) d.llmAnalysis = j.response;\n}\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric'\n});\n\n// Use HTML format to avoid Markdown parsing issues\nconst message = `📊 <b>MarketPulse Daily Digest</b>\n📅 ${dateStr}\n\n🎯 <b>CNN Fear &amp; Greed Index</b>\nScore: ${d.fearGreedValue}/100 | Rating: ${d.fearGreedClassification}\nChange: ${d.fearGreedChange1d} from yesterday | ${d.fearGreedChange1w} from last week\n\n📈 <b>Economic Indicators (USA)</b>\n• GDP (${d.gdpYear}): ${d.gdpValue}\n• Inflation (${d.cpiYear}): ${d.cpiValue}\n• Unemployment (${d.unemploymentYear}): ${d.unemploymentValue}\n\n📊 <b>Watchlist</b>\n${d.watchlistSummary}\n\n📈 <b>AI Sentiment Analysis</b>\n${d.llmAnalysis}\n\n⚠️ <i>DISCLAIMER: This is AI-generated analysis for informational purposes only. Not financial advice.</i>\n\n---\n<a href=\"https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=US\">[1] GDP Data</a>\n<a href=\"https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=US\">[2] Inflation Data</a>\n<a href=\"https://data.worldbank.org/indicator/SL.UEM.TOTL.ZS?locations=US\">[3] Unemployment Data</a>\n\n<i>MarketPulse v4.1 | Manus AI &amp; Claude Code</i>`;\n\nreturn [{ json: { message, timestamp: now.toISOString() } }];"
+      },
+      "id": "compose-message",
+      "name": "Compose Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2040, 520]
+    },
+    {
+      "parameters": {
+        "chatId": "-1003257638575",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2260, 520],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const alertMessage = `⚠️ <b>MarketPulse Error</b>\\n\\nTime: ${new Date().toISOString()}\\n\\n<i>Check n8n dashboard for details.</i>`;\nreturn [{ json: { alertMessage } }];"
+      },
+      "id": "sanitize-error",
+      "name": "Sanitize Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 1000]
+    },
+    {
+      "parameters": {
+        "chatId": "-1003257638575",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-error",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [720, 1000],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 7AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch CNN Fear & Greed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch World Bank GDP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch World Bank CPI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch World Bank Unemployment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch MarketWatch RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Dynamic Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CNN Fear & Greed": {
+      "main": [
+        [
+          {
+            "node": "Process All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch World Bank GDP": {
+      "main": [
+        [
+          {
+            "node": "Process All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch World Bank CPI": {
+      "main": [
+        [
+          {
+            "node": "Process All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch World Bank Unemployment": {
+      "main": [
+        [
+          {
+            "node": "Process All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch MarketWatch RSS": {
+      "main": [
+        [
+          {
+            "node": "Process All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process All Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dynamic Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Split Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Process Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "timeout": 300,
+    "timezone": "UTC"
+  },
+  "tags": [
+    {"name": "MarketPulse"},
+    {"name": "v4.1"},
+    {"name": "Fixed"},
+    {"name": "Production"}
+  ],
+  "meta": {
+    "templateId": "marketpulse-v4.1-fixed",
+    "version": "4.1.0",
+    "fixes": [
+      "Split Watchlist now properly splits comma-separated string",
+      "Process All Data node uses direct node references for reliable data access",
+      "Telegram uses HTML parse mode instead of Markdown to avoid parsing errors",
+      "Simplified data flow with fewer merge points",
+      "Added watchlist with 5 stocks: GOOGL, BABA, ADBE, SOFI, ASML"
+    ]
+  }
+}
