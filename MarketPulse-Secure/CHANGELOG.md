@@ -2,6 +2,102 @@
 
 All notable changes to MarketPulse are documented in this file.
 
+## [5.0.0] - 2026-01-21 (Production Ready - FRED Integration)
+
+### Major Architecture Changes
+- **Replaced:** 5 parallel HTTP nodes with single sequential "Fetch All Market Data" Code node
+- **Reason:** n8n parallel execution caused race conditions where Process node fired before all data arrived
+- **Result:** 100% data reliability - all fields now populate correctly
+
+### Data Source Migration
+- **Migrated:** Economic data from World Bank API (annual) to FRED API (monthly/quarterly)
+- **Added:** Fed Funds Rate (DFEDTARU) - Federal Reserve target rate
+- **Added:** 10-Year Treasury Yield (DGS10) - Bond market indicator
+- **Improved:** CPI now calculated as Year-over-Year from last 13 months of data
+- **Improved:** GDP shows quarterly growth rate instead of annual total
+
+### Fixed Issues
+| Issue | Root Cause | Fix |
+|:------|:-----------|:----|
+| All data showing N/A | Race condition in parallel execution | Sequential fetch in single Code node |
+| RSS headlines empty | XML parsed as JSON | Regex extraction with `json: false` |
+| Stock % change N/A | `regularMarketChangePercent` null | Calculate from `chartPreviousClose` |
+| ** symbols in LLM output | Markdown formatting | Explicit plain text instruction in prompt |
+| Fed Rate/Treasury N/A | FRED returns "." on weekends | Loop through last 10 observations |
+
+### LLM Improvements
+- **Updated:** Prompt explicitly requires NO Markdown formatting
+- **Added:** Fed Rate and Treasury to analysis context
+- **Result:** Clean plain text output without ** or * symbols
+
+### Output Format
+- **Added:** Emoji indicator for Fear & Greed score (🔴🟠🟡🟢🟢🟢)
+- **Added:** Sources footer with data provider credits
+- **Changed:** Clean separator lines using ━ characters
+- **Changed:** Version stamp updated to v5.0
+
+### Files
+- `workflows/marketpulse-workflow-v5.0.json` - Production workflow
+- `docs/WORKFLOW_V5_SPECIFICATION.md` - Complete technical specification
+
+### Required Configuration
+- FRED API Key (free at https://fred.stlouisfed.org/docs/api/api_key.html)
+- Must add key to "Fetch All Market Data" Code node, line 8
+
+---
+
+## [4.1.0] - 2026-01-19 (Bug Fixes)
+
+### Fixed
+- Split Watchlist node properly splits comma-separated string
+- Process All Data node uses direct node references
+- Telegram uses HTML parse mode to avoid Markdown parsing errors
+- Simplified data flow with fewer merge points
+
+### Changed
+- Watchlist updated to 5 stocks: GOOGL, BABA, ADBE, SOFI, ASML
+
+### Files
+- `workflows/marketpulse-workflow-v4.1-fixed.json`
+
+---
+
+## [4.0.0] - 2026-01-19 (Dynamic Watchlist)
+
+### Added
+- Dynamic Watchlist feature with Set node for easy stock updates
+- Economic data includes year/date for each indicator
+- World Bank data links in footer for verification
+- Enhanced LLM prompt with "Key Takeaway" section
+
+### Changed
+- Switched back to CNN Fear & Greed API (working again)
+- Economic indicators show data year alongside values
+
+### Files
+- `workflows/marketpulse-workflow-v4.0-final.json`
+- `docs/WORKFLOW_V4_SPECIFICATION.md`
+
+---
+
+## [3.0.0] - 2026-01-18 (Valu-Analyst Integration)
+
+### Added
+- Valu-Analyst prompt framework for value investing analysis
+- Yahoo Finance stock price fetching
+- Stock fundamentals integration
+- Multi-source data aggregation
+
+### Changed
+- LLM prompt follows Valu-Analyst style
+- Output format tailored for value investors
+
+### Files
+- `workflows/marketpulse-workflow-v3.0.json`
+- `docs/WORKFLOW_V3_SPECIFICATION.md`
+
+---
+
 ## [2.1.1] - 2026-01-18 (API Fix)
 
 ### Fixed
