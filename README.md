@@ -1,12 +1,12 @@
 # MarketPulse
 
-**AI-Powered Daily Stock Market Sentiment Analyzer using n8n Cloud Free Tier**
+**AI-Powered Daily Market Intelligence for Value Investors - Built with n8n**
 
 <div align="center">
   <img src="docs/assets/branding/MarketPulse-Icon.png" alt="MarketPulse" width="200"/>
-  
-  [![Version](https://img.shields.io/badge/version-2.2-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
-  [![Status](https://img.shields.io/badge/status-validated-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
+
+  [![Version](https://img.shields.io/badge/version-5.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
+  [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
 </div>
@@ -15,36 +15,50 @@
 
 ## 🌟 What is MarketPulse?
 
-MarketPulse is an open-source project that demonstrates how to build a powerful, automated daily stock market sentiment analyzer using **n8n** on a **perpetually free cloud infrastructure**. It transforms the overwhelming noise of financial news into a concise, actionable daily intelligence digest, delivered to you before the market opens.
+MarketPulse is an open-source n8n workflow that delivers comprehensive daily market briefings for value investors. It aggregates real-time economic data from the Federal Reserve (FRED), market sentiment from CNN Fear & Greed Index, financial news headlines, and stock watchlist prices into a single actionable digest delivered via Telegram.
 
-This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging developer incentives and open-source tools to build persistent, high-value intelligence systems at zero cost.
+This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging developer incentives and open-source tools to build persistent, high-value intelligence systems at minimal cost.
 
 ---
 
-## 📢 Latest Update: v2.2 - Validated Working Edition
+## 📢 Latest Update: v5.0 - Production Ready (FRED Integration)
 
-**Release Date:** January 19, 2026
+**Release Date:** January 21, 2026
 
-### What's New in v2.2
+### What's New in v5.0
 
 | Feature | Description |
 |---------|-------------|
-| **Race Condition Fix** | Added Merge node to synchronize Fear & Greed and LLM analysis before composing message |
-| **RSS Feed Updated** | Replaced Yahoo Finance (deprecated) with MarketWatch RSS (stable) |
-| **RSS Parser Added** | New Parse RSS Data node properly handles MarketWatch XML format |
-| **Telegram Validated** | Successfully tested message delivery to MarketPulse Alerts channel |
-| **Error Handling** | Sanitized error handler prevents credential leakage in alerts |
-| **Security Hardened** | Channel IDs properly configured, no sensitive data in workflow JSON |
+| **FRED API Integration** | Real-time economic data from Federal Reserve (monthly/quarterly) |
+| **New Indicators** | Fed Funds Rate + 10-Year Treasury Yield added |
+| **Reliable Architecture** | Single Code node fetches all data sequentially (no more race conditions) |
+| **Clean Output** | No Markdown symbols - pure plain text formatting |
+| **Stock % Change** | Calculated from previous close (reliable calculation) |
+| **Emoji Indicators** | Fear & Greed score shown with color-coded emojis |
+
+### Data Sources
+
+| Data | Source | Frequency |
+|------|--------|-----------|
+| Fear & Greed Index | CNN DataViz API | Daily |
+| GDP Growth | FRED (A191RL1Q225SBEA) | Quarterly |
+| Inflation/CPI | FRED (CPIAUCSL) | Monthly |
+| Unemployment | FRED (UNRATE) | Monthly |
+| Fed Funds Rate | FRED (DFEDTARU) | Daily |
+| 10Y Treasury | FRED (DGS10) | Daily |
+| Headlines | MarketWatch RSS | Real-time |
+| Stock Prices | Yahoo Finance | Real-time |
 
 ### Validation Status
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Fear & Greed API | ✅ Working | Alternative.me - Score: 49 (Neutral) |
-| MarketWatch RSS | ✅ Working | Fetching 10+ headlines |
-| Groq LLM | ✅ Configured | Free tier - 30 req/min |
-| Telegram Bot | ✅ Validated | Message delivery confirmed |
-| n8n Workflow | ✅ Executing | No errors in 3.4s execution |
+| CNN Fear & Greed | ✅ Working | Score with daily/weekly change |
+| FRED Economic Data | ✅ Working | All 5 indicators fetching |
+| MarketWatch RSS | ✅ Working | 8+ headlines with entity decoding |
+| Google Gemini LLM | ✅ Working | Plain text output (no Markdown) |
+| Yahoo Finance | ✅ Working | 5 stocks with % change |
+| Telegram Bot | ✅ Validated | Clean formatted messages |
 
 ---
 
@@ -92,14 +106,16 @@ MarketPulse is a single, powerful n8n workflow running on n8n Cloud. The archite
 
 ---
 
-## 🔑 Required API Keys (All FREE)
+## 🔑 Required API Keys
 
 | Service | Purpose | Free Tier | Get It |
 |---------|---------|-----------|--------|
-| **Groq** | LLM Sentiment Analysis | 30 req/min, 14,400 req/day | [console.groq.com](https://console.groq.com/keys) |
+| **FRED** | Economic Data | Unlimited (free) | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) |
+| **Google Gemini** | LLM Sentiment Analysis | Free tier available | [ai.google.dev](https://ai.google.dev/) |
 | **Telegram Bot** | Message Delivery | Unlimited | [@BotFather](https://t.me/BotFather) |
-| **Alternative.me** | Fear & Greed Index | Unlimited (no key) | [alternative.me](https://alternative.me/crypto/fear-and-greed-index/) |
-| **MarketWatch RSS** | Financial News | Unlimited (no key) | [marketwatch.com/rss](https://www.marketwatch.com/rss) |
+| **CNN Fear & Greed** | Market Sentiment | No key required | Built-in |
+| **MarketWatch RSS** | Financial News | No key required | Built-in |
+| **Yahoo Finance** | Stock Prices | No key required | Built-in |
 
 ---
 
@@ -119,40 +135,65 @@ This project is designed to be easily replicated. The full implementation guide,
 
 ### Quick Start
 
-1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v2.2-fixed.json` into your n8n instance
-2. **Configure Credentials:** Add your Groq API key and Telegram Bot Token in n8n credentials
-3. **Set Channel ID:** Update the Telegram nodes with your channel ID
-4. **Activate:** Publish the workflow to enable the daily schedule
+1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` into your n8n instance
+2. **Add FRED API Key:** Edit the "Fetch All Market Data" node and replace `YOUR_FRED_API_KEY_HERE` on line 8
+3. **Configure Credentials:** Add your Google Gemini API key and Telegram Bot Token in n8n credentials
+4. **Set Channel ID:** Update the Telegram nodes with your channel ID
+5. **Activate:** Publish the workflow to enable the daily 7AM schedule
 
 ### The Workflow Files
 
 | File | Description |
 |------|-------------|
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v2.2-fixed.json` | **Latest validated version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | **Latest production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Previous stable version |
 | `workflows/MarketPulse.json` | Original v1.0 workflow |
 
 ### Example Daily Digest
 
 ```
 📊 MarketPulse Daily Digest
-📅 Sunday, January 19, 2026
+━━━━━━━━━━━━━━━━━━━━
+📅 Tuesday, January 21, 2026
 
-🎯 Fear & Greed Index (Crypto)
-Score: 49/100
-Rating: Neutral
+🎯 FEAR & GREED INDEX 🟡
+Score: 48/100 | Neutral
+Change: -14 (1d) | -11 (1w)
 
-📈 AI Sentiment Analysis
-Based on the latest financial headlines, the market sentiment appears 
-Neutral with mixed signals. Key themes include ongoing earnings reports 
-and macroeconomic data releases.
+📈 ECONOMIC INDICATORS (USA)
+• GDP Growth (Jul 2025): +4.3% (QoQ)
+• Inflation/CPI (Dec 2025): 2.65%
+• Unemployment (Dec 2025): 4.1%
+• Fed Funds Rate: 4.50%
+• 10Y Treasury: 4.62%
 
-⚠️ IMPORTANT DISCLAIMER
-This analysis is generated by AI and is for informational purposes only. 
-It does NOT constitute financial advice. Always consult a qualified 
-financial advisor before making investment decisions.
+📊 WATCHLIST
+• GOOGL: $195.27 (+0.85%)
+• BABA: $85.12 (-1.23%)
+• ADBE: $452.30 (+0.42%)
+• SOFI: $14.56 (-2.15%)
+• ASML: $698.45 (+1.78%)
 
----
-MarketPulse v2.2 | Validated Edition
+💡 AI ANALYSIS
+MARKET SENTIMENT: Neutral
+Confidence: Medium
+
+KEY THEMES:
+- Mixed economic signals with strong GDP but elevated rates
+- Technology sector showing resilience amid market uncertainty
+
+SUMMARY:
+Markets are consolidating as investors digest mixed economic data.
+The Fed's pause on rate cuts continues to weigh on valuations
+while corporate earnings remain stable.
+
+━━━━━━━━━━━━━━━━━━━━
+⚠️ Disclaimer: AI-generated analysis for informational purposes only.
+Not financial advice.
+
+📎 Sources: CNN Fear & Greed, FRED (Federal Reserve), MarketWatch, Yahoo Finance
+
+MarketPulse v5.0 | Manus AI & Claude Code
 ```
 
 ---
@@ -161,8 +202,12 @@ MarketPulse v2.2 | Validated Edition
 
 | Version | Date | Changes |
 |---------|------|---------|
-| v2.2 | Jan 19, 2026 | Fixed race condition, updated RSS feeds, validated Telegram delivery |
-| v2.1 | Jan 18, 2026 | Added security hardening, error handling, input validation |
+| v5.0 | Jan 21, 2026 | FRED API integration, Fed Rate & Treasury, reliable architecture |
+| v4.1 | Jan 19, 2026 | Bug fixes, watchlist improvements |
+| v4.0 | Jan 19, 2026 | Dynamic watchlist, dated economic data |
+| v3.0 | Jan 18, 2026 | Valu-Analyst integration, Yahoo Finance stocks |
+| v2.2 | Jan 19, 2026 | Fixed race condition, updated RSS feeds |
+| v2.1 | Jan 18, 2026 | Security hardening, error handling |
 | v2.0 | Jan 17, 2026 | Secure edition with VerifiMind-PEAS validation |
 | v1.0 | Jan 06, 2026 | Initial release |
 
