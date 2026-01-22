@@ -121,11 +121,17 @@ MarketPulse is a single, powerful n8n workflow running on n8n Cloud. The archite
 
 ## 🛡️ Security and Ethics: The VerifiMind-PEAS Guarantee
 
-MarketPulse has been validated by the **VerifiMind-PEAS X-Z-CS RefleXion Trinity**, ensuring it is innovative, ethical, and secure.
+MarketPulse has been validated by the **[VerifiMind-PEAS](https://github.com/creator35lwb-web/VerifiMind-PEAS) X-Z-CS RefleXion Trinity**, ensuring it is innovative, ethical, and secure.
 
--   **X-Agent (Innovation):** Validated the clever synthesis of free infrastructure and AI for democratizing financial intelligence.
--   **Z-Agent (Ethics):** Ensured the design includes clear disclaimers that this is **not financial advice**.
--   **CS-Agent (Security):** Confirmed that risks are manageable with mandatory authentication and secure credential management.
+| Agent | Role | Validation |
+|-------|------|------------|
+| **X-Agent (Innovation)** | Strategic Novelty | Validated the clever synthesis of free infrastructure and AI for democratizing financial intelligence. |
+| **Z-Agent (Ethics)** | Ethical Alignment | Ensured the design includes clear disclaimers that this is **not financial advice**. |
+| **CS-Agent (Security)** | Security Posture | Confirmed that risks are manageable with mandatory authentication and secure credential management. |
+
+📖 **[Read the Full VerifiMind-PEAS Case Study →](docs/CASE_STUDY_VERIFIMIND_PEAS.md)**
+
+This case study demonstrates how the VerifiMind-PEAS methodology was applied to validate MarketPulse from concept to production, showcasing the framework's practical application in real-world AI development.
 
 ---
 
