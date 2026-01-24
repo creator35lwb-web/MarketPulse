@@ -2,14 +2,34 @@
 
 **AI-Powered Daily Market Intelligence for Value Investors - Built with n8n**
 
+> *Transforms the overwhelming noise of financial news into a concise, actionable daily intelligence digest, delivered to you before the market opens.*
+
 <div align="center">
-  <img src="docs/assets/branding/MarketPulse-Icon.png" alt="MarketPulse" width="200"/>
+  <img src="docs/assets/branding/MarketPulse-Icon-new.png" alt="MarketPulse" width="200"/>
 
   [![Version](https://img.shields.io/badge/version-5.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
+
+  [![Telegram](https://img.shields.io/badge/Telegram-Join%20Channel-blue?logo=telegram)](https://t.me/MarketPulse7am)
 </div>
+
+---
+
+## 📢 Live Demo - Join Our Telegram Channel!
+
+**See MarketPulse in action!** Join our public Telegram channel to receive daily market intelligence:
+
+<div align="center">
+
+  ### [👉 Join @MarketPulse7am on Telegram](https://t.me/MarketPulse7am)
+
+</div>
+
+Get daily briefings at 7 AM with Fear & Greed Index, economic indicators, stock watchlist, and AI-powered market analysis.
+
+> **Support the Project:** If you find MarketPulse valuable, you can support us via Telegram's gift feature in the channel!
 
 ---
 
@@ -137,15 +157,71 @@ This case study demonstrates how the VerifiMind-PEAS methodology was applied to 
 
 ## 🚀 Getting Started
 
-This project is designed to be easily replicated. The full implementation guide, including how to set up your free cloud infrastructure, is in the [ARCHITECTURE.md](docs/ARCHITECTURE.md) file.
+This project is designed to be easily replicated. Choose between **cloud hosting** or **local self-hosting** (completely free forever!).
 
-### Quick Start
+### Option 1: Self-Hosted Local Setup (FREE Forever!)
+
+Run MarketPulse on your own computer with **unlimited workflows** at **zero cost**.
+
+#### Prerequisites
+- Node.js (v18+) installed
+- Windows/Mac/Linux
+
+#### Quick Install
+
+```bash
+# 1. Install n8n globally
+npm install -g n8n
+
+# 2. Start n8n
+n8n start
+
+# 3. Open browser: http://localhost:5678
+```
+
+#### Windows Auto-Start Setup
+
+To run n8n automatically on Windows boot (silent, no terminal):
+
+1. Create `start-n8n.vbs` in your user folder:
+```vbs
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run chr(34) & "C:\Users\YOUR_USERNAME\AppData\Roaming\npm\n8n.cmd" & chr(34) & " start", 0
+Set WshShell = Nothing
+```
+
+2. Copy to Windows Startup folder:
+```
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\
+```
+
+3. n8n will now auto-start silently on every boot!
+
+#### Desktop Shortcut for Manual Trigger
+
+Create `Run MarketPulse.cmd` on your desktop:
+```batch
+@echo off
+curl -s "http://localhost:5678/webhook/marketpulse-trigger" > nul
+echo MarketPulse triggered! Check Telegram in ~30 seconds.
+timeout /t 3 > nul
+```
+
+> **Note:** Requires adding a Webhook node to your workflow connected to the main flow.
+
+### Option 2: n8n Cloud
+
+Use n8n's managed cloud service (paid after trial):
+- 14-day free trial
+- Starter plan: ~$20/month
+
+### Workflow Setup
 
 1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` into your n8n instance
 2. **Add FRED API Key:** Edit the "Fetch All Market Data" node and replace `YOUR_FRED_API_KEY_HERE` on line 8
 3. **Configure Credentials:** Add your Google Gemini API key and Telegram Bot Token in n8n credentials
 4. **Set Channel ID:** Update the Telegram nodes with your channel ID
-5. **Activate:** Publish the workflow to enable the daily 7AM schedule
+5. **Activate:** Toggle the workflow ON to enable the daily 7AM schedule
 
 ### The Workflow Files
 
@@ -228,3 +304,25 @@ MarketPulse is an open-source project, and we welcome contributions from the com
 ## 📜 License
 
 MarketPulse is licensed under the **MIT License**.
+
+---
+
+## ⚠️ Disclaimer
+
+**For informational purposes only. Not financial advice.**
+
+MarketPulse provides automated market intelligence to help investors stay informed. The AI-generated analysis, sentiment scores, and data aggregation are tools for research and should not be considered as recommendations to buy, sell, or hold any securities. Always conduct your own research and consult with a qualified financial advisor before making investment decisions.
+
+---
+
+## 💝 Support the Project
+
+If MarketPulse helps you stay ahead of the market, consider supporting continued development:
+
+<div align="center">
+
+  ### [👉 Join @MarketPulse7am on Telegram](https://t.me/MarketPulse7am)
+
+  *You can send a gift via Telegram's built-in gift feature to support the channel!*
+
+</div>
