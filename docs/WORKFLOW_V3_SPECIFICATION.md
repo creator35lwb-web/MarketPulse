@@ -14,7 +14,7 @@ This document provides the complete specification for Claude Code to generate a 
 
 | Component | Status | Details |
 | :--- | :--- | :--- |
-| **n8n Instance** | ✅ Online | `https://creator35lwb.app.n8n.cloud` |
+| **n8n Instance** | ✅ Online | `https://YOUR_N8N_INSTANCE.app.n8n.cloud` |
 | **Fear & Greed API** | ✅ Working | `https://api.alternative.me/fng/?limit=1` |
 | **MarketWatch RSS** | ✅ Working | `https://www.marketwatch.com/rss/topstories` |
 | **Groq API Key** | ✅ Validated | Credential: `Groq account` |
