@@ -39,7 +39,7 @@
     },
     {
       "parameters": {
-        "chatId": "***REMOVED***",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.alertMessage }}",
         "additionalFields": {
           "parse_mode": "Markdown"
@@ -185,7 +185,7 @@
     },
     {
       "parameters": {
-        "chatId": "***REMOVED***",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.message }}",
         "additionalFields": {
           "parse_mode": "Markdown"
