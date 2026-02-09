@@ -7,7 +7,7 @@
 <div align="center">
   <img src="docs/assets/branding/MarketPulse-Icon-new.png" alt="MarketPulse" width="200"/>
 
-  [![Version](https://img.shields.io/badge/version-6.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
+  [![Version](https://img.shields.io/badge/version-7.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
@@ -41,37 +41,45 @@ This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging devel
 
 ---
 
-## 📢 Latest Update: v6.0 - Market Screener Edition
+## 📢 Latest Update: v7.0 - Value Investor Edition
 
 **Release Date:** February 9, 2026
 
-### What's New in v6.0
+### What's New in v7.0
 
 | Feature | Description |
 |---------|-------------|
-| **Market Screener** | S&P 500, Dow Jones, VIX Volatility, and Gold futures tracking |
-| **IPv4 Fix** | Workflow-level DNS resolution fix for IPv6/IPv4 connectivity issues |
-| **Retry Logic** | 3-attempt retry with exponential backoff for all stock API calls |
-| **Rate Limiting** | 500ms delay between API calls to prevent rate limit bans |
-| **VIX Status Indicators** | Color-coded LOW/NORMAL/ELEVATED/HIGH volatility alerts |
-| **Direction Arrows** | Visual arrows for market movements |
-| **Consolidated Architecture** | Stock fetching consolidated into single Code node |
-| **Gemini 2.5 Flash** | Upgraded LLM from Groq to Google Gemini for better analysis |
+| **Value Investor Dashboard** | Top-of-message dashboard with 4 critical valuation indicators |
+| **Buffett Indicator** | Market Cap to GDP ratio with color-coded valuation zones |
+| **Shiller PE (CAPE)** | Cyclically Adjusted P/E Ratio with benchmark classification |
+| **Yield Curve (10Y-2Y)** | Treasury spread with inversion warning system |
+| **S&P 500 vs 200D-MA** | Trend signal with Golden/Death Cross detection |
+| **Expanded Market Screener** | Added Oil (WTI), US Dollar (DXY), and Bitcoin |
+| **2Y Treasury Yield** | New economic indicator from FRED (DGS2) |
+| **Buffett Wisdom** | AI includes relevant Warren Buffett quote in analysis |
+| **Valuation Overview** | AI interprets all 4 dashboard indicators together |
 
 ### Data Sources
 
 | Data | Source | Frequency |
-|------|--------|-----------|
+|------|--------|----------|
 | Fear & Greed Index | CNN DataViz API | Daily |
 | S&P 500 (^GSPC) | Yahoo Finance | Real-time |
 | Dow Jones (^DJI) | Yahoo Finance | Real-time |
 | VIX Volatility (^VIX) | Yahoo Finance | Real-time |
 | Gold Futures (GC=F) | Yahoo Finance | Real-time |
+| Oil/WTI (CL=F) | Yahoo Finance | Real-time |
+| US Dollar/DXY (DX-Y.NYB) | Yahoo Finance | Real-time |
+| Bitcoin (BTC-USD) | Yahoo Finance | Real-time |
+| Wilshire 5000 (^W5000) | Yahoo Finance | Real-time |
+| Shiller PE (CAPE) | multpl.com | Daily |
 | GDP Growth | FRED (A191RL1Q225SBEA) | Quarterly |
+| Nominal GDP | FRED (GDP) | Quarterly |
 | Inflation/CPI | FRED (CPIAUCSL) | Monthly |
 | Unemployment | FRED (UNRATE) | Monthly |
 | Fed Funds Rate | FRED (DFEDTARU) | Daily |
 | 10Y Treasury | FRED (DGS10) | Daily |
+| 2Y Treasury | FRED (DGS2) | Daily |
 | Headlines | MarketWatch RSS | Real-time |
 | Stock Prices | Yahoo Finance | Real-time |
 
@@ -79,13 +87,16 @@ This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging devel
 
 | Component | Status | Notes |
 |-----------|--------|-------|
+| **Value Investor Dashboard** | ✅ Working | 4 indicators with color-coded emojis |
+| Buffett Indicator | ✅ Working | Wilshire 5000 / GDP ratio with benchmarks |
+| Shiller PE (CAPE) | ✅ Working | Scraped from multpl.com with valuation zones |
+| Yield Curve (10Y-2Y) | ✅ Working | FRED DGS10 - DGS2 with inversion warning |
+| S&P 500 vs 200D-MA | ✅ Working | Golden/Death Cross detection |
 | CNN Fear & Greed | ✅ Working | Score with daily/weekly change |
-| S&P 500 / Dow Jones | ✅ Working | Real-time index prices with % change |
-| VIX Volatility | ✅ Working | With status indicators (LOW/NORMAL/ELEVATED/HIGH) |
-| Gold Futures | ✅ Working | Real-time gold price with % change |
-| FRED Economic Data | ✅ Working | All 5 indicators fetching |
+| Market Screener (7 instruments) | ✅ Working | S&P 500, Dow, VIX, Gold, Oil, DXY, Bitcoin |
+| FRED Economic Data | ✅ Working | All 7 indicators fetching (incl. 2Y Treasury) |
 | MarketWatch RSS | ✅ Working | 8+ headlines with entity decoding |
-| Google Gemini LLM | ✅ Working | Gemini 2.5 Flash, plain text output |
+| Google Gemini LLM | ✅ Working | Gemini 2.5 Flash with Buffett-inspired analysis |
 | Yahoo Finance | ✅ Working | 3 stocks (GOOGL, BABA, ADBE) with % change |
 | IPv4 DNS Fix | ✅ Working | Workflow-level fix, no system-wide impact |
 | Retry Logic | ✅ Working | 3 attempts with exponential backoff |
@@ -228,7 +239,7 @@ Use n8n's managed cloud service (paid after trial):
 
 ### Workflow Setup
 
-1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` into your n8n instance
+1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` into your n8n instance
 2. **Add FRED API Key:** Edit the "Fetch All Market Data" node and replace `YOUR_FRED_API_KEY_HERE` on line 8
 3. **Configure Credentials:** Add your Google Gemini API key and Telegram Bot Token in n8n credentials
 4. **Set Channel ID:** Update the Telegram nodes with your channel ID
@@ -238,7 +249,8 @@ Use n8n's managed cloud service (paid after trial):
 
 | File | Description |
 |------|-------------|
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | **Latest production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` | **Latest production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | Market Screener Edition |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | Previous stable version |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Legacy version |
 | `workflows/MarketPulse.json` | Original v1.0 workflow |
@@ -248,46 +260,76 @@ Use n8n's managed cloud service (paid after trial):
 ```
 📊 MarketPulse Daily Digest
 ━━━━━━━━━━━━━━━━━━━━
-📅 Tuesday, January 21, 2026
+📅 Sunday, February 9, 2026
+
+🏛️ VALUE INVESTOR DASHBOARD
+
+🔴 BUFFETT INDICATOR: 155%
+   Market Cap to GDP | Significantly Overvalued
+
+🔴 SHILLER P/E (CAPE): 40.4
+   Cyclically Adjusted P/E | Strongly Overvalued
+
+🟢 YIELD CURVE (10Y-2Y): +0.62%
+   Treasury Spread | Normal (Healthy)
+
+🟢 S&P 500 vs 200D-MA: +7.2%
+   Trend Signal | Strong Bullish (Golden Cross)
+
+━━━━━━━━━━━━━━━━━━━━
 
 🎯 FEAR & GREED INDEX 🟡
 Score: 48/100 | Neutral
 Change: -14 (1d) | -11 (1w)
 
-📈 ECONOMIC INDICATORS (USA)
+📈 MARKET SCREENER
+▲ S&P 500: 6,932.30 (+1.97%)
+▲ Dow Jones: 50,115.67 (+2.47%)
+▼ VIX: 17.76 (-18.42%) 🟢 NORMAL
+▲ Gold: $5,052.40 (+1.46%)
+▲ Oil (WTI): $63.22 (+0.02%)
+▲ US Dollar: 97.57 (+0.14%)
+▲ Bitcoin: $70,267 (+12.06%)
+
+📊 ECONOMIC INDICATORS (USA)
 • GDP Growth (Jul 2025): +4.3% (QoQ)
 • Inflation/CPI (Dec 2025): 2.65%
-• Unemployment (Dec 2025): 4.1%
-• Fed Funds Rate: 4.50%
-• 10Y Treasury: 4.62%
+• Unemployment (Dec 2025): 4.4%
+• Fed Funds Rate: 3.72%
+• 10Y Treasury: 4.21%
+• 2Y Treasury: 3.59%
 
-📊 WATCHLIST
-• GOOGL: $195.27 (+0.85%)
-• BABA: $85.12 (-1.23%)
-• ADBE: $452.30 (+0.42%)
-• SOFI: $14.56 (-2.15%)
-• ASML: $698.45 (+1.78%)
+📋 WATCHLIST
+  GOOGL: $322.86 (-2.53%)
+  BABA: $162.51 (+3.01%)
+  ADBE: $268.38 (-0.37%)
 
-💡 AI ANALYSIS
-MARKET SENTIMENT: Neutral
-Confidence: Medium
+💡 AI ANALYSIS (Valu-Analyst)
+MARKET SENTIMENT: Cautiously Bearish
+Confidence: High
 
-KEY THEMES:
-- Mixed economic signals with strong GDP but elevated rates
-- Technology sector showing resilience amid market uncertainty
+VALUATION OVERVIEW:
+The dashboard paints a mixed picture. While the Buffett Indicator
+and CAPE both signal significant overvaluation, the healthy yield
+curve and strong bullish trend suggest no imminent crash.
 
-SUMMARY:
-Markets are consolidating as investors digest mixed economic data.
-The Fed's pause on rate cuts continues to weigh on valuations
-while corporate earnings remain stable.
+BUFFETT WISDOM:
+"Be fearful when others are greedy, and greedy when others are
+fearful." With valuations stretched but sentiment neutral, patience
+is the value investor's greatest ally.
+
+KEY TAKEAWAY:
+Build your watchlist, not your portfolio. At these valuations, the
+margin of safety is thin. Wait for better entry points.
 
 ━━━━━━━━━━━━━━━━━━━━
-⚠️ Disclaimer: AI-generated analysis for informational purposes only.
-Not financial advice.
+⚠️ Disclaimer: AI-generated analysis for informational purposes
+only. Not financial advice.
 
-📎 Sources: CNN Fear & Greed, FRED (Federal Reserve), MarketWatch, Yahoo Finance
+📎 Sources: CNN Fear & Greed, FRED, MarketWatch, Yahoo Finance,
+multpl.com
 
-MarketPulse v6.0 | Manus AI & Claude Code
+MarketPulse v7.0 | Manus AI & Claude Code
 ```
 
 ---
@@ -296,6 +338,7 @@ MarketPulse v6.0 | Manus AI & Claude Code
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v7.0 | Feb 9, 2026 | Value Investor Dashboard (Buffett Indicator, CAPE, Yield Curve, 200D-MA), expanded screener (Oil, DXY, BTC), Buffett Wisdom AI |
 | v6.0 | Feb 9, 2026 | Market Screener (S&P 500, Dow Jones, VIX, Gold), IPv4 fix, retry logic, Gemini 2.5 Flash |
 | v5.0 | Jan 21, 2026 | FRED API integration, Fed Rate & Treasury, reliable architecture |
 | v4.1 | Jan 19, 2026 | Bug fixes, watchlist improvements |
