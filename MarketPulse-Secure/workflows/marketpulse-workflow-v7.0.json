@@ -1,0 +1,373 @@
+{
+  "name": "MarketPulse v7.0 - Value Investor Edition",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 7AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 1200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH ALL MARKET DATA - MarketPulse v7.0\n// Value Investor Edition\n// IPv4 Fix + Buffett Indicator + CAPE + Yield Curve\n// ============================================\n\nconst dns = require('dns');\ndns.setDefaultResultOrder('ipv4first');\n\nconst FRED_API_KEY = 'YOUR_FRED_API_KEY_HERE';\n\nconst results = {\n  // Fear & Greed\n  fearGreedValue: 'N/A',\n  fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A',\n  fearGreedChange1w: 'N/A',\n  // Value Investor Dashboard\n  buffettIndicator: 'N/A',\n  buffettStatus: 'N/A',\n  buffettEmoji: '',\n  shillerPE: 'N/A',\n  shillerStatus: 'N/A',\n  shillerEmoji: '',\n  yieldCurve: 'N/A',\n  yieldCurveStatus: 'N/A',\n  yieldCurveEmoji: '',\n  sp500VsMa200: 'N/A',\n  sp500VsMa200Status: 'N/A',\n  sp500VsMa200Emoji: '',\n  maSignal: 'N/A',\n  // Market Screener\n  sp500: 'N/A', sp500Change: 'N/A',\n  dowJones: 'N/A', dowJonesChange: 'N/A',\n  vix: 'N/A', vixChange: 'N/A',\n  gold: 'N/A', goldChange: 'N/A',\n  oil: 'N/A', oilChange: 'N/A',\n  dxy: 'N/A', dxyChange: 'N/A',\n  btc: 'N/A', btcChange: 'N/A',\n  // Economic Indicators\n  gdpValue: 'N/A', gdpYear: 'N/A',\n  cpiValue: 'N/A', cpiYear: 'N/A',\n  unemploymentValue: 'N/A', unemploymentYear: 'N/A',\n  fedRateValue: 'N/A',\n  treasury10Y: 'N/A',\n  treasury2Y: 'N/A',\n  // Headlines\n  headlines: 'No headlines available'\n};\n\nfunction formatDate(dateStr) {\n  if (!dateStr) return 'N/A';\n  const d = new Date(dateStr);\n  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  return months[d.getMonth()] + ' ' + d.getFullYear();\n}\n\n// ---- 1. CNN FEAR & GREED INDEX ----\ntry {\n  const fgData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata',\n    headers: {\n      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',\n      'Referer': 'https://www.cnn.com/markets/fear-and-greed',\n      'Accept': 'application/json'\n    },\n    timeout: 30000\n  });\n  if (fgData && fgData.fear_and_greed) {\n    const fg = fgData.fear_and_greed;\n    results.fearGreedValue = Math.round(fg.score);\n    results.fearGreedClassification = fg.rating ?\n      fg.rating.charAt(0).toUpperCase() + fg.rating.slice(1) : 'Unknown';\n    if (fg.previous_close !== null && fg.previous_close !== undefined) {\n      const d = Math.round(fg.score - fg.previous_close);\n      results.fearGreedChange1d = (d >= 0 ? '+' : '') + d;\n    }\n    if (fg.previous_1_week !== null && fg.previous_1_week !== undefined) {\n      const w = Math.round(fg.score - fg.previous_1_week);\n      results.fearGreedChange1w = (w >= 0 ? '+' : '') + w;\n    }\n  }\n} catch (e) { console.log('Fear & Greed error: ' + e.message); }\n\n// ---- 2. MARKET INDICES, GOLD, OIL, DXY, BTC (Yahoo Finance) ----\nconst indices = [\n  { symbol: '^GSPC', namePrice: 'sp500', nameChange: 'sp500Change', label: 'S&P 500' },\n  { symbol: '^DJI', namePrice: 'dowJones', nameChange: 'dowJonesChange', label: 'Dow Jones' },\n  { symbol: '^VIX', namePrice: 'vix', nameChange: 'vixChange', label: 'VIX' },\n  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },\n  { symbol: 'CL=F', namePrice: 'oil', nameChange: 'oilChange', label: 'Oil (WTI)', prefix: '$' },\n  { symbol: 'DX-Y.NYB', namePrice: 'dxy', nameChange: 'dxyChange', label: 'US Dollar (DXY)' },\n  { symbol: 'BTC-USD', namePrice: 'btc', nameChange: 'btcChange', label: 'Bitcoin', prefix: '$' }\n];\n\nlet sp500Price = 0;\nlet sp500Closes = [];\n\nfor (const idx of indices) {\n  try {\n    const range = (idx.symbol === '^GSPC') ? '1y' : '1d';\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=' + range,\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const result = data.chart.result[0];\n      const meta = result.meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      if (price) {\n        const prefix = idx.prefix || '';\n        if (idx.symbol === 'BTC-USD') {\n          results[idx.namePrice] = prefix + price.toLocaleString('en-US', {maximumFractionDigits: 0});\n        } else {\n          results[idx.namePrice] = prefix + price.toFixed(2);\n        }\n        if (prevClose && prevClose > 0) {\n          const changePct = ((price - prevClose) / prevClose) * 100;\n          const sign = changePct >= 0 ? '+' : '';\n          results[idx.nameChange] = sign + changePct.toFixed(2) + '%';\n        }\n      }\n      // Save S&P 500 data for 200-day MA calculation\n      if (idx.symbol === '^GSPC') {\n        sp500Price = price;\n        const closes = result.indicators.quote[0].close;\n        sp500Closes = closes.filter(c => c !== null && c !== undefined);\n      }\n    }\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) { console.log(idx.label + ' error: ' + e.message); }\n}\n\n// ---- 3. S&P 500 vs 200-DAY MOVING AVERAGE ----\ntry {\n  if (sp500Closes.length >= 200 && sp500Price > 0) {\n    const ma200 = sp500Closes.slice(-200).reduce((a, b) => a + b, 0) / 200;\n    const ma50 = sp500Closes.slice(-50).reduce((a, b) => a + b, 0) / Math.min(50, sp500Closes.slice(-50).length);\n    const pctVsMa200 = ((sp500Price - ma200) / ma200) * 100;\n    results.sp500VsMa200 = (pctVsMa200 >= 0 ? '+' : '') + pctVsMa200.toFixed(1) + '%';\n    results.maSignal = ma50 > ma200 ? 'Golden Cross' : 'Death Cross';\n    // Color coding\n    if (pctVsMa200 > 5) { results.sp500VsMa200Status = 'Strong Bullish'; results.sp500VsMa200Emoji = '🟢🟢'; }\n    else if (pctVsMa200 > 0) { results.sp500VsMa200Status = 'Bullish'; results.sp500VsMa200Emoji = '🟢'; }\n    else if (pctVsMa200 > -5) { results.sp500VsMa200Status = 'Caution'; results.sp500VsMa200Emoji = '🟡'; }\n    else { results.sp500VsMa200Status = 'Bearish Signal'; results.sp500VsMa200Emoji = '🔴'; }\n  }\n} catch (e) { console.log('MA200 error: ' + e.message); }\n\n// ---- 4. SHILLER PE (CAPE) RATIO ----\ntry {\n  const capeResp = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://www.multpl.com/shiller-pe',\n    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n    timeout: 15000,\n    json: false\n  });\n  if (capeResp && typeof capeResp === 'string') {\n    const match = capeResp.match(/Current Shiller PE Ratio[^0-9]*(\\d+\\.\\d+)/);\n    if (match) {\n      const cape = parseFloat(match[1]);\n      results.shillerPE = cape.toFixed(1);\n      if (cape < 20) { results.shillerStatus = 'Undervalued'; results.shillerEmoji = '🟢🟢'; }\n      else if (cape < 25) { results.shillerStatus = 'Fair Value'; results.shillerEmoji = '🟢'; }\n      else if (cape < 30) { results.shillerStatus = 'Slightly Overvalued'; results.shillerEmoji = '🟡'; }\n      else if (cape < 35) { results.shillerStatus = 'Overvalued'; results.shillerEmoji = '🟠'; }\n      else { results.shillerStatus = 'Strongly Overvalued'; results.shillerEmoji = '🔴'; }\n    }\n  }\n} catch (e) { console.log('CAPE error: ' + e.message); }\n\n// ---- 5. FRED: UNEMPLOYMENT ----\ntry {\n  const unempData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=UNRATE&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc',\n    timeout: 30000\n  });\n  if (unempData && unempData.observations && unempData.observations[0]) {\n    const obs = unempData.observations[0];\n    results.unemploymentValue = obs.value + '%';\n    results.unemploymentYear = formatDate(obs.date);\n  }\n} catch (e) { console.log('FRED Unemployment error: ' + e.message); }\n\n// ---- 6. FRED: CPI INFLATION (YoY) ----\ntry {\n  const cpiData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=CPIAUCSL&api_key=' + FRED_API_KEY + '&file_type=json&limit=13&sort_order=desc',\n    timeout: 30000\n  });\n  if (cpiData && cpiData.observations && cpiData.observations.length >= 13) {\n    const latest = parseFloat(cpiData.observations[0].value);\n    const yearAgo = parseFloat(cpiData.observations[12].value);\n    const yoyChange = ((latest - yearAgo) / yearAgo) * 100;\n    results.cpiValue = yoyChange.toFixed(2) + '%';\n    results.cpiYear = formatDate(cpiData.observations[0].date);\n  }\n} catch (e) { console.log('FRED CPI error: ' + e.message); }\n\n// ---- 7. FRED: GDP GROWTH RATE ----\ntry {\n  const gdpData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=A191RL1Q225SBEA&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc',\n    timeout: 30000\n  });\n  if (gdpData && gdpData.observations && gdpData.observations[0]) {\n    const obs = gdpData.observations[0];\n    const sign = parseFloat(obs.value) >= 0 ? '+' : '';\n    results.gdpValue = sign + obs.value + '% (QoQ)';\n    results.gdpYear = formatDate(obs.date);\n  }\n} catch (e) { console.log('FRED GDP error: ' + e.message); }\n\n// ---- 8. FRED: FED FUNDS RATE ----\ntry {\n  const fedData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc',\n    timeout: 30000\n  });\n  if (fedData && fedData.observations) {\n    for (let i = 0; i < fedData.observations.length; i++) {\n      const val = fedData.observations[i].value;\n      if (val && val !== '.' && val !== 'null' && parseFloat(val) > 0) {\n        results.fedRateValue = parseFloat(val).toFixed(2) + '%';\n        break;\n      }\n    }\n  }\n} catch (e) { console.log('FRED Fed Rate error: ' + e.message); }\n\n// ---- 9. FRED: 10-YEAR TREASURY YIELD ----\ntry {\n  const t10Data = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc',\n    timeout: 30000\n  });\n  if (t10Data && t10Data.observations) {\n    for (let i = 0; i < t10Data.observations.length; i++) {\n      const val = t10Data.observations[i].value;\n      if (val && val !== '.' && val !== 'null' && parseFloat(val) > 0) {\n        results.treasury10Y = parseFloat(val).toFixed(2) + '%';\n        break;\n      }\n    }\n  }\n} catch (e) { console.log('FRED 10Y error: ' + e.message); }\n\n// ---- 10. FRED: 2-YEAR TREASURY YIELD ----\ntry {\n  const t2Data = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc',\n    timeout: 30000\n  });\n  if (t2Data && t2Data.observations) {\n    for (let i = 0; i < t2Data.observations.length; i++) {\n      const val = t2Data.observations[i].value;\n      if (val && val !== '.' && val !== 'null' && parseFloat(val) > 0) {\n        results.treasury2Y = parseFloat(val).toFixed(2) + '%';\n        break;\n      }\n    }\n  }\n} catch (e) { console.log('FRED 2Y error: ' + e.message); }\n\n// ---- 11. YIELD CURVE CALCULATION (10Y - 2Y) ----\ntry {\n  const t10 = parseFloat(results.treasury10Y);\n  const t2 = parseFloat(results.treasury2Y);\n  if (!isNaN(t10) && !isNaN(t2)) {\n    const spread = t10 - t2;\n    results.yieldCurve = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';\n    if (spread < 0) { results.yieldCurveStatus = 'INVERTED (Recession Warning)'; results.yieldCurveEmoji = '🔴'; }\n    else if (spread < 0.5) { results.yieldCurveStatus = 'Flat (Caution)'; results.yieldCurveEmoji = '🟡'; }\n    else { results.yieldCurveStatus = 'Normal (Healthy)'; results.yieldCurveEmoji = '🟢'; }\n  }\n} catch (e) { console.log('Yield curve calc error: ' + e.message); }\n\n// ---- 12. BUFFETT INDICATOR (Wilshire 5000 / GDP) ----\ntry {\n  // Fetch Wilshire 5000\n  const w5Data = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://query1.finance.yahoo.com/v8/finance/chart/%5EW5000?interval=1d&range=5d',\n    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n    timeout: 15000\n  });\n  // Fetch GDP from FRED\n  const gdpNomData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.stlouisfed.org/fred/series/observations?series_id=GDP&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc',\n    timeout: 30000\n  });\n  if (w5Data && w5Data.chart && w5Data.chart.result && w5Data.chart.result[0] &&\n      gdpNomData && gdpNomData.observations && gdpNomData.observations[0]) {\n    const w5Price = w5Data.chart.result[0].meta.regularMarketPrice;\n    // Wilshire 5000: 1 point ~ $1.05 billion (as of 2020)\n    const totalMarketCap = w5Price * 1.05; // in billions\n    const gdpBillions = parseFloat(gdpNomData.observations[0].value); // GDP in billions\n    if (totalMarketCap > 0 && gdpBillions > 0) {\n      const ratio = (totalMarketCap / gdpBillions) * 100;\n      results.buffettIndicator = ratio.toFixed(0) + '%';\n      if (ratio < 100) { results.buffettStatus = 'Undervalued'; results.buffettEmoji = '🟢🟢'; }\n      else if (ratio < 120) { results.buffettStatus = 'Fair Value'; results.buffettEmoji = '🟢'; }\n      else if (ratio < 150) { results.buffettStatus = 'Slightly Overvalued'; results.buffettEmoji = '🟡'; }\n      else if (ratio < 200) { results.buffettStatus = 'Significantly Overvalued'; results.buffettEmoji = '🟠'; }\n      else { results.buffettStatus = 'Strongly Overvalued'; results.buffettEmoji = '🔴'; }\n    }\n  }\n} catch (e) { console.log('Buffett Indicator error: ' + e.message); }\n\n// ---- 13. MARKETWATCH RSS HEADLINES ----\ntry {\n  const rssResponse = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://www.marketwatch.com/rss/topstories',\n    timeout: 30000,\n    json: false\n  });\n  if (rssResponse && typeof rssResponse === 'string') {\n    const titleMatches = rssResponse.match(/<title>([^<]+)<\\/title>/g);\n    if (titleMatches && titleMatches.length > 1) {\n      const titles = [];\n      for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {\n        let title = titleMatches[i].replace(/<\\/?title>/g, '');\n        title = title.trim()\n          .replace(/&#x201c;/g, '\"').replace(/&#x201d;/g, '\"')\n          .replace(/&#x2019;/g, \"'\").replace(/&#x2018;/g, \"'\")\n          .replace(/&#x2014;/g, ' - ').replace(/&#x2013;/g, '-')\n          .replace(/&amp;/g, '&').replace(/&quot;/g, '\"').replace(/&#xa0;/g, ' ');\n        if (title.length > 10) titles.push(i + '. ' + title);\n      }\n      if (titles.length > 0) results.headlines = titles.join('\\n');\n    }\n  }\n} catch (e) { console.log('RSS error: ' + e.message); }\n\nreturn [{ json: results }];"
+      },
+      "id": "fetch-all-data",
+      "name": "Fetch All Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "GOOGL,BABA,ADBE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-watchlist",
+      "name": "Set Dynamic Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH STOCK PRICES - MarketPulse v7.0\n// IPv4 Fix + Retry Logic + Rate Limiting\n// ============================================\n\nconst dns = require('dns');\ndns.setDefaultResultOrder('ipv4first');\n\nconst watchlistStr = $input.first().json.watchlist || 'GOOGL,BABA,ADBE';\nconst symbols = watchlistStr.split(',').map(s => s.trim()).filter(s => s.length > 0);\n\nconst stockResults = [];\n\nfor (const symbol of symbols) {\n  let success = false;\n  for (let attempt = 0; attempt < 3 && !success; attempt++) {\n    try {\n      const data = await this.helpers.httpRequest({\n        method: 'GET',\n        url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=1d',\n        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n        timeout: 15000\n      });\n      if (data && data.chart && data.chart.result && data.chart.result[0]) {\n        const meta = data.chart.result[0].meta;\n        const price = meta.regularMarketPrice;\n        const prevClose = meta.chartPreviousClose || meta.previousClose;\n        if (price) {\n          let changePct = 0;\n          if (prevClose && prevClose > 0) {\n            changePct = ((price - prevClose) / prevClose) * 100;\n          }\n          const sign = changePct >= 0 ? '+' : '';\n          stockResults.push({\n            symbol: symbol,\n            price: '$' + price.toFixed(2),\n            change: sign + changePct.toFixed(2) + '%'\n          });\n          success = true;\n        }\n      }\n    } catch (e) {\n      if (attempt < 2) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));\n    }\n    await new Promise(r => setTimeout(r, 500));\n  }\n  if (!success) {\n    stockResults.push({ symbol: symbol, price: 'N/A', change: 'N/A' });\n  }\n}\n\nlet watchlistSummary = '';\nif (stockResults.length > 0) {\n  watchlistSummary = stockResults.map(s => {\n    const arrow = s.change.startsWith('+') ? '  ' : '  ';\n    return arrow + s.symbol + ': ' + s.price + ' (' + s.change + ')';\n  }).join('\\n');\n} else {\n  watchlistSummary = 'Watchlist data unavailable';\n}\n\nreturn [{ json: { watchlistSummary: watchlistSummary } }];"
+      },
+      "id": "fetch-stocks",
+      "name": "Fetch Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 500],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-all",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMBINE ALL DATA - MarketPulse v7.0\n// Merges market data + stock prices into one\n// ============================================\n\nconst items = $input.all();\nconst combined = {};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) {\n      combined[key] = j[key];\n    }\n  }\n}\n\nreturn [{ json: combined }];"
+      },
+      "id": "combine-data",
+      "name": "Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Valu-Analyst, a professional value investing analyst inspired by Warren Buffett's investment philosophy. Analyze the following market data and provide a structured briefing for a value investor.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== VALUE INVESTOR DASHBOARD ==\nBuffett Indicator (Market Cap/GDP): {{ $json.buffettIndicator }} - {{ $json.buffettStatus }}\nShiller PE (CAPE): {{ $json.shillerPE }} - {{ $json.shillerStatus }}\nYield Curve (10Y-2Y): {{ $json.yieldCurve }} - {{ $json.yieldCurveStatus }}\nS&P 500 vs 200-Day MA: {{ $json.sp500VsMa200 }} - {{ $json.sp500VsMa200Status }} ({{ $json.maSignal }})\n\n== MARKET DATA ==\nFear & Greed Index: {{ $json.fearGreedValue }}/100 ({{ $json.fearGreedClassification }})\n\nMarket Indices:\n- S&P 500: {{ $json.sp500 }} ({{ $json.sp500Change }})\n- Dow Jones: {{ $json.dowJones }} ({{ $json.dowJonesChange }})\n- VIX: {{ $json.vix }} ({{ $json.vixChange }})\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- Oil (WTI): {{ $json.oil }} ({{ $json.oilChange }})\n- US Dollar (DXY): {{ $json.dxy }} ({{ $json.dxyChange }})\n- Bitcoin: {{ $json.btc }} ({{ $json.btcChange }})\n\nEconomic Indicators (USA):\n- GDP ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n- Fed Funds Rate: {{ $json.fedRateValue }}\n- 10Y Treasury: {{ $json.treasury10Y }}\n- 2Y Treasury: {{ $json.treasury2Y }}\n\nToday's Headlines:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== REQUIRED OUTPUT FORMAT (Plain text, no Markdown) ==\n\nMARKET SENTIMENT: [Bullish/Bearish/Neutral]\nConfidence: [High/Medium/Low]\n\nVALUATION OVERVIEW:\n[2-3 sentences interpreting the Value Investor Dashboard - Buffett Indicator, CAPE, Yield Curve, and MA signals together. What do they collectively tell a value investor?]\n\nKEY THEMES:\n- [Theme 1]\n- [Theme 2]\n- [Theme 3]\n\nMARKET OVERVIEW:\n[2-3 sentence overview of major indices, VIX, Gold, Oil, and Dollar movements]\n\nBUFFETT WISDOM:\n[One relevant Warren Buffett quote that applies to today's market conditions, followed by 1-2 sentences explaining its relevance]\n\nKEY TAKEAWAY:\n[Single most important insight - what should a value investor focus on today? Think like Buffett: focus on intrinsic value, margin of safety, and long-term thinking]\n\nWATCHLIST NOTES:\n[Brief comment on any notable movers in the watchlist]\n\nKeep analysis factual and concise. No price predictions. NO MARKDOWN FORMATTING."
+      },
+      "id": "llm-chain",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1420, 400]
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "gemini-model",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1440, 620],
+      "credentials": {
+        "googleGeminiApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Gemini account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-llm",
+      "name": "Merge LLM Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1640, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMPOSE TELEGRAM MESSAGE - MarketPulse v7.0\n// Value Investor Edition\n// New: Value Investor Dashboard with color indicators\n// ============================================\n\nconst items = $input.all();\nconst now = new Date();\n\nlet d = {\n  fearGreedValue: 'N/A', fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A', fearGreedChange1w: 'N/A',\n  buffettIndicator: 'N/A', buffettStatus: 'N/A', buffettEmoji: '',\n  shillerPE: 'N/A', shillerStatus: 'N/A', shillerEmoji: '',\n  yieldCurve: 'N/A', yieldCurveStatus: 'N/A', yieldCurveEmoji: '',\n  sp500VsMa200: 'N/A', sp500VsMa200Status: 'N/A', sp500VsMa200Emoji: '', maSignal: 'N/A',\n  sp500: 'N/A', sp500Change: 'N/A',\n  dowJones: 'N/A', dowJonesChange: 'N/A',\n  vix: 'N/A', vixChange: 'N/A',\n  gold: 'N/A', goldChange: 'N/A',\n  oil: 'N/A', oilChange: 'N/A',\n  dxy: 'N/A', dxyChange: 'N/A',\n  btc: 'N/A', btcChange: 'N/A',\n  gdpValue: 'N/A', gdpYear: 'N/A',\n  cpiValue: 'N/A', cpiYear: 'N/A',\n  unemploymentValue: 'N/A', unemploymentYear: 'N/A',\n  fedRateValue: 'N/A', treasury10Y: 'N/A', treasury2Y: 'N/A',\n  watchlistSummary: 'N/A',\n  llmAnalysis: 'Analysis unavailable'\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(d)) {\n    if (j[key] && j[key] !== 'N/A' && j[key] !== 'Unknown' && j[key] !== 'Analysis unavailable') {\n      d[key] = j[key];\n    }\n  }\n  if (j.text && j.text.length > 30) d.llmAnalysis = j.text;\n  if (j.response && j.response.length > 30) d.llmAnalysis = j.response;\n}\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\n// Fear & Greed emoji\nconst fgScore = parseInt(d.fearGreedValue) || 0;\nlet fgEmoji = '';\nif (fgScore >= 75) fgEmoji = '🟢🟢';\nelse if (fgScore >= 55) fgEmoji = '🟢';\nelse if (fgScore >= 45) fgEmoji = '🟡';\nelse if (fgScore >= 25) fgEmoji = '🟠';\nelse if (fgScore > 0) fgEmoji = '🔴';\n\n// VIX emoji\nconst vixVal = parseFloat(d.vix) || 0;\nlet vixEmoji = '';\nif (vixVal >= 30) vixEmoji = '🔴 HIGH';\nelse if (vixVal >= 20) vixEmoji = '🟠 ELEVATED';\nelse if (vixVal >= 12) vixEmoji = '🟢 NORMAL';\nelse if (vixVal > 0) vixEmoji = '🟢🟢 LOW';\n\nfunction arrow(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  return changeStr.startsWith('+') ? '▲' : '▼';\n}\n\nconst message = `📊 MarketPulse Daily Digest\n━━━━━━━━━━━━━━━━━━━━\n📅 ${dateStr}\n\n🏛️ VALUE INVESTOR DASHBOARD\n\n${d.buffettEmoji} BUFFETT INDICATOR: ${d.buffettIndicator}\n   Market Cap to GDP | ${d.buffettStatus}\n\n${d.shillerEmoji} SHILLER P/E (CAPE): ${d.shillerPE}\n   Cyclically Adjusted P/E | ${d.shillerStatus}\n\n${d.yieldCurveEmoji} YIELD CURVE (10Y-2Y): ${d.yieldCurve}\n   Treasury Spread | ${d.yieldCurveStatus}\n\n${d.sp500VsMa200Emoji} S&P 500 vs 200D-MA: ${d.sp500VsMa200}\n   Trend Signal | ${d.sp500VsMa200Status} (${d.maSignal})\n\n━━━━━━━━━━━━━━━━━━━━\n\n🎯 FEAR & GREED INDEX ${fgEmoji}\nScore: ${d.fearGreedValue}/100 | ${d.fearGreedClassification}\nChange: ${d.fearGreedChange1d} (1d) | ${d.fearGreedChange1w} (1w)\n\n📈 MARKET SCREENER\n${arrow(d.sp500Change)} S&P 500: ${d.sp500} (${d.sp500Change})\n${arrow(d.dowJonesChange)} Dow Jones: ${d.dowJones} (${d.dowJonesChange})\n${arrow(d.vixChange)} VIX: ${d.vix} (${d.vixChange}) ${vixEmoji}\n${arrow(d.goldChange)} Gold: ${d.gold} (${d.goldChange})\n${arrow(d.oilChange)} Oil (WTI): ${d.oil} (${d.oilChange})\n${arrow(d.dxyChange)} US Dollar: ${d.dxy} (${d.dxyChange})\n${arrow(d.btcChange)} Bitcoin: ${d.btc} (${d.btcChange})\n\n📊 ECONOMIC INDICATORS (USA)\n• GDP Growth (${d.gdpYear}): ${d.gdpValue}\n• Inflation/CPI (${d.cpiYear}): ${d.cpiValue}\n• Unemployment (${d.unemploymentYear}): ${d.unemploymentValue}\n• Fed Funds Rate: ${d.fedRateValue}\n• 10Y Treasury: ${d.treasury10Y}\n• 2Y Treasury: ${d.treasury2Y}\n\n📋 WATCHLIST\n${d.watchlistSummary}\n\n💡 AI ANALYSIS (Valu-Analyst)\n${d.llmAnalysis}\n\n━━━━━━━━━━━━━━━━━━━━\n⚠️ Disclaimer: AI-generated analysis for informational purposes only. Not financial advice.\n\n📎 Sources: CNN Fear & Greed, FRED, MarketWatch, Yahoo Finance, multpl.com\n\nMarketPulse v7.0 | Manus AI & Claude Code`;\n\nreturn [{ json: { message: message, timestamp: now.toISOString() } }];"
+      },
+      "id": "compose-message",
+      "name": "Compose Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1860, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2080, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const alertMessage = `⚠️ MarketPulse Error\\n\\nTime: ${new Date().toISOString()}\\n\\nCheck n8n dashboard for details.`;\nreturn [{ json: { alertMessage } }];"
+      },
+      "id": "sanitize-error",
+      "name": "Sanitize Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 1200]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-error",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [720, 1200],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 7AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Dynamic Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dynamic Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "timeout": 300,
+    "timezone": "UTC"
+  },
+  "tags": [
+    {"name": "MarketPulse"},
+    {"name": "v7.0"},
+    {"name": "Production"},
+    {"name": "Value-Investor"},
+    {"name": "Buffett-Indicator"},
+    {"name": "CAPE"},
+    {"name": "Yield-Curve"}
+  ],
+  "meta": {
+    "templateId": "marketpulse-v7.0",
+    "version": "7.0.0",
+    "releaseDate": "2026-02-09",
+    "description": "MarketPulse v7.0 - Value Investor Edition with Buffett Indicator, Shiller PE, Yield Curve, and expanded Market Screener",
+    "changes": [
+      "NEW: Value Investor Dashboard section at top of message",
+      "NEW: Buffett Indicator (Wilshire 5000 / GDP) with color-coded benchmarks",
+      "NEW: Shiller PE (CAPE) Ratio from multpl.com with valuation zones",
+      "NEW: Yield Curve (10Y-2Y Treasury Spread) with inversion warning",
+      "NEW: S&P 500 vs 200-Day Moving Average with Golden/Death Cross signal",
+      "NEW: Oil (WTI), US Dollar (DXY), Bitcoin in Market Screener",
+      "NEW: 2-Year Treasury Yield from FRED",
+      "NEW: Buffett Wisdom quote in AI analysis",
+      "UPGRADED: LLM prompt now includes value investing philosophy context",
+      "MAINTAINED: IPv4 fix, retry logic, rate limiting from v6.0"
+    ]
+  }
+}
