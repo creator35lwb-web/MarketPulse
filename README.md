@@ -7,7 +7,7 @@
 <div align="center">
   <img src="docs/assets/branding/MarketPulse-Icon-new.png" alt="MarketPulse" width="200"/>
 
-  [![Version](https://img.shields.io/badge/version-5.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
+  [![Version](https://img.shields.io/badge/version-6.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
@@ -41,26 +41,32 @@ This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging devel
 
 ---
 
-## 📢 Latest Update: v5.0 - Production Ready (FRED Integration)
+## 📢 Latest Update: v6.0 - Market Screener Edition
 
-**Release Date:** January 21, 2026
+**Release Date:** February 9, 2026
 
-### What's New in v5.0
+### What's New in v6.0
 
 | Feature | Description |
 |---------|-------------|
-| **FRED API Integration** | Real-time economic data from Federal Reserve (monthly/quarterly) |
-| **New Indicators** | Fed Funds Rate + 10-Year Treasury Yield added |
-| **Reliable Architecture** | Single Code node fetches all data sequentially (no more race conditions) |
-| **Clean Output** | No Markdown symbols - pure plain text formatting |
-| **Stock % Change** | Calculated from previous close (reliable calculation) |
-| **Emoji Indicators** | Fear & Greed score shown with color-coded emojis |
+| **Market Screener** | S&P 500, Dow Jones, VIX Volatility, and Gold futures tracking |
+| **IPv4 Fix** | Workflow-level DNS resolution fix for IPv6/IPv4 connectivity issues |
+| **Retry Logic** | 3-attempt retry with exponential backoff for all stock API calls |
+| **Rate Limiting** | 500ms delay between API calls to prevent rate limit bans |
+| **VIX Status Indicators** | Color-coded LOW/NORMAL/ELEVATED/HIGH volatility alerts |
+| **Direction Arrows** | Visual arrows for market movements |
+| **Consolidated Architecture** | Stock fetching consolidated into single Code node |
+| **Gemini 2.5 Flash** | Upgraded LLM from Groq to Google Gemini for better analysis |
 
 ### Data Sources
 
 | Data | Source | Frequency |
 |------|--------|-----------|
 | Fear & Greed Index | CNN DataViz API | Daily |
+| S&P 500 (^GSPC) | Yahoo Finance | Real-time |
+| Dow Jones (^DJI) | Yahoo Finance | Real-time |
+| VIX Volatility (^VIX) | Yahoo Finance | Real-time |
+| Gold Futures (GC=F) | Yahoo Finance | Real-time |
 | GDP Growth | FRED (A191RL1Q225SBEA) | Quarterly |
 | Inflation/CPI | FRED (CPIAUCSL) | Monthly |
 | Unemployment | FRED (UNRATE) | Monthly |
@@ -74,10 +80,15 @@ This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging devel
 | Component | Status | Notes |
 |-----------|--------|-------|
 | CNN Fear & Greed | ✅ Working | Score with daily/weekly change |
+| S&P 500 / Dow Jones | ✅ Working | Real-time index prices with % change |
+| VIX Volatility | ✅ Working | With status indicators (LOW/NORMAL/ELEVATED/HIGH) |
+| Gold Futures | ✅ Working | Real-time gold price with % change |
 | FRED Economic Data | ✅ Working | All 5 indicators fetching |
 | MarketWatch RSS | ✅ Working | 8+ headlines with entity decoding |
-| Google Gemini LLM | ✅ Working | Plain text output (no Markdown) |
-| Yahoo Finance | ✅ Working | 5 stocks with % change |
+| Google Gemini LLM | ✅ Working | Gemini 2.5 Flash, plain text output |
+| Yahoo Finance | ✅ Working | 3 stocks (GOOGL, BABA, ADBE) with % change |
+| IPv4 DNS Fix | ✅ Working | Workflow-level fix, no system-wide impact |
+| Retry Logic | ✅ Working | 3 attempts with exponential backoff |
 | Telegram Bot | ✅ Validated | Clean formatted messages |
 
 ---
@@ -217,7 +228,7 @@ Use n8n's managed cloud service (paid after trial):
 
 ### Workflow Setup
 
-1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` into your n8n instance
+1. **Import Workflow:** Import `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` into your n8n instance
 2. **Add FRED API Key:** Edit the "Fetch All Market Data" node and replace `YOUR_FRED_API_KEY_HERE` on line 8
 3. **Configure Credentials:** Add your Google Gemini API key and Telegram Bot Token in n8n credentials
 4. **Set Channel ID:** Update the Telegram nodes with your channel ID
@@ -227,8 +238,9 @@ Use n8n's managed cloud service (paid after trial):
 
 | File | Description |
 |------|-------------|
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | **Latest production version** (recommended) |
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Previous stable version |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | **Latest production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | Previous stable version |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Legacy version |
 | `workflows/MarketPulse.json` | Original v1.0 workflow |
 
 ### Example Daily Digest
@@ -275,7 +287,7 @@ Not financial advice.
 
 📎 Sources: CNN Fear & Greed, FRED (Federal Reserve), MarketWatch, Yahoo Finance
 
-MarketPulse v5.0 | Manus AI & Claude Code
+MarketPulse v6.0 | Manus AI & Claude Code
 ```
 
 ---
@@ -284,6 +296,7 @@ MarketPulse v5.0 | Manus AI & Claude Code
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v6.0 | Feb 9, 2026 | Market Screener (S&P 500, Dow Jones, VIX, Gold), IPv4 fix, retry logic, Gemini 2.5 Flash |
 | v5.0 | Jan 21, 2026 | FRED API integration, Fed Rate & Treasury, reliable architecture |
 | v4.1 | Jan 19, 2026 | Bug fixes, watchlist improvements |
 | v4.0 | Jan 19, 2026 | Dynamic watchlist, dated economic data |
