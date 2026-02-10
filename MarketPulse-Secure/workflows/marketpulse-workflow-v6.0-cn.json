@@ -1,0 +1,355 @@
+{
+  "name": "MarketPulse v6.0 (CN) - China Market Edition",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 8AM CST Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 1200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH ALL MARKET DATA - MarketPulse v6.0 (CN)\n// China Market Edition\n// IPv4 Fix: Uses custom DNS resolver\n// Data Sources: Yahoo Finance, World Bank\n// ============================================\n\nconst dns = require('dns');\ndns.setDefaultResultOrder('ipv4first');\n\nconst results = {\n  // China Market Indices\n  csi300: 'N/A',\n  csi300Change: 'N/A',\n  sseComposite: 'N/A',\n  sseCompositeChange: 'N/A',\n  szseComponent: 'N/A',\n  szseComponentChange: 'N/A',\n  hangSeng: 'N/A',\n  hangSengChange: 'N/A',\n  // Commodities & Forex\n  gold: 'N/A',\n  goldChange: 'N/A',\n  usdCny: 'N/A',\n  usdCnyChange: 'N/A',\n  // Economic Indicators (World Bank - China)\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  // News Headlines\n  headlines: 'No headlines available'\n};\n\n// --- Helper Functions ---\n\nasync function fetchWithRetry(url, options = {}, retries = 3) {\n  for (let i = 0; i < retries; i++) {\n    try {\n      const response = await $http.request({\n        method: 'GET',\n        url: url,\n        headers: options.headers || { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n        timeout: options.timeout || 30000,\n        ...(options.json === false ? { encoding: 'utf-8', json: false } : {})\n      });\n      return response;\n    } catch (e) {\n      if (i === retries - 1) throw e;\n      await new Promise(r => setTimeout(r, 1000 * (i + 1)));\n    }\n  }\n}\n\nfunction formatPct(price, prevClose) {\n  if (!price || !prevClose || prevClose === 0) return 'N/A';\n  const changePct = ((price - prevClose) / prevClose) * 100;\n  const sign = changePct >= 0 ? '+' : '';\n  return sign + changePct.toFixed(2) + '%';\n}\n\n// --- 1. FETCH CHINA MARKET INDICES (Yahoo Finance) ---\n\nconst indices = [\n  { symbol: '000300.SS', namePrice: 'csi300', nameChange: 'csi300Change', label: 'CSI 300' },\n  { symbol: '000001.SS', namePrice: 'sseComposite', nameChange: 'sseCompositeChange', label: 'SSE Composite' },\n  { symbol: '399001.SZ', namePrice: 'szseComponent', nameChange: 'szseComponentChange', label: 'SZSE Component' },\n  { symbol: '^HSI', namePrice: 'hangSeng', nameChange: 'hangSengChange', label: 'Hang Seng' }\n];\n\nfor (const idx of indices) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      \n      if (price) {\n        results[idx.namePrice] = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n        if (prevClose && prevClose > 0) {\n          results[idx.nameChange] = formatPct(price, prevClose);\n        }\n      }\n    }\n    // Rate limit: small delay between requests\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) {\n    console.log(idx.label + ' error: ' + e.message);\n  }\n}\n\n// --- 2. FETCH GOLD & USD/CNY (Yahoo Finance) ---\n\nconst fxCommodities = [\n  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },\n  { symbol: 'CNY=X', namePrice: 'usdCny', nameChange: 'usdCnyChange', label: 'USD/CNY', prefix: '' }\n];\n\nfor (const item of fxCommodities) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(item.symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      \n      if (price) {\n        if (item.symbol === 'CNY=X') {\n          results[item.namePrice] = item.prefix + price.toFixed(4);\n        } else {\n          results[item.namePrice] = item.prefix + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n        }\n        if (prevClose && prevClose > 0) {\n          results[item.nameChange] = formatPct(price, prevClose);\n        }\n      }\n    }\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) {\n    console.log(item.label + ' error: ' + e.message);\n  }\n}\n\n// --- 3. FETCH CHINA ECONOMIC DATA (World Bank API) ---\n\n// GDP Growth\ntry {\n  const gdpData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/NY.GDP.MKTP.KD.ZG?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (gdpData && gdpData[1] && gdpData[1][0]) {\n    const obs = gdpData[1][0];\n    if (obs.value !== null) {\n      const sign = obs.value >= 0 ? '+' : '';\n      results.gdpValue = sign + parseFloat(obs.value).toFixed(2) + '%';\n      results.gdpYear = obs.date;\n    }\n  }\n} catch (e) {\n  console.log('World Bank GDP error: ' + e.message);\n}\n\n// CPI Inflation\ntry {\n  const cpiData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/FP.CPI.TOTL.ZG?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (cpiData && cpiData[1] && cpiData[1][0]) {\n    const obs = cpiData[1][0];\n    if (obs.value !== null) {\n      results.cpiValue = parseFloat(obs.value).toFixed(2) + '%';\n      results.cpiYear = obs.date;\n    }\n  }\n} catch (e) {\n  console.log('World Bank CPI error: ' + e.message);\n}\n\n// Unemployment Rate\ntry {\n  const unempData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/SL.UEM.TOTL.ZS?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (unempData && unempData[1] && unempData[1][0]) {\n    const obs = unempData[1][0];\n    if (obs.value !== null) {\n      results.unemploymentValue = parseFloat(obs.value).toFixed(2) + '%';\n      results.unemploymentYear = obs.date;\n    }\n  }\n} catch (e) {\n  console.log('World Bank Unemployment error: ' + e.message);\n}\n\n// --- 4. FETCH NEWS HEADLINES (Reuters China, Sina Finance RSS) ---\n\ntry {\n  // Try Reuters China news first\n  const rssResponse = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://news.google.com/rss/search?q=China+stock+market+economy&hl=en&gl=US&ceid=US:en',\n    timeout: 30000,\n    json: false\n  });\n  \n  if (rssResponse && typeof rssResponse === 'string') {\n    const titleMatches = rssResponse.match(/<title>([^<]+)<\\/title>/g);\n    \n    if (titleMatches && titleMatches.length > 1) {\n      const titles = [];\n      for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {\n        let title = titleMatches[i].replace(/<\\/?title>/g, '');\n        title = title.trim();\n        title = title.replace(/&#x201c;/g, '\"');\n        title = title.replace(/&#x201d;/g, '\"');\n        title = title.replace(/&#x2019;/g, \"'\");\n        title = title.replace(/&#x2018;/g, \"'\");\n        title = title.replace(/&#x2014;/g, ' - ');\n        title = title.replace(/&#x2013;/g, '-');\n        title = title.replace(/&amp;/g, '&');\n        title = title.replace(/&quot;/g, '\"');\n        title = title.replace(/&#xa0;/g, ' ');\n        title = title.replace(/ - .*$/, ''); // Remove source attribution\n        \n        if (title.length > 10) {\n          titles.push(i + '. ' + title);\n        }\n      }\n      \n      if (titles.length > 0) {\n        results.headlines = titles.join('\\n');\n      }\n    }\n  }\n} catch (e) {\n  console.log('RSS error: ' + e.message);\n}\n\nreturn [{ json: results }];"
+      },
+      "id": "fetch-all-data",
+      "name": "Fetch All China Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "600519.SS,300750.SZ,002594.SZ,9988.HK,0700.HK",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-watchlist",
+      "name": "Set CN Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH CHINA STOCK PRICES - MarketPulse v6.0 (CN)\n// Stocks: Moutai, CATL, BYD, Alibaba HK, Tencent HK\n// IPv4 Fix included\n// ============================================\n\nconst dns = require('dns');\ndns.setDefaultResultOrder('ipv4first');\n\nconst watchlistStr = $input.first().json.watchlist || '';\nconst symbols = watchlistStr.split(',').map(s => s.trim()).filter(s => s.length > 0);\n\nconst stockNames = {\n  '600519.SS': 'Moutai',\n  '300750.SZ': 'CATL',\n  '002594.SZ': 'BYD',\n  '9988.HK': 'Alibaba',\n  '0700.HK': 'Tencent',\n  '1810.HK': 'Xiaomi',\n  'PDD': 'PDD',\n  'NIO': 'NIO',\n  'BABA': 'Alibaba US',\n  'JD': 'JD.com'\n};\n\nconst currencySymbols = {\n  'CNY': '¥',\n  'HKD': 'HK$',\n  'USD': '$'\n};\n\nconst stockResults = [];\n\nfor (const symbol of symbols) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      const currency = meta.currency || 'CNY';\n      const currSymbol = currencySymbols[currency] || currency + ' ';\n      const name = stockNames[symbol] || meta.shortName || symbol;\n      \n      if (price) {\n        let changePct = 'N/A';\n        let changeArrow = '';\n        if (prevClose && prevClose > 0) {\n          const pct = ((price - prevClose) / prevClose) * 100;\n          const sign = pct >= 0 ? '+' : '';\n          changePct = sign + pct.toFixed(2) + '%';\n          changeArrow = pct >= 0 ? '▲' : '▼';\n        }\n        \n        stockResults.push({\n          symbol: symbol,\n          name: name,\n          price: currSymbol + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),\n          change: changePct,\n          arrow: changeArrow,\n          currency: currency\n        });\n      }\n    }\n    // Rate limit\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) {\n    console.log('Stock ' + symbol + ' error: ' + e.message);\n    stockResults.push({\n      symbol: symbol,\n      name: stockNames[symbol] || symbol,\n      price: 'N/A',\n      change: 'N/A',\n      arrow: '',\n      currency: 'N/A'\n    });\n  }\n}\n\n// Format watchlist summary\nlet watchlistSummary = 'Watchlist data unavailable';\nif (stockResults.length > 0) {\n  const lines = stockResults.map(s => {\n    return s.arrow + ' ' + s.name + ' (' + s.symbol + '): ' + s.price + ' (' + s.change + ')';\n  });\n  watchlistSummary = lines.join('\\n');\n}\n\nreturn [{ json: { watchlistSummary: watchlistSummary, stockDetails: stockResults } }];"
+      },
+      "id": "fetch-stocks",
+      "name": "Fetch CN Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 500],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-all",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMBINE ALL DATA - MarketPulse v6.0 (CN)\n// Merges China market data + stock prices\n// ============================================\n\nconst items = $input.all();\nconst combined = {};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) {\n      combined[key] = j[key];\n    }\n  }\n}\n\nreturn [{ json: combined }];"
+      },
+      "id": "combine-data",
+      "name": "Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are China-Analyst, a professional analyst specializing in the Chinese stock market and economy. Analyze the following China market data and provide a structured briefing.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== CHINA MARKET DATA ==\n\nChina Market Indices:\n- CSI 300: {{ $json.csi300 }} ({{ $json.csi300Change }})\n- SSE Composite: {{ $json.sseComposite }} ({{ $json.sseCompositeChange }})\n- SZSE Component: {{ $json.szseComponent }} ({{ $json.szseComponentChange }})\n- Hang Seng: {{ $json.hangSeng }} ({{ $json.hangSengChange }})\n\nCommodities & Forex:\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- USD/CNY: {{ $json.usdCny }} ({{ $json.usdCnyChange }})\n\nEconomic Indicators (China):\n- GDP Growth ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n\nToday's China-Related Headlines:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== REQUIRED OUTPUT FORMAT (Plain text, no Markdown) ==\n\nMARKET SENTIMENT: [Bullish/Bearish/Neutral]\nConfidence: [High/Medium/Low]\n\nKEY THEMES:\n- [Theme 1]\n- [Theme 2]\n- [Theme 3]\n\nMARKET OVERVIEW:\n[2-3 sentence overview of China A-shares, Hong Kong market, and key index movements]\n\nECONOMIC OUTLOOK:\n[1-2 sentences on China economic indicators - GDP growth trajectory, CPI deflation/inflation risk, employment trends]\n\nFOREX & COMMODITIES:\n[1 sentence on USD/CNY movement and Gold implications for China investors]\n\nKEY TAKEAWAY:\n[Single most important insight - what should a China-focused investor pay attention to today?]\n\nWATCHLIST NOTES:\n[Brief comment on notable movers in the China/HK watchlist - Moutai, CATL, BYD, Alibaba, Tencent]\n\nKeep analysis factual and concise. Focus on China-specific dynamics including PBOC policy signals, US-China trade relations, and domestic consumption trends. No price predictions. NO MARKDOWN FORMATTING."
+      },
+      "id": "llm-chain",
+      "name": "China Market LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1420, 400]
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "gemini-model",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1440, 620],
+      "credentials": {
+        "googleGeminiApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Gemini account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-llm",
+      "name": "Merge LLM Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1640, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMPOSE TELEGRAM MESSAGE - MarketPulse v6.0 (CN)\n// China Market Edition with color indicators\n// ============================================\n\nconst items = $input.all();\nconst now = new Date();\n\nlet d = {\n  csi300: 'N/A',\n  csi300Change: 'N/A',\n  sseComposite: 'N/A',\n  sseCompositeChange: 'N/A',\n  szseComponent: 'N/A',\n  szseComponentChange: 'N/A',\n  hangSeng: 'N/A',\n  hangSengChange: 'N/A',\n  gold: 'N/A',\n  goldChange: 'N/A',\n  usdCny: 'N/A',\n  usdCnyChange: 'N/A',\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  watchlistSummary: 'N/A',\n  llmAnalysis: 'Analysis unavailable'\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(d)) {\n    if (j[key] && j[key] !== 'N/A' && j[key] !== 'Unknown' && j[key] !== 'Analysis unavailable') {\n      d[key] = j[key];\n    }\n  }\n  if (j.text && j.text.length > 30) d.llmAnalysis = j.text;\n  if (j.response && j.response.length > 30) d.llmAnalysis = j.response;\n}\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\n// Color indicators for index changes\nfunction changeIndicator(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '⚪';\n  const val = parseFloat(changeStr);\n  if (isNaN(val)) return '⚪';\n  if (val >= 2) return '🟢🟢';\n  if (val > 0) return '🟢';\n  if (val === 0) return '🟡';\n  if (val > -2) return '🔴';\n  return '🔴🔴';\n}\n\n// Market direction arrows\nfunction arrow(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  return changeStr.startsWith('+') ? '▲' : '▼';\n}\n\n// USD/CNY strength indicator\nfunction cnyIndicator(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  const val = parseFloat(changeStr);\n  if (isNaN(val)) return '';\n  // For USD/CNY: positive = CNY weakening, negative = CNY strengthening\n  if (val > 0) return '(CNY Weakening)';\n  if (val < 0) return '(CNY Strengthening)';\n  return '(Stable)';\n}\n\nconst message = `📊 MarketPulse Daily Digest (CN)\n━━━━━━━━━━━━━━━━━━━━\n📅 ${dateStr}\n🇨🇳 China Market Edition\n\n📈 CHINA MARKET INDICES\n${changeIndicator(d.csi300Change)} ${arrow(d.csi300Change)} CSI 300: ${d.csi300} (${d.csi300Change})\n${changeIndicator(d.sseCompositeChange)} ${arrow(d.sseCompositeChange)} SSE Composite: ${d.sseComposite} (${d.sseCompositeChange})\n${changeIndicator(d.szseComponentChange)} ${arrow(d.szseComponentChange)} SZSE Component: ${d.szseComponent} (${d.szseComponentChange})\n${changeIndicator(d.hangSengChange)} ${arrow(d.hangSengChange)} Hang Seng: ${d.hangSeng} (${d.hangSengChange})\n\n💰 COMMODITIES & FOREX\n${arrow(d.goldChange)} Gold: ${d.gold} (${d.goldChange})\n${arrow(d.usdCnyChange)} USD/CNY: ${d.usdCny} (${d.usdCnyChange}) ${cnyIndicator(d.usdCnyChange)}\n\n📊 ECONOMIC INDICATORS (CHINA)\n• GDP Growth (${d.gdpYear}): ${d.gdpValue}\n• Inflation/CPI (${d.cpiYear}): ${d.cpiValue}\n• Unemployment (${d.unemploymentYear}): ${d.unemploymentValue}\n\n📋 WATCHLIST\n${d.watchlistSummary}\n\n💡 AI ANALYSIS\n${d.llmAnalysis}\n\n━━━━━━━━━━━━━━━━━━━━\n⚠️ Disclaimer: AI-generated analysis for informational purposes only. Not financial advice.\n\n📎 Sources: Yahoo Finance, World Bank, Google News\n\nMarketPulse v6.0 (CN) | Manus AI & Claude Code`;\n\nreturn [{ json: { message: message, timestamp: now.toISOString() } }];"
+      },
+      "id": "compose-message",
+      "name": "Compose Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1860, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2080, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const alertMessage = `⚠️ MarketPulse (CN) Error\\n\\nTime: ${new Date().toISOString()}\\n\\nCheck n8n dashboard for details.`;\nreturn [{ json: { alertMessage } }];"
+      },
+      "id": "sanitize-error",
+      "name": "Sanitize Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 1200]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-error",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [720, 1200],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 8AM CST Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All China Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set CN Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All China Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set CN Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch CN Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CN Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data": {
+      "main": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "China Market LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "timeout": 300,
+    "timezone": "Asia/Shanghai"
+  },
+  "tags": [
+    {"name": "MarketPulse"},
+    {"name": "v6.0-CN"},
+    {"name": "Production"},
+    {"name": "China-Market"},
+    {"name": "Yahoo-Finance"},
+    {"name": "World-Bank"},
+    {"name": "Gemini"}
+  ]
+}
