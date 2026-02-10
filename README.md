@@ -41,6 +41,25 @@ This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging devel
 
 ---
 
+## 📢 Latest Update: v6.0 (CN) - China Market Edition
+
+**Release Date:** February 10, 2026
+
+This is a new, parallel version of MarketPulse adapted for the Chinese market. It uses the same robust v6.0 foundation but with China-specific data sources.
+
+### What's New in v6.0 (CN)
+
+| Feature | Description |
+|---------|-------------|
+| **China Market Indices** | CSI 300, SSE Composite, SZSE Component, Hang Seng |
+| **China Watchlist** | Moutai, CATL, BYD, Alibaba HK, Tencent HK |
+| **China Economic Data** | GDP, CPI, Unemployment from World Bank |
+| **China News Headlines** | Sourced from Google News RSS for China market |
+| **USD/CNY Forex** | Real-time exchange rate tracking |
+| **AI Analysis (CN)** | Gemini 2.5 Flash provides analysis tailored to the Chinese market |
+
+---
+
 ## 📢 Latest Update: v7.0 - Value Investor Edition
 
 **Release Date:** February 9, 2026
@@ -249,13 +268,76 @@ Use n8n's managed cloud service (paid after trial):
 
 | File | Description |
 |------|-------------|
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` | **Latest production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` | **Latest US production version** (recommended) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0-cn.json` | **Latest China production version** |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | Market Screener Edition |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | Previous stable version |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Legacy version |
 | `workflows/MarketPulse.json` | Original v1.0 workflow |
 
-### Example Daily Digest
+### Example Daily Digest (China Market)
+
+```
+📊 MarketPulse Daily Digest (CN)
+━━━━━━━━━━━━━━━━━━━━
+📅 Tuesday, February 10, 2026
+🇨🇳 China Market Edition
+
+📈 CHINA MARKET INDICES
+🟢 ▲ CSI 300: 4,724.30 (+0.11%)
+🟢 ▲ SSE Composite: 4,128.37 (+1.54%)
+🟢🟢 ▲ SZSE Component: 14,210.63 (+2.19%)
+🟢 ▲ Hang Seng: 27,183.15 (+0.58%)
+
+💰 COMMODITIES & FOREX
+🔴 ▼ Gold: $5,057.30 (-0.44%)
+🔴 ▼ USD/CNY: 6.91 (-0.16%) (CNY Strengthening)
+
+📊 ECONOMIC INDICATORS (CHINA)
+• GDP Growth (2024): +4.98%
+• Inflation/CPI (2024): +0.22%
+• Unemployment (2024): +4.59%
+
+📋 WATCHLIST
+▼ Kweichow Moutai (600519.SS): ¥1,504.80 (-1.32%)
+▼ CATL (300750.SZ): ¥364.97 (-1.04%)
+▲ BYD (002594.SZ): ¥90.81 (+0.83%)
+▲ Alibaba HK (9988.HK): HK$160.50 (+1.65%)
+▼ Tencent HK (0700.HK): HK$551.00 (-1.61%)
+
+💡 AI ANALYSIS
+MARKET SENTIMENT: Cautiously Optimistic
+Confidence: Medium
+
+KEY THEMES:
+- Mainland A-shares show resilience, while Hong Kong tech faces headwinds.
+- Strong SZSE performance suggests appetite for growth and tech stocks.
+- CNY strengthening against the USD is a positive signal for foreign investment.
+
+MARKET OVERVIEW:
+China's domestic A-share markets showed strength, particularly the tech-heavy SZSE Component, indicating investor confidence in domestic growth sectors. However, the Hang Seng in Hong Kong lagged, likely weighed down by international sentiment and specific tech-sector concerns. The overall picture is one of divergence between mainland optimism and offshore caution.
+
+ECONOMIC OUTLOOK:
+The latest World Bank data from 2024 paints a picture of stable growth, with GDP at a healthy 4.98% and inflation well under control at 0.22%. The low unemployment rate further supports a stable domestic economic foundation, giving policymakers room to maneuver without immediate pressure.
+
+FOREX & COMMODITIES:
+The strengthening of the Yuan (CNY) against the US Dollar is a significant positive indicator, potentially attracting more foreign capital into Chinese assets. Gold's slight dip suggests a risk-on sentiment in other parts of the global market, but it remains a key hedge for Chinese investors.
+
+KEY TAKEAWAY:
+The key takeaway for a China-focused investor is the growing divergence between the resilient domestic A-share market and the more volatile Hong Kong-listed tech giants. This suggests that opportunities may lie in domestic consumption and industrial leaders over internationally-exposed tech.
+
+WATCHLIST NOTES:
+The watchlist reflects this divergence. Mainland-listed BYD showed strength, while Hong Kong-listed giants Alibaba and Tencent were mixed, with Tencent underperforming. Moutai's dip could be a buying opportunity for those bullish on premium consumer brands.
+
+━━━━━━━━━━━━━━━━━━━━
+⚠️ Disclaimer: AI-generated analysis for informational purposes only. Not financial advice.
+
+📎 Sources: Yahoo Finance, World Bank, Google News
+
+MarketPulse v6.0 (CN) | Manus AI & Claude Code
+```
+
+### Example Daily Digest (US Market)
 
 ```
 📊 MarketPulse Daily Digest
