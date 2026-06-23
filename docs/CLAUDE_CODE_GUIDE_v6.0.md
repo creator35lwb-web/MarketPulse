@@ -65,7 +65,7 @@ This is already included in the v6.0 JSON. Verify it works on the user's local m
 
 1. Import `marketpulse-workflow-v6.0.json` into the user's local n8n instance
 2. Configure credentials:
-   - **Google Gemini API**: Use key `AIzaSyAjvR0Rk2umbDun1xfj6qESwfkm_OSOkKs`
+   - **Google Gemini API**: Use your own key, stored in n8n credentials (never hardcode keys in the repo)
    - **FRED API**: Use existing key (already in user's environment)
    - **Telegram API**: Use existing bot token and chat ID
 3. Test execution and verify all data sources return values
