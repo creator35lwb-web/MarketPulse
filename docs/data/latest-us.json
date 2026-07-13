@@ -1,6 +1,6 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-13T17:51:15.409Z",
+  "generatedAt": "2026-07-13T18:17:34.007Z",
   "dateLabel": "Tuesday, July 14, 2026",
   "health": {
     "status": "OK",
@@ -34,7 +34,7 @@
     }
   },
   "fearGreed": {
-    "score": 44,
+    "score": 43,
     "classification": "Fear",
     "change1d": "-6",
     "change1w": "-1"
@@ -43,44 +43,44 @@
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7520.43",
-      "change": "-0.73%"
+      "value": "7521.65",
+      "change": "-0.71%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52487.95",
-      "change": "-0.28%"
+      "value": "52473.81",
+      "change": "-0.31%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "16.68",
-      "change": "+10.98%"
+      "value": "16.87",
+      "change": "+12.24%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4004.50",
-      "change": "-2.65%"
+      "value": "$4001.60",
+      "change": "-2.73%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$76.66",
-      "change": "+7.35%"
+      "value": "$77.61",
+      "change": "+8.68%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.25",
-      "change": "+0.29%"
+      "value": "101.24",
+      "change": "+0.28%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$61,975",
-      "change": "-2.78%"
+      "value": "$61,849",
+      "change": "-2.97%"
     }
   ],
   "economic": [
@@ -118,7 +118,7 @@
       "value": "4.16%"
     }
   ],
-  "watchlist": "  GOOGL: $355.80 (-0.39%)\n  BABA: $112.69 (+0.32%)\n  ADBE: $231.75 (+3.62%)\n  SOFI: $18.19 (-3.16%)\n  ASML: $1726.14 (-3.96%)",
+  "watchlist": "  GOOGL: $355.97 (-0.34%)\n  BABA: $112.56 (+0.20%)\n  ADBE: $230.66 (+3.14%)\n  SOFI: $18.18 (-3.19%)\n  ASML: $1732.00 (-3.63%)",
   "trackRecord": {
     "accuracy": "Building history",
     "last": ""
@@ -126,18 +126,50 @@
   "history": [
     {
       "date": "2026-07-13",
-      "sentiment": "n/a",
+      "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
+  "analysisModel": "llama-3.3-70b-versatile",
+  "analysisProvider": "Groq",
   "analysis": {
-    "sentiment": "Unavailable",
-    "confidence": "",
-    "claims": [],
-    "interpretation": "",
-    "wisdom": ""
+    "sentiment": "Cautiously Bearish",
+    "confidence": "Medium",
+    "claims": [
+      {
+        "text": "the market is showing signs of being overvalued",
+        "basedOn": [
+          "buffettIndicator",
+          "shillerPE"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "inflation is expected to decrease",
+        "basedOn": [
+          "headline_2"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "the yield curve is flat which may indicate a potential economic slowdown",
+        "basedOn": [
+          "yieldCurve"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "there is fear in the market",
+        "basedOn": [
+          "fearGreedValue"
+        ],
+        "direction": "neutral"
+      }
+    ],
+    "interpretation": "the market is currently experiencing a mix of bullish and bearish signals, with the potential for a downturn due to overvaluation and a flat yield curve, but also some positive indicators such as expected inflation decrease, overall the investor should be cautious, my sentiment shifted to cautiously bearish due to the strongly overvalued shiller pe and the flat yield curve",
+    "wisdom": "it is important to be patient and disciplined in times of market uncertainty, as warren buffett once said, price is what you pay, but value is what you get"
   },
   "sources": [
     "CNN Fear & Greed",
