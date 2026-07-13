@@ -1,39 +1,137 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-10T08:30:22.320Z",
-  "dateLabel": "Friday, July 10, 2026",
-  "health": { "status": "OK", "missing": [], "suspect": [] },
+  "generatedAt": "2026-07-13T08:30:40.184Z",
+  "dateLabel": "Monday, July 13, 2026",
+  "health": {
+    "status": "DEGRADED",
+    "missing": [
+      "Unemployment"
+    ],
+    "suspect": []
+  },
   "dashboard": {},
   "fearGreed": null,
   "screener": [
-    { "label": "CSI 300", "factKey": "csi300Change", "value": "4,780.79", "change": "-1.96%" },
-    { "label": "SSE Composite", "factKey": "sseCompositeChange", "value": "3,996.16", "change": "+0.64%" },
-    { "label": "SZSE Component", "factKey": "szseComponentChange", "value": "15,046.67", "change": "+0.72%" },
-    { "label": "Hang Seng", "factKey": "hangSengChange", "value": "24,175.12", "change": "+0.60%" },
-    { "label": "Gold", "factKey": "goldChange", "value": "$4,116.30", "change": "-0.59%" },
-    { "label": "USD/CNY", "factKey": "usdCnyChange", "value": "6.7776", "change": "-0.21%" }
+    {
+      "label": "CSI 300",
+      "factKey": "csi300Change",
+      "value": "4,695.38",
+      "change": "-1.79%"
+    },
+    {
+      "label": "SSE Composite",
+      "factKey": "sseCompositeChange",
+      "value": "3,913.79",
+      "change": "-2.06%"
+    },
+    {
+      "label": "SZSE Component",
+      "factKey": "szseComponentChange",
+      "value": "14,522.85",
+      "change": "-3.48%"
+    },
+    {
+      "label": "Hang Seng",
+      "factKey": "hangSengChange",
+      "value": "24,213.72",
+      "change": "+0.16%"
+    },
+    {
+      "label": "Gold",
+      "factKey": "goldChange",
+      "value": "$4,083.60",
+      "change": "-0.73%"
+    },
+    {
+      "label": "USD/CNY",
+      "factKey": "usdCnyChange",
+      "value": "6.7806",
+      "change": "+0.21%"
+    }
   ],
   "economic": [
-    { "label": "GDP Growth", "period": "2025", "factKey": "gdpValue", "value": "+4.96%" },
-    { "label": "Inflation/CPI", "period": "2025", "factKey": "cpiValue", "value": "0.06%" },
-    { "label": "Unemployment", "period": "2025", "factKey": "unemploymentValue", "value": "4.62%" }
+    {
+      "label": "GDP Growth",
+      "period": "2025",
+      "factKey": "gdpValue",
+      "value": "+4.96%"
+    },
+    {
+      "label": "Inflation/CPI",
+      "period": "2025",
+      "factKey": "cpiValue",
+      "value": "0.06%"
+    },
+    {
+      "label": "Unemployment",
+      "period": "N/A",
+      "factKey": "unemploymentValue",
+      "value": "N/A"
+    }
   ],
-  "watchlist": "  Moutai: ¥1,204.98 (+1.93%)\n  CATL: ¥348.76 (-7.12%)\n  BYD: ¥90.00 (+3.60%)\n  Alibaba: HK$110.20 (+2.04%)\n  Tencent: HK$460.20 (-2.00%)",
+  "watchlist": "▲ Moutai (600519.SS): ¥1,210.99 (+0.50%)\n▲ CATL (300750.SZ): ¥359.06 (+2.95%)\n▼ BYD (002594.SZ): ¥86.98 (-3.36%)\n▲ Alibaba (9988.HK): HK$110.70 (+0.45%)\n▼ Tencent (0700.HK): HK$457.60 (-0.56%)",
   "trackRecord": {
-    "accuracy": "Building history",
-    "last": ""
+    "accuracy": "0/1 (0%)",
+    "last": "Cautiously Bullish (2026-07-10) → market moved -1.79% → Miss"
   },
+  "history": [
+    {
+      "date": "2026-07-10",
+      "sentiment": "Cautiously Bullish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "-1.79%"
+    },
+    {
+      "date": "2026-07-13",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
+    }
+  ],
   "analysis": {
-    "sentiment": "Cautiously Bullish",
+    "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
-      { "text": "The domestic benchmark index representing major mainland large caps experienced a notable decline, showing divergence from broader market sentiment.", "basedOn": ["csi300Change"], "direction": "supports_bearish" },
-      { "text": "Mainboard equities in Shanghai and Shenzhen, along with Hong Kong listed shares, managed modest gains to buck the large-cap downtrend.", "basedOn": ["sseCompositeChange", "szseComponentChange", "hangSengChange"], "direction": "supports_bullish" },
-      { "text": "The Chinese currency strengthened against the US dollar, reflecting resilient underlying capital flows.", "basedOn": ["usdCnyChange"], "direction": "supports_bullish" },
-      { "text": "Consumer price inflation remains extremely low, indicating persistent domestic demand challenges despite steady overall economic growth.", "basedOn": ["cpiValue", "gdpValue"], "direction": "neutral" }
+      {
+        "text": "Major mainland equity benchmarks experienced sharp declines, indicating widespread selling pressure across onshore exchanges.",
+        "basedOn": [
+          "csi300Change",
+          "sseCompositeChange",
+          "szseComponentChange"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "The Chinese currency depreciated against the United States dollar, reversing its previous strengthening trend.",
+        "basedOn": [
+          "usdCnyChange"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Offshore Hong Kong equities displayed resilience by posting modest gains, bucking the mainland market downtrend.",
+        "basedOn": [
+          "hangSengChange"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "Consumer price inflation remains nearly flat, reflecting persistent domestic demand challenges despite steady economic growth.",
+        "basedOn": [
+          "cpiValue",
+          "gdpValue"
+        ],
+        "direction": "neutral"
+      }
     ],
-    "interpretation": "As this is our initial assessment, we establish a baseline of cautious optimism driven by resilient broad-market indices and currency strength, despite localized weakness in large-cap blue chips. The sharp divergence between key mainland indices highlights the necessity of selective sector allocation rather than broad passive exposure.",
-    "wisdom": "True margin of safety is found by looking past short-term index volatility and focusing on high-quality enterprises with robust cash flows and enduring competitive advantages."
+    "interpretation": "Onshore equities have sharply reversed their previous gains into a broad selloff, while the currency has weakened. Although offshore markets remain resilient, the persistent weakness in consumer demand coupled with mainland selling pressure suggests a more defensive stance is warranted. Investors should look for signs of policy support to stabilize domestic sentiment.",
+    "wisdom": "True value is often uncovered during periods of sharp market divergence and domestic pessimism, where high-quality enterprises with robust cash flows are temporarily discounted."
   },
-  "sources": ["Yahoo Finance", "World Bank", "Google News"]
+  "sources": [
+    "Yahoo Finance",
+    "World Bank",
+    "Google News"
+  ]
 }
