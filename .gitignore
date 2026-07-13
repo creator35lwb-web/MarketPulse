@@ -81,3 +81,14 @@ package-lock.json
 *.local.json
 remote-workflow-temp.json
 nul
+
+# Local working drafts — never published.
+# The canonical, importable export is:
+#   MarketPulse-Secure/workflows/marketpulse-workflow-CURRENT.json
+MarketPulse-Secure/workflows/marketpulse-workflow-v7.*.json
+MarketPulse-Secure/workflows/marketpulse-ema-watchdog-*.json
+MarketPulse-Secure/workflows/marketpulse-news-sentinel-*.json
+MarketPulse-Secure/workflows/marketpulse-service-status.json
+MarketPulse-Secure/workflows/HANDOFF_NOTE.md
+MarketPulse-Secure/workflows/COMPATIBILITY_NOTES.md
+MarketPulse-Secure/workflows/TEST_TELEGRAM_FIX.txt

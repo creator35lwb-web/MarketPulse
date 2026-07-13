@@ -1,0 +1,1107 @@
+{
+  "name": "MarketPulse — Verified AI Market Intelligence (US + CN)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "214eebcf-2d75-4fa1-945d-2056cb0d2258",
+      "name": "Daily US Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        576
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "553abb38-397d-4ebc-9989-488c719f69fd",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH ALL MARKET DATA - MarketPulse v7.1\n// Production: IPv4 Fix + safeFetch Retry\n// ============================================\n\n// --- IPv4 FIX ---\ntry { require('dns').setDefaultResultOrder('ipv4first'); } catch(e) {}\n\nconst FRED_API_KEY = 'YOUR_FRED_API_KEY_HERE';\n\n// --- RETRY HELPER: auto-retries on network errors ---\nconst _self = this;\n\n// ===== GLOBAL TIME BUDGET (2026-07-14) =====\n// n8n kills a Code node at 300s. Each source can retry 3x with backoff, so a handful\n// of slow/dead sources used to blow the whole budget - and we would lose EVERYTHING,\n// including the sources that answered fine (exec #640: 'Task execution timed out after\n// 300 seconds'). Now we track elapsed time and stop retrying / stop starting new work\n// as the deadline nears, returning whatever we DID get, with health flags set. Partial\n// verified data beats no data: the DEGRADED/OUTAGE banner already handles this honestly.\nconst NODE_START = Date.now();\nconst TIME_BUDGET_MS = 235000;              // of n8n's 300s - leaves ~65s to finish + return\nconst RETRY_RESERVE_MS = 20000;             // do not START a retry without this much left\nfunction msLeft() { return TIME_BUDGET_MS - (Date.now() - NODE_START); }\n\nasync function safeFetch(options) {\n  for (let attempt = 0; attempt < 3; attempt++) {\n    if (msLeft() <= 0) throw new Error('TIME_BUDGET_EXCEEDED: skipped to protect the run');\n    try {\n      return await _self.helpers.httpRequest(options);\n    } catch (e) {\n      const msg = (e.message || '').toLowerCase();\n      const isNet = msg.includes('enetunreach') || msg.includes('econnrefused') ||\n        msg.includes('etimedout') || msg.includes('eai_again') || msg.includes('ehostunreach') ||\n        msg.includes('enotfound') || msg.includes('socket hang up') || msg.includes('network');\n      if (isNet && attempt < 2 && msLeft() > RETRY_RESERVE_MS) {\n        console.log('Retry ' + (attempt+1) + '/2 (' + Math.round(msLeft()/1000) + 's budget left): ' + (options.url || '').substring(0, 60));\n        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));\n        continue;\n      }\n      throw e;\n    }\n  }\n}\n\n\n// ===== DATA-HEALTH INSTRUMENTATION (hardening) =====\n// LOUD failures so N/A can never masquerade as success.\n// Grep n8n logs:  [MarketPulse][FETCH-FAIL] / [MarketPulse][DATA-HEALTH]\nconst health = { status: 'OK', failed: [], missing: [] };\nfunction fail(source, e) {\n  const code = (e && (e.code || (e.cause && e.cause.code))) || '';\n  const msg = ((e && e.message) || String(e)).slice(0, 180);\n  health.failed.push({ source, code, msg });\n  console.error('🔴 [MarketPulse][FETCH-FAIL] ' + source + ' :: ' + code + ' ' + msg);\n}\n\nconst results = {\n  fearGreedValue: 'N/A', fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A', fearGreedChange1w: 'N/A',\n  buffettIndicator: 'N/A', buffettStatus: 'N/A', buffettEmoji: '',\n  shillerPE: 'N/A', shillerStatus: 'N/A', shillerEmoji: '',\n  yieldCurve: 'N/A', yieldCurveStatus: 'N/A', yieldCurveEmoji: '',\n  sp500VsMa200: 'N/A', sp500VsMa200Status: 'N/A', sp500VsMa200Emoji: '', maSignal: 'N/A',\n  sp500: 'N/A', sp500Change: 'N/A',\n  dowJones: 'N/A', dowJonesChange: 'N/A',\n  vix: 'N/A', vixChange: 'N/A',\n  gold: 'N/A', goldChange: 'N/A',\n  oil: 'N/A', oilChange: 'N/A',\n  dxy: 'N/A', dxyChange: 'N/A',\n  btc: 'N/A', btcChange: 'N/A',\n  gdpValue: 'N/A', gdpYear: 'N/A',\n  cpiValue: 'N/A', cpiYear: 'N/A',\n  unemploymentValue: 'N/A', unemploymentYear: 'N/A',\n  fedRateValue: 'N/A', treasury10Y: 'N/A', treasury2Y: 'N/A',\n  headlines: 'No headlines available',\n  headlinesList: [],\n  headlinesCount: 0\n};\n\nfunction formatDate(dateStr) {\n  if (!dateStr) return 'N/A';\n  const d = new Date(dateStr);\n  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\n  return months[d.getMonth()] + ' ' + d.getFullYear();\n}\n\n// ---- 1. CNN FEAR & GREED INDEX ----\ntry {\n  const fgData = await safeFetch({\n    method: 'GET',\n    url: 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata',\n    headers: {\n      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',\n      'Referer': 'https://www.cnn.com/markets/fear-and-greed',\n      'Accept': 'application/json'\n    },\n    timeout: 30000\n  });\n  if (fgData && fgData.fear_and_greed) {\n    const fg = fgData.fear_and_greed;\n    results.fearGreedValue = Math.round(fg.score);\n    results.fearGreedClassification = fg.rating ?\n      fg.rating.charAt(0).toUpperCase() + fg.rating.slice(1) : 'Unknown';\n    if (fg.previous_close !== null && fg.previous_close !== undefined) {\n      const d = Math.round(fg.score - fg.previous_close);\n      results.fearGreedChange1d = (d >= 0 ? '+' : '') + d;\n    }\n    if (fg.previous_1_week !== null && fg.previous_1_week !== undefined) {\n      const w = Math.round(fg.score - fg.previous_1_week);\n      results.fearGreedChange1w = (w >= 0 ? '+' : '') + w;\n    }\n  }\n} catch (e) { fail('Fear & Greed', e); }\n\n// ---- 2. MARKET INDICES via Yahoo Finance ----\nconst indices = [\n  { symbol: '^GSPC', namePrice: 'sp500', nameChange: 'sp500Change', label: 'S&P 500' },\n  { symbol: '^DJI', namePrice: 'dowJones', nameChange: 'dowJonesChange', label: 'Dow Jones' },\n  { symbol: '^VIX', namePrice: 'vix', nameChange: 'vixChange', label: 'VIX' },\n  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },\n  { symbol: 'CL=F', namePrice: 'oil', nameChange: 'oilChange', label: 'Oil (WTI)', prefix: '$' },\n  { symbol: 'DX-Y.NYB', namePrice: 'dxy', nameChange: 'dxyChange', label: 'US Dollar (DXY)' },\n  { symbol: 'BTC-USD', namePrice: 'btc', nameChange: 'btcChange', label: 'Bitcoin', prefix: '$' }\n];\n\nlet sp500Price = 0;\nlet sp500Closes = [];\n\nfor (const idx of indices) {\n  try {\n    const range = (idx.symbol === '^GSPC') ? '1y' : '1d';\n    const data = await safeFetch({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=' + range,\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const result = data.chart.result[0];\n      const meta = result.meta;\n      const price = meta.regularMarketPrice;\n      // Yahoo meta.chartPreviousClose = the close BEFORE the chart range starts.\n      // ^GSPC is fetched with range=1y (it needs a year of closes for the 200-day MA),\n      // so ITS chartPreviousClose is the close from a YEAR AGO - not yesterday. Using it\n      // published the S&P annual return (+20.62%) as its DAILY change, every day, and\n      // that number then fed the digest, the LLM evidence, and the track-record scoring.\n      // Derive the true prior close from the timeseries whenever the range gives us one;\n      // fall back to meta for range=1d, where the series holds only today candle.\n      const seriesCloses = ((result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [])\n        .filter(function (c) { return c !== null && c !== undefined; });\n      const prevClose = (seriesCloses.length >= 2)\n        ? seriesCloses[seriesCloses.length - 2]\n        : (meta.chartPreviousClose || meta.previousClose);\n      if (price) {\n        const prefix = idx.prefix || '';\n        if (idx.symbol === 'BTC-USD') {\n          results[idx.namePrice] = prefix + price.toLocaleString('en-US', {maximumFractionDigits: 0});\n        } else {\n          results[idx.namePrice] = prefix + price.toFixed(2);\n        }\n        if (prevClose && prevClose > 0) {\n          const changePct = ((price - prevClose) / prevClose) * 100;\n          const sign = changePct >= 0 ? '+' : '';\n          results[idx.nameChange] = sign + changePct.toFixed(2) + '%';\n        }\n      }\n      if (idx.symbol === '^GSPC') {\n        sp500Price = price;\n        const closes = result.indicators.quote[0].close;\n        sp500Closes = closes.filter(c => c !== null && c !== undefined);\n      }\n    }\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) { fail(idx.label, e); }\n}\n\n// ---- 3. S&P 500 vs 200-DAY MOVING AVERAGE ----\ntry {\n  if (sp500Closes.length >= 200 && sp500Price > 0) {\n    const ma200 = sp500Closes.slice(-200).reduce((a, b) => a + b, 0) / 200;\n    const ma50 = sp500Closes.slice(-50).reduce((a, b) => a + b, 0) / Math.min(50, sp500Closes.slice(-50).length);\n    const pctVsMa200 = ((sp500Price - ma200) / ma200) * 100;\n    results.sp500VsMa200 = (pctVsMa200 >= 0 ? '+' : '') + pctVsMa200.toFixed(1) + '%';\n    results.maSignal = ma50 > ma200 ? 'Golden Cross' : 'Death Cross';\n    if (pctVsMa200 > 5) { results.sp500VsMa200Status = 'Strong Bullish'; results.sp500VsMa200Emoji = '🟢🟢'; }\n    else if (pctVsMa200 > 0) { results.sp500VsMa200Status = 'Bullish'; results.sp500VsMa200Emoji = '🟢'; }\n    else if (pctVsMa200 > -5) { results.sp500VsMa200Status = 'Caution'; results.sp500VsMa200Emoji = '🟡'; }\n    else { results.sp500VsMa200Status = 'Bearish Signal'; results.sp500VsMa200Emoji = '🔴'; }\n  }\n} catch (e) { fail('MA200', e); }\n\n// ---- 4. SHILLER PE (CAPE) RATIO ----\ntry {\n  const capeResp = await safeFetch({\n    method: 'GET',\n    url: 'https://www.multpl.com/shiller-pe',\n    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n    timeout: 15000,\n    json: false\n  });\n  if (capeResp && typeof capeResp === 'string') {\n    const match = capeResp.match(/Current Shiller PE Ratio[^0-9]*(\\d+\\.\\d+)/);\n    if (match) {\n      const cape = parseFloat(match[1]);\n      results.shillerPE = cape.toFixed(1);\n      if (cape < 20) { results.shillerStatus = 'Undervalued'; results.shillerEmoji = '🟢🟢'; }\n      else if (cape < 25) { results.shillerStatus = 'Fair Value'; results.shillerEmoji = '🟢'; }\n      else if (cape < 30) { results.shillerStatus = 'Slightly Overvalued'; results.shillerEmoji = '🟡'; }\n      else if (cape < 35) { results.shillerStatus = 'Overvalued'; results.shillerEmoji = '🟠'; }\n      else { results.shillerStatus = 'Strongly Overvalued'; results.shillerEmoji = '🔴'; }\n    }\n  }\n} catch (e) { fail('CAPE', e); }\n\n// ---- 5-10. FRED DATA ----\ntry {\n  const unempData = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=UNRATE&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc', timeout: 30000 });\n  if (unempData && unempData.observations && unempData.observations[0]) { results.unemploymentValue = unempData.observations[0].value + '%'; results.unemploymentYear = formatDate(unempData.observations[0].date); }\n} catch (e) { fail('FRED Unemployment', e); }\n\ntry {\n  const cpiData = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=CPIAUCSL&api_key=' + FRED_API_KEY + '&file_type=json&limit=13&sort_order=desc', timeout: 30000 });\n  if (cpiData && cpiData.observations && cpiData.observations.length >= 13) { const latest = parseFloat(cpiData.observations[0].value); const yearAgo = parseFloat(cpiData.observations[12].value); results.cpiValue = (((latest - yearAgo) / yearAgo) * 100).toFixed(2) + '%'; results.cpiYear = formatDate(cpiData.observations[0].date); }\n} catch (e) { fail('FRED CPI', e); }\n\ntry {\n  const gdpData = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=A191RL1Q225SBEA&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc', timeout: 30000 });\n  if (gdpData && gdpData.observations && gdpData.observations[0]) { const obs = gdpData.observations[0]; results.gdpValue = (parseFloat(obs.value) >= 0 ? '+' : '') + obs.value + '% (QoQ)'; results.gdpYear = formatDate(obs.date); }\n} catch (e) { fail('FRED GDP', e); }\n\ntry {\n  const fedData = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc', timeout: 30000 });\n  if (fedData && fedData.observations) { for (const obs of fedData.observations) { if (obs.value && obs.value !== '.' && parseFloat(obs.value) > 0) { results.fedRateValue = parseFloat(obs.value).toFixed(2) + '%'; break; } } }\n} catch (e) { fail('FRED Fed Rate', e); }\n\ntry {\n  const t10Data = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc', timeout: 30000 });\n  if (t10Data && t10Data.observations) { for (const obs of t10Data.observations) { if (obs.value && obs.value !== '.' && parseFloat(obs.value) > 0) { results.treasury10Y = parseFloat(obs.value).toFixed(2) + '%'; break; } } }\n} catch (e) { fail('FRED 10Y', e); }\n\ntry {\n  const t2Data = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=' + FRED_API_KEY + '&file_type=json&limit=10&sort_order=desc', timeout: 30000 });\n  if (t2Data && t2Data.observations) { for (const obs of t2Data.observations) { if (obs.value && obs.value !== '.' && parseFloat(obs.value) > 0) { results.treasury2Y = parseFloat(obs.value).toFixed(2) + '%'; break; } } }\n} catch (e) { fail('FRED 2Y', e); }\n\n// ---- 11. YIELD CURVE ----\ntry {\n  const t10 = parseFloat(results.treasury10Y); const t2 = parseFloat(results.treasury2Y);\n  if (!isNaN(t10) && !isNaN(t2)) {\n    const spread = t10 - t2;\n    results.yieldCurve = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';\n    if (spread < 0) { results.yieldCurveStatus = 'INVERTED (Recession Warning)'; results.yieldCurveEmoji = '🔴'; }\n    else if (spread < 0.5) { results.yieldCurveStatus = 'Flat (Caution)'; results.yieldCurveEmoji = '🟡'; }\n    else { results.yieldCurveStatus = 'Normal (Healthy)'; results.yieldCurveEmoji = '🟢'; }\n  }\n} catch (e) { fail('Yield curve', e); }\n\n// ---- 12. BUFFETT INDICATOR ----\ntry {\n  const w5Data = await safeFetch({ method: 'GET', url: 'https://query1.finance.yahoo.com/v8/finance/chart/%5EW5000?interval=1d&range=5d', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }, timeout: 15000 });\n  const gdpNomData = await safeFetch({ method: 'GET', url: 'https://api.stlouisfed.org/fred/series/observations?series_id=GDP&api_key=' + FRED_API_KEY + '&file_type=json&limit=1&sort_order=desc', timeout: 30000 });\n  if (w5Data && w5Data.chart && w5Data.chart.result && w5Data.chart.result[0] && gdpNomData && gdpNomData.observations && gdpNomData.observations[0]) {\n    const w5Price = w5Data.chart.result[0].meta.regularMarketPrice;\n    const totalMarketCap = w5Price * 1.05;\n    const gdpBillions = parseFloat(gdpNomData.observations[0].value);\n    if (totalMarketCap > 0 && gdpBillions > 0) {\n      const ratio = (totalMarketCap / gdpBillions) * 100;\n      results.buffettIndicator = ratio.toFixed(0) + '%';\n      if (ratio < 100) { results.buffettStatus = 'Undervalued'; results.buffettEmoji = '🟢🟢'; }\n      else if (ratio < 120) { results.buffettStatus = 'Fair Value'; results.buffettEmoji = '🟢'; }\n      else if (ratio < 150) { results.buffettStatus = 'Slightly Overvalued'; results.buffettEmoji = '🟡'; }\n      else if (ratio < 200) { results.buffettStatus = 'Significantly Overvalued'; results.buffettEmoji = '🟠'; }\n      else { results.buffettStatus = 'Strongly Overvalued'; results.buffettEmoji = '🔴'; }\n    }\n  }\n} catch (e) { fail('Buffett Indicator', e); }\n\n// ---- 13. MARKETWATCH RSS HEADLINES ----\ntry {\n  const rssResponse = await safeFetch({ method: 'GET', url: 'https://www.marketwatch.com/rss/topstories', timeout: 30000, json: false });\n  if (rssResponse && typeof rssResponse === 'string') {\n    const titleMatches = rssResponse.match(/<title>([^<]+)<\\/title>/g);\n    if (titleMatches && titleMatches.length > 1) {\n      const cleaned = [];\n      for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {\n        let title = titleMatches[i].replace(/<\\/?title>/g, '').trim()\n          .replace(/&#x201c;/g, '\"').replace(/&#x201d;/g, '\"')\n          .replace(/&#x2019;/g, \"'\").replace(/&#x2018;/g, \"'\")\n          .replace(/&#x2014;/g, ' - ').replace(/&#x2013;/g, '-')\n          .replace(/&amp;/g, '&').replace(/&quot;/g, '\"').replace(/&#xa0;/g, ' ');\n        if (title.length > 10) cleaned.push(title);\n      }\n      if (cleaned.length > 0) {\n        results.headlinesList = cleaned;\n        results.headlinesCount = cleaned.length;\n        results.headlines = cleaned.map((t, idx) => (idx + 1) + '. ' + t).join('\\n');\n      }\n    }\n  }\n} catch (e) { fail('RSS', e); }\n\n// ===== HEALTH AUDIT: flag any critical field still N/A =====\nconst CRITICAL = {\n  'Fear&Greed':'fearGreedValue',\n  'S&P 500':'sp500',\n  'VIX':'vix',\n  'CAPE/Shiller':'shillerPE',\n  'Buffett':'buffettIndicator',\n  'Unemployment':'unemploymentValue',\n  'CPI':'cpiValue',\n  '10Y Treasury':'treasury10Y',\n  '2Y Treasury':'treasury2Y',\n  'GDP':'gdpValue'\n};\nfor (const [label, key] of Object.entries(CRITICAL)) {\n  const v = results[key];\n  if (v === undefined || v === null || v === '' || v === 'N/A') health.missing.push(label);\n}\nconst totalCritical = Object.keys(CRITICAL).length;\nif (health.missing.length === 0) health.status = 'OK';\nelse if (health.missing.length >= Math.ceil(totalCritical * 0.6)) health.status = 'OUTAGE';\nelse health.status = 'DEGRADED';\n\n// ===== DATA QUALITY: flag implausible values for review (never withholds - a\n// human/downstream reader decides). Catches \"poisoned\"/corrupted upstream data or\n// our own parsing bugs that a pure availability check (missing/N-A) can never see,\n// since a bad number still looks present and non-N/A. =====\nconst CHANGE_BOUNDS = { sp500Change: 15, dowJonesChange: 15, goldChange: 10, oilChange: 15, dxyChange: 8, vixChange: 60, btcChange: 40 };\nfor (const field of Object.keys(CHANGE_BOUNDS)) {\n  const raw = results[field];\n  if (raw === undefined || raw === null || raw === 'N/A') continue;\n  const num = parseFloat(String(raw).replace('%', ''));\n  if (!isNaN(num) && Math.abs(num) > CHANGE_BOUNDS[field]) {\n    health.suspect = health.suspect || [];\n    health.suspect.push({ field: field, value: raw, bound: CHANGE_BOUNDS[field] });\n    console.error('\\u{1F7E0} [MarketPulse][DATA-QUALITY] ' + field + ' = ' + raw + ' exceeds plausible \\u00b1' + CHANGE_BOUNDS[field] + '% - flagged for review, not withheld');\n  }\n}\n\nhealth.elapsedMs = Date.now() - NODE_START;\nif (msLeft() <= 0) console.error('🟠 [MarketPulse][TIME-BUDGET] exhausted after ' + Math.round(health.elapsedMs/1000) + 's - some sources were skipped to protect the run');\nresults._health = health;\nif (health.status !== 'OK') {\n  console.error('\\u{1F534} [MarketPulse][DATA-HEALTH] ' + health.status + ' | missing: ' + (health.missing.join(', ') || 'none') + ' | fetch errors: ' + health.failed.length);\n} else {\n  console.log('✅ [MarketPulse][DATA-HEALTH] OK - all ' + totalCritical + ' critical sources populated');\n}\n\nreturn [{ json: results }];"
+      },
+      "id": "81edcb5f-d7a7-4886-b250-4e72ba215cd6",
+      "name": "Fetch All Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        464
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "GOOGL,BABA,ADBE,SOFI,ASML",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b22880d-a83b-4459-93f8-369f2ae93a0a",
+      "name": "Set Dynamic Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH STOCK PRICES - MarketPulse v7.1\n// Production: IPv4 Fix + safeFetch Retry\n// ============================================\n\ntry { require('dns').setDefaultResultOrder('ipv4first'); } catch(e) {}\n\nconst _self = this;\nasync function safeFetch(options) {\n  for (let attempt = 0; attempt < 3; attempt++) {\n    try {\n      return await _self.helpers.httpRequest(options);\n    } catch (e) {\n      const msg = (e.message || '').toLowerCase();\n      const isNet = msg.includes('enetunreach') || msg.includes('econnrefused') ||\n        msg.includes('etimedout') || msg.includes('eai_again') || msg.includes('ehostunreach') ||\n        msg.includes('enotfound') || msg.includes('socket hang up');\n      if (isNet && attempt < 2) {\n        console.log('Stock retry ' + (attempt+1) + '/2');\n        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));\n        continue;\n      }\n      throw e;\n    }\n  }\n}\n\nconst watchlistStr = $input.first().json.watchlist || 'GOOGL,BABA,ADBE,SOFI,ASML';\nconst symbols = watchlistStr.split(',').map(s => s.trim()).filter(s => s.length > 0);\nconst stockResults = [];\n\nfor (const symbol of symbols) {\n  try {\n    const data = await safeFetch({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      if (price) {\n        let changePct = 0;\n        if (prevClose && prevClose > 0) changePct = ((price - prevClose) / prevClose) * 100;\n        const sign = changePct >= 0 ? '+' : '';\n        stockResults.push({ symbol, price: '$' + price.toFixed(2), change: sign + changePct.toFixed(2) + '%' });\n      }\n    }\n  } catch (e) {\n    console.log(symbol + ' failed: ' + e.message);\n    stockResults.push({ symbol, price: 'N/A', change: 'N/A' });\n  }\n  await new Promise(r => setTimeout(r, 500));\n}\n\nlet watchlistSummary = stockResults.length > 0\n  ? stockResults.map(s => '  ' + s.symbol + ': ' + s.price + ' (' + s.change + ')').join('\\n')\n  : 'Watchlist data unavailable';\n\nreturn [{ json: { watchlistSummary } }];"
+      },
+      "id": "e759a64d-9544-4090-857c-717f625f5e17",
+      "name": "Fetch Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        672
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "59d8bc02-e319-47dd-9b2c-56504682ab9d",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        544,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMBINE ALL DATA - MarketPulse v7.2\n// Merges market data + stock prices into one\n// ============================================\n\nconst items = $input.all();\nconst combined = {};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) {\n      combined[key] = j[key];\n    }\n  }\n}\n\n\n// ===== VERDICT LEDGER (read): yesterday's analysis as challengeable prior =====\ncombined.previousAnalysis = 'No prior analysis available.';\ncombined.trackRecordAccuracy = 'Building history';\ncombined.trackRecordLast = '';\ntry {\n  const sd = $getWorkflowStaticData('global');\n  const led = (sd.mpLedger && sd.mpLedger['US']) || [];\n  const prev = led.length ? led[led.length - 1] : null;\n  if (prev && prev.date) {\n    let t = 'On ' + prev.date + ' your sentiment was ' + prev.sentiment + ' (confidence ' + prev.confidence + '; verification verdict ' + prev.verdict + ').';\n    if (Array.isArray(prev.claims) && prev.claims.length) {\n      t += ' Your claims were: ' + prev.claims.map(function(c){ return '\"' + c.claim + '\" [based on: ' + (c.basedOn || []).join(', ') + ']'; }).join('; ') + '.';\n    }\n    combined.previousAnalysis = t;\n  }\n\n  // ===== TRACK RECORD (deterministic, code-only, never a prediction): was\n  // yesterday's stated sentiment consistent with what the market actually did\n  // next? Purely retrospective - the LLM is never asked about the future. =====\n  if (!sd.mpTrackRecord) sd.mpTrackRecord = {};\n  if (!sd.mpTrackRecord.US) sd.mpTrackRecord.US = [];\n  const tr = sd.mpTrackRecord.US;\n  const todayChangeStr = combined.sp500Change;\n  const todayChange = (todayChangeStr && todayChangeStr !== 'N/A') ? parseFloat(todayChangeStr) : NaN;\n    // ===== STALENESS GUARD (2026-07-14) =====\n  // The scorer compares \"yesterday's call\" against \"today's move\". That is only\n  // meaningful if the prior entry really is the previous trading day. When a run FAILS\n  // (e.g. the 07-13 US run died on a Gemini 503), the next run would otherwise score a\n  // stale call against a move it never covered - and record it as if it were consecutive.\n  // A track record is worth nothing if it quietly scores the wrong days. 4 days covers a\n  // long weekend; beyond that we cannot honestly attribute the move, so we skip.\n  let gapDays = null;\n  if (prev && prev.date) {\n    gapDays = Math.round((new Date().setHours(0,0,0,0) - new Date(prev.date + \"T00:00:00\").getTime()) / 86400000);\n  }\n  const scoreable = gapDays !== null && gapDays >= 1 && gapDays <= 4;\n  if (prev && prev.sentiment && !isNaN(todayChange) && !scoreable) {\n    console.error(\"🟠 [MarketPulse][TRACK-RECORD] skipped: prior call is \" + gapDays + \" days old (a run was likely missed) - cannot honestly attribute today's move to it\");\n  }\n  if (prev && prev.sentiment && !isNaN(todayChange) && scoreable) {\n    const bullish = /Bullish/i.test(prev.sentiment);\n    const bearish = /Bearish/i.test(prev.sentiment);\n    let result;\n    if (bullish) result = todayChange > 0 ? 'hit' : 'miss';\n    else if (bearish) result = todayChange < 0 ? 'hit' : 'miss';\n    else result = Math.abs(todayChange) < 0.5 ? 'hit' : 'miss'; // Neutral: correct only if the market was actually quiet\n    tr.push({ priorDate: prev.date, scoredDate: new Date().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays });\n    if (tr.length > 30) tr.splice(0, tr.length - 30);\n    const hits = tr.filter(function (x) { return x.result === 'hit'; }).length;\n    combined.trackRecordAccuracy = hits + '/' + tr.length + ' (' + Math.round(100 * hits / tr.length) + '%)';\n    const last = tr[tr.length - 1];\n    combined.trackRecordLast = last.priorSentiment + ' (' + last.priorDate + ') → market moved ' + last.actualChange + ' → ' + (last.result === 'hit' ? 'Correct' : 'Miss');\n  }\n} catch (e) { console.log('[MarketPulse][LEDGER] read/trackrecord skipped: ' + (e && e.message)); }\n\n\nif (!combined._health) {\n  combined._health = {\n    status: 'OUTAGE',\n    failed: [{ source: 'ALL', code: 'NO_DATA', msg: 'Fetch node produced no output this run (timeout, crash, or task-runner failure) - see n8n execution log' }],\n    missing: ['ALL']\n  };\n  console.error('\\u{1F534} [MarketPulse][DATA-HEALTH] OUTAGE | Fetch node returned nothing at all this run (total upstream failure)');\n}\n\nreturn [{ json: combined }];\n"
+      },
+      "id": "97f927f2-ea3f-45c1-8fb2-ac6b922bb04a",
+      "name": "Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Valu-Analyst, a professional value investing analyst inspired by Warren Buffett's investment philosophy. Analyze the following market data and provide a structured briefing for a value investor.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== VALUE INVESTOR DASHBOARD ==\nBuffett Indicator (Market Cap/GDP): {{ $json.buffettIndicator }} - {{ $json.buffettStatus }}\nShiller PE (CAPE): {{ $json.shillerPE }} - {{ $json.shillerStatus }}\nYield Curve (10Y-2Y): {{ $json.yieldCurve }} - {{ $json.yieldCurveStatus }}\nS&P 500 vs 200-Day MA: {{ $json.sp500VsMa200 }} - {{ $json.sp500VsMa200Status }} ({{ $json.maSignal }})\n\n== MARKET DATA ==\nFear & Greed Index: {{ $json.fearGreedValue }}/100 ({{ $json.fearGreedClassification }})\n\nMarket Indices:\n- S&P 500: {{ $json.sp500 }} ({{ $json.sp500Change }})\n- Dow Jones: {{ $json.dowJones }} ({{ $json.dowJonesChange }})\n- VIX: {{ $json.vix }} ({{ $json.vixChange }})\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- Oil (WTI): {{ $json.oil }} ({{ $json.oilChange }})\n- US Dollar (DXY): {{ $json.dxy }} ({{ $json.dxyChange }})\n- Bitcoin: {{ $json.btc }} ({{ $json.btcChange }})\n\nEconomic Indicators (USA):\n- GDP ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n- Fed Funds Rate: {{ $json.fedRateValue }}\n- 10Y Treasury: {{ $json.treasury10Y }}\n- 2Y Treasury: {{ $json.treasury2Y }}\n\nToday's Headlines - cite as headline_1 through headline_{{ $json.headlinesCount }}, one per line below:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for a value investor. NO numbers.\",\n  \"wisdom\": \"one Buffett or Graham principle applied to today's conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\nbuffettIndicator, shillerPE, yieldCurve, sp500VsMa200, maSignal, fearGreedValue, sp500, sp500Change, dowJones, dowJonesChange, vix, vixChange, gold, goldChange, oil, oilChange, dxy, dxyChange, btc, btcChange, gdpValue, cpiValue, unemploymentValue, fedRateValue, treasury10Y, treasury2Y, headline_1 through headline_{{ $json.headlinesCount }} (there are {{ $json.headlinesCount }} headlines listed above today)\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "36982457-6815-4068-a1b7-0ac4871ed3b2",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        960,
+        576
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "id": "553d0855-2872-468d-b571-c9e30fdf10d4",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        784
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "91a3df66-e300-41bb-8f6c-340ce6ea4225",
+      "name": "Merge LLM Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMPOSE TELEGRAM MESSAGE - MarketPulse v7.1\n// Value Investor Edition - HTML-styled (2026-07-10)\n// ============================================\n\nconst items = $input.all();\nconst now = new Date();\n\nfunction esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\nfunction oneLine(s){ return String(s).replace(/\\s*\\n+\\s*/g, ' ').trim(); }\n\nlet d = {\n  fearGreedValue: 'N/A', fearGreedClassification: 'Unknown',\n  fearGreedChange1d: 'N/A', fearGreedChange1w: 'N/A',\n  buffettIndicator: 'N/A', buffettStatus: 'N/A', buffettEmoji: '',\n  shillerPE: 'N/A', shillerStatus: 'N/A', shillerEmoji: '',\n  yieldCurve: 'N/A', yieldCurveStatus: 'N/A', yieldCurveEmoji: '',\n  sp500VsMa200: 'N/A', sp500VsMa200Status: 'N/A', sp500VsMa200Emoji: '', maSignal: 'N/A',\n  sp500: 'N/A', sp500Change: 'N/A',\n  dowJones: 'N/A', dowJonesChange: 'N/A',\n  vix: 'N/A', vixChange: 'N/A',\n  gold: 'N/A', goldChange: 'N/A',\n  oil: 'N/A', oilChange: 'N/A',\n  dxy: 'N/A', dxyChange: 'N/A',\n  btc: 'N/A', btcChange: 'N/A',\n  gdpValue: 'N/A', gdpYear: 'N/A',\n  cpiValue: 'N/A', cpiYear: 'N/A',\n  unemploymentValue: 'N/A', unemploymentYear: 'N/A',\n  fedRateValue: 'N/A', treasury10Y: 'N/A', treasury2Y: 'N/A',\n  watchlistSummary: 'N/A',\n  trackRecordAccuracy: 'Building history',\n  trackRecordLast: '',\n  llmAnalysis: '🚫 AI commentary unavailable this run — the model provider was unreachable. Every figure above is fetched, verified, and traced to its source. The analysis layer is advisory by design; the ledger stands without it.',\n  headlinesList: []\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(d)) {\n    if (j[key] && j[key] !== 'N/A' && j[key] !== 'Unknown' && j[key] !== 'Analysis unavailable') {\n      d[key] = j[key];\n    }\n  }\n  if (j.text && j.text.length > 30) d.llmAnalysis = j.text;\n  if (j.response && j.response.length > 30) d.llmAnalysis = j.response;\n}\n\n// escape every dynamic value ONCE, here - the template below only ever uses\n// pre-escaped d[] fields, so it is free to add its own trusted <b>/<code>/<i> tags\n// without a final blanket-escape stripping them back out.\n// headlinesList stays an array (escaped per-element where it's actually used) - String()-ing\n// it here would collapse it to a comma-joined string and break headline_N index lookups.\nfor (const k of Object.keys(d)) { if (k !== 'llmAnalysis' && k !== 'headlinesList') d[k] = esc(d[k]); }\n\n\n// ===== DATA HEALTH BANNER (hardening) =====\nlet _health = null;\nfor (const item of items) { if (item.json && item.json._health) _health = item.json._health; }\nlet healthBanner = '';\nif (_health && _health.status === 'OUTAGE') {\n  healthBanner = `🚨 <b>DATA OUTAGE</b> - most live sources failed to load today.\\nValues below may be missing/stale (${esc((_health.missing || []).join(', '))}).\\nCheck n8n logs (tag: MarketPulse FETCH-FAIL).\\n\\n`;\n} else if (_health && _health.status === 'DEGRADED') {\n  healthBanner = `⚠️ <b>PARTIAL DATA</b> - some sources unavailable: ${esc((_health.missing || []).join(', '))}.\\n\\n`;\n}\nif (_health && _health.suspect && _health.suspect.length) {\n  const suspectList = _health.suspect.map(function (s) { return esc(String(s.field)) + ' (' + esc(String(s.value)) + ', exceeds \\u00b1' + s.bound + '%)'; }).join('; ');\n  healthBanner += '\\uD83D\\uDD0D <b>DATA QUALITY FLAG</b> \\u2014 unusual reading(s), verify before relying on: ' + suspectList + '.\\n\\n';\n}\n\n// ===== STRUCTURED RENDERING: numbers injected ONLY from ground truth =====\nlet _structured = null;\nfor (const item of items) { if (item.json && item.json._structured) _structured = item.json._structured; }\nif (_structured) {\n  const LBL = {\n    buffettIndicator: ['Buffett Indicator', 'buffettStatus'], shillerPE: ['Shiller CAPE', 'shillerStatus'],\n    yieldCurve: ['Yield Curve 10Y-2Y', 'yieldCurveStatus'], sp500VsMa200: ['S&P vs 200D-MA', 'sp500VsMa200Status'],\n    maSignal: ['Trend Signal', null], fearGreedValue: ['Fear & Greed', 'fearGreedClassification'],\n    sp500: ['S&P 500', null], sp500Change: ['S&P 500 change', null], dowJones: ['Dow Jones', null],\n    dowJonesChange: ['Dow change', null], vix: ['VIX', null], vixChange: ['VIX change', null],\n    gold: ['Gold', null], goldChange: ['Gold change', null], oil: ['Oil WTI', null], oilChange: ['Oil change', null],\n    dxy: ['Dollar DXY', null], dxyChange: ['DXY change', null], btc: ['Bitcoin', null], btcChange: ['Bitcoin change', null],\n    gdpValue: ['GDP', null], cpiValue: ['CPI', null], unemploymentValue: ['Unemployment', null],\n    fedRateValue: ['Fed Funds', null], treasury10Y: ['10Y Treasury', null], treasury2Y: ['2Y Treasury', null],\n    csi300: ['CSI 300', null], csi300Change: ['CSI 300 change', null], sseComposite: ['SSE Composite', null],\n    sseCompositeChange: ['SSE change', null], szseComponent: ['SZSE Component', null], szseComponentChange: ['SZSE change', null],\n    hangSeng: ['Hang Seng', null], hangSengChange: ['Hang Seng change', null],\n    usdCny: ['USD/CNY', null], usdCnyChange: ['USD/CNY change', null]\n  };\n  // d[] is already HTML-escaped above; these labels are our own trusted literals.\n  // headline_N citations aren't in LBL (dynamic per-day, not a fixed factKey) - handled\n  // separately, quoting the actual headline text (escaped here, at point of use, since\n  // headlinesList was deliberately skipped in the blanket-escape pass above).\n  const evidenceFor = (keys) => (keys || []).map((k) => {\n    const hm = /^headline_(\\d+)$/.exec(k);\n    if (hm) {\n      const hIdx = parseInt(hm[1], 10) - 1;\n      const text = Array.isArray(d.headlinesList) ? d.headlinesList[hIdx] : null;\n      return text ? ('📰 \"' + esc(oneLine(text)) + '\"') : null;\n    }\n    const m = LBL[k]; if (!m) return null;\n    const val = d[k]; if (val === undefined || val === null || val === 'N/A') return null;\n    const st = m[1] && d[m[1]] && d[m[1]] !== 'N/A' ? ' (' + d[m[1]] + ')' : '';\n    return m[0] + ' ' + val + st;\n  }).filter(Boolean).join('; ');\n  let outA = '<b>MARKET SENTIMENT:</b> ' + esc(oneLine(_structured.sentiment || 'n/a'));\n  outA += '\\n<b>Confidence:</b> ' + esc(oneLine(_structured.confidence || 'n/a'));\n  outA += '\\n\\n<b>KEY DRIVERS</b> (each claim cites its source data):';\n  (_structured.claims || []).slice(0, 6).forEach((c, i) => {\n    outA += '\\n' + (i + 1) + '. ' + esc(oneLine(c.claim));\n    const ev = evidenceFor(c.basedOn);\n    if (ev) outA += '\\n   <i>evidence: ' + ev + '</i>';\n  });\n  if (_structured.interpretation) outA += '\\n\\n<b>INTERPRETATION:</b>\\n' + esc(oneLine(_structured.interpretation));\n  if (_structured.wisdom) outA += '\\n\\n<blockquote>' + esc(oneLine(_structured.wisdom)) + '</blockquote>';\n  outA += '\\n\\n<i>[Verified: ' + ((_structured.claims || []).length) + ' claims attributed to source data. All numbers injected from sources, never AI-generated.]</i>';\n  d.llmAnalysis = outA;\n} else {\n  // legacy free-text fallback path - not structured, still needs escaping\n  d.llmAnalysis = esc(d.llmAnalysis);\n}\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\n// Fear & Greed emoji\nconst fgScore = parseInt(d.fearGreedValue) || 0;\nlet fgEmoji = '';\nif (fgScore >= 75) fgEmoji = '🟢🟢';\nelse if (fgScore >= 55) fgEmoji = '🟢';\nelse if (fgScore >= 45) fgEmoji = '🟡';\nelse if (fgScore >= 25) fgEmoji = '🟠';\nelse if (fgScore > 0) fgEmoji = '🔴';\n\n// VIX emoji\nconst vixVal = parseFloat(d.vix) || 0;\nlet vixEmoji = '';\nif (vixVal >= 30) vixEmoji = '🔴 HIGH';\nelse if (vixVal >= 20) vixEmoji = '🟠 ELEVATED';\nelse if (vixVal >= 12) vixEmoji = '🟢 NORMAL';\nelse if (vixVal > 0) vixEmoji = '🟢🟢 LOW';\n\nfunction arrow(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  return changeStr.startsWith('+') ? '▲' : '▼';\n}\n\nconst trackRecordLine = d.trackRecordLast ? ('Last call: ' + d.trackRecordLast + '\\n') : '';\n\nlet message = `📊 <b>MarketPulse Daily Digest</b>\n━━━━━━━━━━━━━━━━━━━━\n📅 ${dateStr}\n\n${healthBanner}🏛️ <b>VALUE INVESTOR DASHBOARD</b>\n\n${d.buffettEmoji} <b>BUFFETT INDICATOR:</b> <code>${d.buffettIndicator}</code>\n   Market Cap to GDP | ${d.buffettStatus}\n\n${d.shillerEmoji} <b>SHILLER P/E (CAPE):</b> <code>${d.shillerPE}</code>\n   Cyclically Adjusted P/E | ${d.shillerStatus}\n\n${d.yieldCurveEmoji} <b>YIELD CURVE (10Y-2Y):</b> <code>${d.yieldCurve}</code>\n   Treasury Spread | ${d.yieldCurveStatus}\n\n${d.sp500VsMa200Emoji} <b>S&amp;P 500 vs 200D-MA:</b> <code>${d.sp500VsMa200}</code>\n   Trend Signal | ${d.sp500VsMa200Status} (${d.maSignal})\n\n━━━━━━━━━━━━━━━━━━━━\n\n🎯 <b>FEAR &amp; GREED INDEX</b> ${fgEmoji}\nScore: <code>${d.fearGreedValue}/100</code> | ${d.fearGreedClassification}\nChange: ${d.fearGreedChange1d} (1d) | ${d.fearGreedChange1w} (1w)\n\n📈 <b>MARKET SCREENER</b>\n${arrow(d.sp500Change)} S&amp;P 500: <code>${d.sp500}</code> (${d.sp500Change})\n${arrow(d.dowJonesChange)} Dow Jones: <code>${d.dowJones}</code> (${d.dowJonesChange})\n${arrow(d.vixChange)} VIX: <code>${d.vix}</code> (${d.vixChange}) ${vixEmoji}\n${arrow(d.goldChange)} Gold: <code>${d.gold}</code> (${d.goldChange})\n${arrow(d.oilChange)} Oil (WTI): <code>${d.oil}</code> (${d.oilChange})\n${arrow(d.dxyChange)} US Dollar: <code>${d.dxy}</code> (${d.dxyChange})\n${arrow(d.btcChange)} Bitcoin: <code>${d.btc}</code> (${d.btcChange})\n\n📊 <b>ECONOMIC INDICATORS (USA)</b>\n• GDP Growth (${d.gdpYear}): <code>${d.gdpValue}</code>\n• Inflation/CPI (${d.cpiYear}): <code>${d.cpiValue}</code>\n• Unemployment (${d.unemploymentYear}): <code>${d.unemploymentValue}</code>\n• Fed Funds Rate: <code>${d.fedRateValue}</code>\n• 10Y Treasury: <code>${d.treasury10Y}</code>\n• 2Y Treasury: <code>${d.treasury2Y}</code>\n\n📋 <b>WATCHLIST</b>\n${d.watchlistSummary}\n\n📈 <b>TRACK RECORD</b>\nAccuracy: <code>${d.trackRecordAccuracy}</code>\n${trackRecordLine}<i>Was yesterday’s sentiment consistent with what the market did next — scored automatically, never predicted.</i>\n\n💡 <b>AI ANALYSIS (Valu-Analyst)</b>\n${d.llmAnalysis}\n\n━━━━━━━━━━━━━━━━━━━━\n⚠️ <i>Disclaimer: AI-generated analysis for informational purposes only. Not financial advice.</i>\n\n📎 Sources: CNN Fear &amp; Greed, FRED, MarketWatch, Yahoo Finance, multpl.com\n\n🔗 <a href=\"https://creator35lwb-web.github.io/MarketPulse/\">Full Dashboard</a> · <a href=\"https://github.com/creator35lwb-web/MarketPulse\">Open Source on GitHub</a>\n\nMarketPulse — Verified AI Market Intelligence`;\n\n// ===== TELEGRAM SAFETY: 4096 limit, trimmed by WHOLE LINE so no tag is ever split =====\n// (message is already fully HTML-escaped-at-the-source above - no blanket re-escape here,\n// or our own <b>/<code>/<blockquote> tags would be escaped back into literal text.)\nif (message.length > 4096) {\n  const i = message.lastIndexOf('━━━━');\n  const note = '\\n…[analysis trimmed to fit Telegram 4096-char limit]\\n';\n  if (i > 0) {\n    const footer = message.slice(i);\n    const budget = 4096 - footer.length - note.length;\n    let lines = message.slice(0, i).split('\\n');\n    while (lines.join('\\n').length > budget && lines.length > 0) lines.pop();\n    message = lines.join('\\n') + note + footer;\n  }\n  if (message.length > 4096) message = message.slice(0, 4093) + '...';\n  console.error('🟠 [MarketPulse][TG-TRIM] message exceeded 4096; trimmed to ' + message.length + ' chars');\n}\nreturn [{ json: { message, timestamp: now.toISOString() } }];\n"
+      },
+      "id": "a508999d-f303-48d2-9ed2-e1f769e231c0",
+      "name": "Compose Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "=HTML"
+        }
+      },
+      "id": "9c286417-7396-4c34-b6ed-3d1b76d5c357",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        576
+      ],
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "webhookId": "af1eea87-d3a3-4ba2-b0eb-03881204df7e",
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\nfunction oneLine(s){ return String(s).replace(/\\s*\\n+\\s*/g, ' ').trim(); }\n\nconst inputJson = $input.first().json || {};\nconst e = inputJson.execution || {};\nconst err = e.error || {};\nconst wf = inputJson.workflow || {};\n\nconst triggerName = (e.executionContext && e.executionContext.triggerNode && e.executionContext.triggerNode.name) || 'Unknown trigger';\nconst failedNode = (err.node && err.node.name) || e.lastNodeExecuted || 'Unknown node';\nconst errMsg = oneLine(err.message || err.description || 'No error message available').slice(0, 300);\nconst execUrl = e.url || '';\nconst execId = e.id || 'n/a';\nconst nowIso = new Date().toISOString();\nconst line = '━'.repeat(26);\n\n// ---- Telegram alert (HTML, escaped) ----\nlet alertMessage = '<b>🔴 MarketPulse Workflow Error</b>\\n' + line + '\\n\\n';\nalertMessage += '<b>Workflow:</b> <code>' + esc(wf.name || 'MarketPulse7am') + '</code>\\n';\nalertMessage += '<b>Trigger:</b> <code>' + esc(triggerName) + '</code>\\n';\nalertMessage += '<b>Failed Node:</b> <code>' + esc(failedNode) + '</code>\\n\\n';\nalertMessage += '<b>Error:</b>\\n' + esc(errMsg) + '\\n\\n';\nif (execUrl) {\n  alertMessage += '<a href=\"' + esc(execUrl).replace(/\"/g, '&quot;') + '\">View Execution #' + esc(execId) + '</a>\\n\\n';\n}\nalertMessage += 'Time: <code>' + esc(nowIso) + '</code>';\n\n// ---- GitHub issue (Markdown) ----\nconst githubTitle = 'MarketPulse error: ' + failedNode + ' (' + triggerName + ')';\nlet githubBody = '**Workflow:** `' + (wf.name || 'MarketPulse7am') + '`\\n';\ngithubBody += '**Trigger:** `' + triggerName + '`\\n';\ngithubBody += '**Failed Node:** `' + failedNode + '`\\n\\n';\ngithubBody += '**Error:**\\n```\\n' + errMsg + '\\n```\\n\\n';\nif (execUrl) githubBody += '[View Execution #' + execId + '](' + execUrl + ')\\n\\n';\ngithubBody += 'Time: `' + nowIso + '`\\n\\n_Filed automatically by the MarketPulse error-alert workflow._';\n\nreturn [{ json: { alertMessage, githubTitle, githubBody } }];\n"
+      },
+      "id": "425d8d13-c18b-46e8-a2d0-36ec97b29162",
+      "name": "Sanitize Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_ADMIN_DM_ID",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "7fd1deb0-003f-4a80-b3ec-ee30890dfb86",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        1376
+      ],
+      "webhookId": "d902c7e2-023a-45bb-b18d-79b7b806433b",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "MarketPulse Service Status",
+        "formDescription": "Select the status type and click Submit to send a professional notification to the MarketPulse Telegram channel.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Status Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "restored"
+                  },
+                  {
+                    "option": "maintenance"
+                  },
+                  {
+                    "option": "degraded"
+                  },
+                  {
+                    "option": "scheduled_downtime"
+                  },
+                  {
+                    "option": "unavailable"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Custom Note (Optional)",
+              "fieldType": "textarea",
+              "placeholder": "Add any additional context for subscribers..."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e89285d9-b2dd-4188-9e9f-e4fedf4c74e9",
+      "name": "Status Selection Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        1216
+      ],
+      "webhookId": "b305ee41-d779-4a00-9199-94bd548525f8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "map-status",
+              "name": "statusType",
+              "value": "={{ $json['Status Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "map-note",
+              "name": "customNote",
+              "value": "={{ $json['Custom Note (Optional)'] || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "46f8137d-9c6e-4b2e-bc86-bec82f90a821",
+      "name": "Map Form Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// MarketPulse Service Status Message Composer\n// Professional investment channel notifications\n// HTML-styled + escaped (2026-07-10)\n// ============================================\n\ntry { require('dns').setDefaultResultOrder('ipv4first'); } catch(e) {}\n\nfunction esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\n\nconst statusType = ($input.first().json.statusType || 'restored').toLowerCase().trim();\nconst customNote = $input.first().json.customNote || '';\nconst now = new Date();\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\nconst timeStr = now.toLocaleTimeString('en-US', {\n  hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur', timeZoneName: 'short'\n});\n\nconst line = '━'.repeat(26);\n\nconst messages = {\n\n  restored: [\n    '<b>✅ MarketPulse Service Restored</b>',\n    line,\n    '📅 ' + dateStr,\n    '⏰ ' + timeStr,\n    '',\n    'Dear Subscribers,',\n    '',\n    'We are pleased to inform you that MarketPulse Daily Digest services have been fully restored following a brief infrastructure maintenance period.',\n    '',\n    'During this time, our engineering team addressed connectivity optimizations to ensure more reliable data delivery from our market intelligence sources. All systems are now operating normally.',\n    '',\n    'What was addressed:',\n    '• Network connectivity enhancements for improved reliability',\n    '• API communication layer optimization',\n    '• Service resilience improvements with automatic failover',\n    '',\n    'Your daily market briefing will resume with the next scheduled delivery. All market data feeds, including the Value Investor Dashboard, economic indicators, and AI-powered analysis, are fully operational.',\n    '',\n    'We appreciate your patience and continued trust in MarketPulse as your daily market intelligence partner.',\n  ],\n\n  maintenance: [\n    '<b>🔧 MarketPulse Scheduled Maintenance</b>',\n    line,\n    '📅 ' + dateStr,\n    '⏰ ' + timeStr,\n    '',\n    'Dear Subscribers,',\n    '',\n    'We would like to inform you that MarketPulse will be undergoing scheduled infrastructure maintenance to enhance service reliability and performance.',\n    '',\n    'During this period, daily digest delivery may be temporarily paused. We anticipate a brief maintenance window and will notify you upon service restoration.',\n    '',\n    'No action is required on your part. Your subscription and preferences remain unchanged.',\n    '',\n    'Thank you for your understanding.',\n  ],\n\n  degraded: [\n    '<b>⚠️ MarketPulse Service Notice</b>',\n    line,\n    '📅 ' + dateStr,\n    '⏰ ' + timeStr,\n    '',\n    'Dear Subscribers,',\n    '',\n    'Please be advised that MarketPulse is currently experiencing intermittent connectivity with select data providers. Your daily digest may contain partial data for some indicators.',\n    '',\n    'Our team is actively monitoring the situation and working to restore full data coverage. Core market sentiment analysis and AI-powered insights remain operational.',\n    '',\n    'We will provide an update once all systems are fully restored.',\n    '',\n    'Thank you for your patience.',\n  ],\n\n  scheduled_downtime: [\n    '<b>📋 MarketPulse Advance Notice</b>',\n    line,\n    '📅 ' + dateStr,\n    '⏰ ' + timeStr,\n    '',\n    'Dear Subscribers,',\n    '',\n    'This is an advance notice that MarketPulse services will undergo planned system upgrades to bring you enhanced features and improved reliability.',\n    '',\n    'Scheduled maintenance window details will be communicated separately. We are committed to minimizing any disruption to your daily market intelligence delivery.',\n    '',\n    'Thank you for being a valued subscriber.',\n  ],\n\n  unavailable: [\n    '<b>💤 MarketPulse Temporarily Unavailable</b>',\n    line,\n    '📅 ' + dateStr,\n    '⏰ ' + timeStr,\n    '',\n    'Dear Subscribers,',\n    '',\n    'We apologize for the inconvenience. MarketPulse is temporarily unavailable at this time, as our team is currently offline. Service will resume as soon as we are back online.',\n    '',\n    'If you have an urgent question or need a quick response in the meantime, please feel free to reach us here: https://github.com/creator35lwb-web/MarketPulse/issues',\n    '',\n    'Thank you for your patience. We will be back shortly.',\n  ]\n\n};\n\nconst lines = messages[statusType] || messages.restored;\n\n// Add custom note if provided - escaped, since this is free text typed by a human into\n// the form and must not be trusted as-is (could otherwise break Telegram's HTML parser).\nif (customNote && customNote.trim().length > 0) {\n  lines.push('');\n  lines.push('<b>Additional Note:</b>');\n  lines.push('<i>' + esc(customNote.trim()) + '</i>');\n}\n\n// Add footer with status indicator\nconst statusIndicator = {\n  restored: '🟢 Operational',\n  maintenance: '🟡 Under Maintenance',\n  degraded: '🟠 Degraded Performance',\n  scheduled_downtime: '🔵 Scheduled Downtime',\n  unavailable: '⚫ Temporarily Offline'\n};\nlines.push('');\nlines.push(line);\nlines.push('<b>' + (statusIndicator[statusType] || '⚪ Unknown') + ' | MarketPulse v7.1</b>');\n\nconst message = lines.join('\\n');\n\nreturn [{ json: { message, statusType, timestamp: now.toISOString() } }];\n"
+      },
+      "id": "5c63c49d-7e61-4e5e-bd7b-eb3047c6e81a",
+      "name": "Compose Status Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "97192353-7590-4a36-b4e8-03e34f053ff9",
+      "name": "Send Status to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1216
+      ],
+      "executeOnce": true,
+      "webhookId": "fb620893-e634-49db-ae5d-799647de2638",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { confirmation: 'Status notification sent successfully: ' + $input.first().json.statusType } }];"
+      },
+      "id": "a1ba7d1c-7994-4326-ba10-9549117ea786",
+      "name": "Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH ALL MARKET DATA - MarketPulse v6.0 (CN)\n// China Market Edition\n// Data Sources: Yahoo Finance, World Bank\n// ============================================\n\n\n// ===== DATA-HEALTH INSTRUMENTATION (hardening) =====\n// LOUD failures so N/A can never masquerade as success.\n// Grep n8n logs:  [MarketPulse][FETCH-FAIL] / [MarketPulse][DATA-HEALTH]\nconst health = { status: 'OK', failed: [], missing: [] };\nfunction fail(source, e) {\n  const code = (e && (e.code || (e.cause && e.cause.code))) || '';\n  const msg = ((e && e.message) || String(e)).slice(0, 180);\n  health.failed.push({ source, code, msg });\n  console.error('🔴 [MarketPulse][FETCH-FAIL] ' + source + ' :: ' + code + ' ' + msg);\n}\n\nconst results = {\n  // China Market Indices\n  csi300: 'N/A',\n  csi300Change: 'N/A',\n  sseComposite: 'N/A',\n  sseCompositeChange: 'N/A',\n  szseComponent: 'N/A',\n  szseComponentChange: 'N/A',\n  hangSeng: 'N/A',\n  hangSengChange: 'N/A',\n  // Commodities & Forex\n  gold: 'N/A',\n  goldChange: 'N/A',\n  usdCny: 'N/A',\n  usdCnyChange: 'N/A',\n  // Economic Indicators (World Bank - China)\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  // News Headlines\n  headlines: 'No headlines available',\n  headlinesList: [],\n  headlinesCount: 0\n};\n\n// --- Helper Functions ---\n\nfunction formatPct(price, prevClose) {\n  if (!price || !prevClose || prevClose === 0) return 'N/A';\n  const changePct = ((price - prevClose) / prevClose) * 100;\n  const sign = changePct >= 0 ? '+' : '';\n  return sign + changePct.toFixed(2) + '%';\n}\n\n// --- 1. FETCH CHINA MARKET INDICES (Yahoo Finance) ---\n\nconst indices = [\n  { symbol: '000300.SS', namePrice: 'csi300', nameChange: 'csi300Change', label: 'CSI 300' },\n  { symbol: '000001.SS', namePrice: 'sseComposite', nameChange: 'sseCompositeChange', label: 'SSE Composite' },\n  { symbol: '399001.SZ', namePrice: 'szseComponent', nameChange: 'szseComponentChange', label: 'SZSE Component' },\n  { symbol: '^HSI', namePrice: 'hangSeng', nameChange: 'hangSengChange', label: 'Hang Seng' }\n];\n\nfor (const idx of indices) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      \n      if (price) {\n        results[idx.namePrice] = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n        if (prevClose && prevClose > 0) {\n          results[idx.nameChange] = formatPct(price, prevClose);\n        }\n      }\n    }\n    // Rate limit: small delay between requests\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) { fail(idx.label, e); }\n}\n\n// --- 2. FETCH GOLD & USD/CNY (Yahoo Finance) ---\n\nconst fxCommodities = [\n  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },\n  { symbol: 'CNY=X', namePrice: 'usdCny', nameChange: 'usdCnyChange', label: 'USD/CNY', prefix: '' }\n];\n\nfor (const item of fxCommodities) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(item.symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      \n      if (price) {\n        if (item.symbol === 'CNY=X') {\n          results[item.namePrice] = item.prefix + price.toFixed(4);\n        } else {\n          results[item.namePrice] = item.prefix + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n        }\n        if (prevClose && prevClose > 0) {\n          results[item.nameChange] = formatPct(price, prevClose);\n        }\n      }\n    }\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) { fail(item.label, e); }\n}\n\n// --- 3. FETCH CHINA ECONOMIC DATA (World Bank API) ---\n\n// GDP Growth\ntry {\n  const gdpData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/NY.GDP.MKTP.KD.ZG?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (gdpData && gdpData[1] && gdpData[1][0]) {\n    const obs = gdpData[1][0];\n    if (obs.value !== null) {\n      const sign = obs.value >= 0 ? '+' : '';\n      results.gdpValue = sign + parseFloat(obs.value).toFixed(2) + '%';\n      results.gdpYear = obs.date;\n    }\n  }\n} catch (e) { fail('World Bank GDP', e); }\n\n// CPI Inflation\ntry {\n  const cpiData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/FP.CPI.TOTL.ZG?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (cpiData && cpiData[1] && cpiData[1][0]) {\n    const obs = cpiData[1][0];\n    if (obs.value !== null) {\n      results.cpiValue = parseFloat(obs.value).toFixed(2) + '%';\n      results.cpiYear = obs.date;\n    }\n  }\n} catch (e) { fail('World Bank CPI', e); }\n\n// Unemployment Rate\ntry {\n  const unempData = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://api.worldbank.org/v2/country/CN/indicator/SL.UEM.TOTL.ZS?format=json&per_page=5&mrv=1',\n    timeout: 30000\n  });\n  \n  if (unempData && unempData[1] && unempData[1][0]) {\n    const obs = unempData[1][0];\n    if (obs.value !== null) {\n      results.unemploymentValue = parseFloat(obs.value).toFixed(2) + '%';\n      results.unemploymentYear = obs.date;\n    }\n  }\n} catch (e) { fail('World Bank Unemployment', e); }\n\n// --- 4. FETCH NEWS HEADLINES (Reuters China, Sina Finance RSS) ---\n\ntry {\n  // Try Reuters China news first\n  const rssResponse = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://news.google.com/rss/search?q=China+stock+market+economy&hl=en&gl=US&ceid=US:en',\n    timeout: 30000,\n    json: false\n  });\n  \n  if (rssResponse && typeof rssResponse === 'string') {\n    const titleMatches = rssResponse.match(/<title>([^<]+)<\\/title>/g);\n    \n    if (titleMatches && titleMatches.length > 1) {\n      const cleaned = [];\n      for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {\n        let title = titleMatches[i].replace(/<\\/?title>/g, '');\n        title = title.trim();\n        title = title.replace(/&#x201c;/g, '\"');\n        title = title.replace(/&#x201d;/g, '\"');\n        title = title.replace(/&#x2019;/g, \"'\");\n        title = title.replace(/&#x2018;/g, \"'\");\n        title = title.replace(/&#x2014;/g, ' - ');\n        title = title.replace(/&#x2013;/g, '-');\n        title = title.replace(/&amp;/g, '&');\n        title = title.replace(/&quot;/g, '\"');\n        title = title.replace(/&#xa0;/g, ' ');\n        title = title.replace(/ - .*$/, ''); // Remove source attribution\n        \n        if (title.length > 10) {\n          cleaned.push(title);\n        }\n      }\n      \n      if (cleaned.length > 0) {\n        results.headlinesList = cleaned;\n        results.headlinesCount = cleaned.length;\n        results.headlines = cleaned.map(function (t, idx) { return (idx + 1) + '. ' + t; }).join('\\n');\n      }\n    }\n  }\n} catch (e) { fail('RSS', e); }\n\n// ===== HEALTH AUDIT: flag any critical field still N/A =====\nconst CRITICAL = {\n  'CSI 300':'csi300',\n  'SSE Composite':'sseComposite',\n  'SZSE Component':'szseComponent',\n  'Hang Seng':'hangSeng',\n  'USD/CNY':'usdCny',\n  'GDP':'gdpValue',\n  'CPI':'cpiValue',\n  'Unemployment':'unemploymentValue'\n};\nfor (const [label, key] of Object.entries(CRITICAL)) {\n  const v = results[key];\n  if (v === undefined || v === null || v === '' || v === 'N/A') health.missing.push(label);\n}\nconst totalCritical = Object.keys(CRITICAL).length;\nif (health.missing.length === 0) health.status = 'OK';\nelse if (health.missing.length >= Math.ceil(totalCritical * 0.6)) health.status = 'OUTAGE';\nelse health.status = 'DEGRADED';\n\n// ===== DATA QUALITY: flag implausible values for review (never withholds - a\n// human/downstream reader decides). Catches \"poisoned\"/corrupted upstream data or\n// our own parsing bugs that a pure availability check (missing/N-A) can never see,\n// since a bad number still looks present and non-N/A. =====\nconst CHANGE_BOUNDS = { csi300Change: 15, sseCompositeChange: 15, szseComponentChange: 15, hangSengChange: 15, goldChange: 10, usdCnyChange: 5 };\nfor (const field of Object.keys(CHANGE_BOUNDS)) {\n  const raw = results[field];\n  if (raw === undefined || raw === null || raw === 'N/A') continue;\n  const num = parseFloat(String(raw).replace('%', ''));\n  if (!isNaN(num) && Math.abs(num) > CHANGE_BOUNDS[field]) {\n    health.suspect = health.suspect || [];\n    health.suspect.push({ field: field, value: raw, bound: CHANGE_BOUNDS[field] });\n    console.error('\\u{1F7E0} [MarketPulse][DATA-QUALITY] ' + field + ' = ' + raw + ' exceeds plausible \\u00b1' + CHANGE_BOUNDS[field] + '% - flagged for review, not withheld');\n  }\n}\n\nresults._health = health;\nif (health.status !== 'OK') {\n  console.error('\\u{1F534} [MarketPulse][DATA-HEALTH] ' + health.status + ' | missing: ' + (health.missing.join(', ') || 'none') + ' | fetch errors: ' + health.failed.length);\n} else {\n  console.log('✅ [MarketPulse][DATA-HEALTH] OK - all ' + totalCritical + ' critical sources populated');\n}\n\nreturn [{ json: results }];"
+      },
+      "id": "4096eb56-2ba0-4e0a-bb41-e665eb783836",
+      "name": "Fetch All China Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "600519.SS,300750.SZ,002594.SZ,9988.HK,0700.HK",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9f3930a-54a7-49b6-9a22-e411f25acdb5",
+      "name": "Set CN Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// FETCH CHINA STOCK PRICES - MarketPulse v6.0 (CN)\n// Stocks: Moutai, CATL, BYD, Alibaba HK, Tencent HK\n// ============================================\n\nconst watchlistStr = $input.first().json.watchlist || '';\nconst symbols = watchlistStr.split(',').map(s => s.trim()).filter(s => s.length > 0);\n\nconst stockNames = {\n  '600519.SS': 'Moutai',\n  '300750.SZ': 'CATL',\n  '002594.SZ': 'BYD',\n  '9988.HK': 'Alibaba',\n  '0700.HK': 'Tencent',\n  '1810.HK': 'Xiaomi',\n  'PDD': 'PDD',\n  'NIO': 'NIO',\n  'BABA': 'Alibaba US',\n  'JD': 'JD.com'\n};\n\nconst currencySymbols = {\n  'CNY': '¥',\n  'HKD': 'HK$',\n  'USD': '$'\n};\n\nconst stockResults = [];\n\nfor (const symbol of symbols) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=1d',\n      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },\n      timeout: 15000\n    });\n    \n    if (data && data.chart && data.chart.result && data.chart.result[0]) {\n      const meta = data.chart.result[0].meta;\n      const price = meta.regularMarketPrice;\n      const prevClose = meta.chartPreviousClose || meta.previousClose;\n      const currency = meta.currency || 'CNY';\n      const currSymbol = currencySymbols[currency] || currency + ' ';\n      const name = stockNames[symbol] || meta.shortName || symbol;\n      \n      if (price) {\n        let changePct = 'N/A';\n        let changeArrow = '';\n        if (prevClose && prevClose > 0) {\n          const pct = ((price - prevClose) / prevClose) * 100;\n          const sign = pct >= 0 ? '+' : '';\n          changePct = sign + pct.toFixed(2) + '%';\n          changeArrow = pct >= 0 ? '▲' : '▼';\n        }\n        \n        stockResults.push({\n          symbol: symbol,\n          name: name,\n          price: currSymbol + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),\n          change: changePct,\n          arrow: changeArrow,\n          currency: currency\n        });\n      }\n    }\n    // Rate limit\n    await new Promise(r => setTimeout(r, 500));\n  } catch (e) {\n    console.log('Stock ' + symbol + ' error: ' + e.message);\n    stockResults.push({\n      symbol: symbol,\n      name: stockNames[symbol] || symbol,\n      price: 'N/A',\n      change: 'N/A',\n      arrow: '',\n      currency: 'N/A'\n    });\n  }\n}\n\n// Format watchlist summary\nlet watchlistSummary = 'Watchlist data unavailable';\nif (stockResults.length > 0) {\n  const lines = stockResults.map(s => {\n    return s.arrow + ' ' + s.name + ' (' + s.symbol + '): ' + s.price + ' (' + s.change + ')';\n  });\n  watchlistSummary = lines.join('\\n');\n}\n\nreturn [{ json: { watchlistSummary: watchlistSummary, stockDetails: stockResults } }];"
+      },
+      "id": "160bcdb0-bfac-458c-a2d7-0f04fabc929b",
+      "name": "Fetch CN Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        192
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are China-Analyst, a professional analyst specializing in the Chinese stock market and economy. Analyze the following China market data and provide a structured briefing.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== CHINA MARKET DATA ==\n\nChina Market Indices:\n- CSI 300: {{ $json.csi300 }} ({{ $json.csi300Change }})\n- SSE Composite: {{ $json.sseComposite }} ({{ $json.sseCompositeChange }})\n- SZSE Component: {{ $json.szseComponent }} ({{ $json.szseComponentChange }})\n- Hang Seng: {{ $json.hangSeng }} ({{ $json.hangSengChange }})\n\nCommodities & Forex:\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- USD/CNY: {{ $json.usdCny }} ({{ $json.usdCnyChange }})\n\nEconomic Indicators (China):\n- GDP Growth ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n\nToday's China-Related Headlines - cite as headline_1 through headline_{{ $json.headlinesCount }}, one per line below:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for an investor in China markets. NO numbers.\",\n  \"wisdom\": \"one value-investing principle applied to today's China market conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\ncsi300, csi300Change, sseComposite, sseCompositeChange, szseComponent, szseComponentChange, hangSeng, hangSengChange, gold, goldChange, usdCny, usdCnyChange, gdpValue, cpiValue, unemploymentValue, headline_1 through headline_{{ $json.headlinesCount }} (there are {{ $json.headlinesCount }} headlines listed above today)\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "b50eaed0-7b30-404d-945b-dcd5d00e5032",
+      "name": "China Market LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        912,
+        96
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "9464cae8-196f-4074-8691-ec879a283ea7",
+      "name": "Merge All1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        496,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMBINE ALL DATA - MarketPulse v6.2 (CN)\n// Merges China market data + stock prices\n// ============================================\n\nconst items = $input.all();\nconst combined = {};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) {\n      combined[key] = j[key];\n    }\n  }\n}\n\n\n// ===== VERDICT LEDGER (read): yesterday's analysis as challengeable prior =====\ncombined.previousAnalysis = 'No prior analysis available.';\ncombined.trackRecordAccuracy = 'Building history';\ncombined.trackRecordLast = '';\ntry {\n  const sd = $getWorkflowStaticData('global');\n  const led = (sd.mpLedger && sd.mpLedger['CN']) || [];\n  const prev = led.length ? led[led.length - 1] : null;\n  if (prev && prev.date) {\n    let t = 'On ' + prev.date + ' your sentiment was ' + prev.sentiment + ' (confidence ' + prev.confidence + '; verification verdict ' + prev.verdict + ').';\n    if (Array.isArray(prev.claims) && prev.claims.length) {\n      t += ' Your claims were: ' + prev.claims.map(function(c){ return '\"' + c.claim + '\" [based on: ' + (c.basedOn || []).join(', ') + ']'; }).join('; ') + '.';\n    }\n    combined.previousAnalysis = t;\n  }\n\n  // ===== TRACK RECORD (deterministic, code-only, never a prediction): was\n  // yesterday's stated sentiment consistent with what the market actually did\n  // next? Purely retrospective - the LLM is never asked about the future. =====\n  if (!sd.mpTrackRecord) sd.mpTrackRecord = {};\n  if (!sd.mpTrackRecord.CN) sd.mpTrackRecord.CN = [];\n  const tr = sd.mpTrackRecord.CN;\n  const todayChangeStr = combined.csi300Change;\n  const todayChange = (todayChangeStr && todayChangeStr !== 'N/A') ? parseFloat(todayChangeStr) : NaN;\n    // ===== STALENESS GUARD (2026-07-14) =====\n  // The scorer compares \"yesterday's call\" against \"today's move\". That is only\n  // meaningful if the prior entry really is the previous trading day. When a run FAILS\n  // (e.g. the 07-13 US run died on a Gemini 503), the next run would otherwise score a\n  // stale call against a move it never covered - and record it as if it were consecutive.\n  // A track record is worth nothing if it quietly scores the wrong days. 4 days covers a\n  // long weekend; beyond that we cannot honestly attribute the move, so we skip.\n  let gapDays = null;\n  if (prev && prev.date) {\n    gapDays = Math.round((new Date().setHours(0,0,0,0) - new Date(prev.date + \"T00:00:00\").getTime()) / 86400000);\n  }\n  const scoreable = gapDays !== null && gapDays >= 1 && gapDays <= 4;\n  if (prev && prev.sentiment && !isNaN(todayChange) && !scoreable) {\n    console.error(\"🟠 [MarketPulse][TRACK-RECORD] skipped: prior call is \" + gapDays + \" days old (a run was likely missed) - cannot honestly attribute today's move to it\");\n  }\n  if (prev && prev.sentiment && !isNaN(todayChange) && scoreable) {\n    const bullish = /Bullish/i.test(prev.sentiment);\n    const bearish = /Bearish/i.test(prev.sentiment);\n    let result;\n    if (bullish) result = todayChange > 0 ? 'hit' : 'miss';\n    else if (bearish) result = todayChange < 0 ? 'hit' : 'miss';\n    else result = Math.abs(todayChange) < 0.5 ? 'hit' : 'miss'; // Neutral: correct only if the market was actually quiet\n    tr.push({ priorDate: prev.date, scoredDate: new Date().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays });\n    if (tr.length > 30) tr.splice(0, tr.length - 30);\n    const hits = tr.filter(function (x) { return x.result === 'hit'; }).length;\n    combined.trackRecordAccuracy = hits + '/' + tr.length + ' (' + Math.round(100 * hits / tr.length) + '%)';\n    const last = tr[tr.length - 1];\n    combined.trackRecordLast = last.priorSentiment + ' (' + last.priorDate + ') → market moved ' + last.actualChange + ' → ' + (last.result === 'hit' ? 'Correct' : 'Miss');\n  }\n} catch (e) { console.log('[MarketPulse][LEDGER] read/trackrecord skipped: ' + (e && e.message)); }\n\n\nif (!combined._health) {\n  combined._health = {\n    status: 'OUTAGE',\n    failed: [{ source: 'ALL', code: 'NO_DATA', msg: 'Fetch node produced no output this run (timeout, crash, or task-runner failure) - see n8n execution log' }],\n    missing: ['ALL']\n  };\n  console.error('\\u{1F534} [MarketPulse][DATA-HEALTH] OUTAGE | Fetch node returned nothing at all this run (total upstream failure)');\n}\n\nreturn [{ json: combined }];\n"
+      },
+      "id": "47af269d-c90b-494e-b1dc-2d96cb3ba80b",
+      "name": "Combine All Data1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "id": "c095ee1a-991a-458a-ad86-3b7bc074e9c1",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        928,
+        320
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "54d61340-f7cd-4478-b009-372d1fac05f8",
+      "name": "Merge LLM Result1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// COMPOSE TELEGRAM MESSAGE - MarketPulse v6.1 (CN)\n// China Market Edition - HTML-styled (2026-07-10)\n// ============================================\n\nconst items = $input.all();\nconst now = new Date();\n\nfunction esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\nfunction oneLine(s){ return String(s).replace(/\\s*\\n+\\s*/g, ' ').trim(); }\n\nlet d = {\n  csi300: 'N/A',\n  csi300Change: 'N/A',\n  sseComposite: 'N/A',\n  sseCompositeChange: 'N/A',\n  szseComponent: 'N/A',\n  szseComponentChange: 'N/A',\n  hangSeng: 'N/A',\n  hangSengChange: 'N/A',\n  gold: 'N/A',\n  goldChange: 'N/A',\n  usdCny: 'N/A',\n  usdCnyChange: 'N/A',\n  gdpValue: 'N/A',\n  gdpYear: 'N/A',\n  cpiValue: 'N/A',\n  cpiYear: 'N/A',\n  unemploymentValue: 'N/A',\n  unemploymentYear: 'N/A',\n  watchlistSummary: 'N/A',\n  trackRecordAccuracy: 'Building history',\n  trackRecordLast: '',\n  llmAnalysis: '🚫 AI commentary unavailable this run — the model provider was unreachable. Every figure above is fetched, verified, and traced to its source. The analysis layer is advisory by design; the ledger stands without it.',\n  headlinesList: []\n};\n\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(d)) {\n    if (j[key] && j[key] !== 'N/A' && j[key] !== 'Unknown' && j[key] !== 'Analysis unavailable') {\n      d[key] = j[key];\n    }\n  }\n  if (j.text && j.text.length > 30) d.llmAnalysis = j.text;\n  if (j.response && j.response.length > 30) d.llmAnalysis = j.response;\n}\n\n// escape every dynamic value ONCE, here - the template below only ever uses\n// pre-escaped d[] fields, so it is free to add its own trusted <b>/<code>/<blockquote>\n// tags without a final blanket-escape stripping them back out.\n// headlinesList stays an array (escaped per-element where it's actually used) - String()-ing\n// it here would collapse it to a comma-joined string and break headline_N index lookups.\nfor (const k of Object.keys(d)) { if (k !== 'llmAnalysis' && k !== 'headlinesList') d[k] = esc(d[k]); }\n\n\n// ===== DATA HEALTH BANNER (hardening) =====\nlet _health = null;\nfor (const item of items) { if (item.json && item.json._health) _health = item.json._health; }\nlet healthBanner = '';\nif (_health && _health.status === 'OUTAGE') {\n  healthBanner = `🚨 <b>DATA OUTAGE</b> - most live sources failed to load today.\\nValues below may be missing/stale (${esc((_health.missing || []).join(', '))}).\\nCheck n8n logs (tag: MarketPulse FETCH-FAIL).\\n\\n`;\n} else if (_health && _health.status === 'DEGRADED') {\n  healthBanner = `⚠️ <b>PARTIAL DATA</b> - some sources unavailable: ${esc((_health.missing || []).join(', '))}.\\n\\n`;\n}\nif (_health && _health.suspect && _health.suspect.length) {\n  const suspectList = _health.suspect.map(function (s) { return esc(String(s.field)) + ' (' + esc(String(s.value)) + ', exceeds \\u00b1' + s.bound + '%)'; }).join('; ');\n  healthBanner += '\\uD83D\\uDD0D <b>DATA QUALITY FLAG</b> \\u2014 unusual reading(s), verify before relying on: ' + suspectList + '.\\n\\n';\n}\n\n// ===== STRUCTURED RENDERING: numbers injected ONLY from ground truth =====\nlet _structured = null;\nfor (const item of items) { if (item.json && item.json._structured) _structured = item.json._structured; }\nif (_structured) {\n  const LBL = {\n    buffettIndicator: ['Buffett Indicator', 'buffettStatus'], shillerPE: ['Shiller CAPE', 'shillerStatus'],\n    yieldCurve: ['Yield Curve 10Y-2Y', 'yieldCurveStatus'], sp500VsMa200: ['S&P vs 200D-MA', 'sp500VsMa200Status'],\n    maSignal: ['Trend Signal', null], fearGreedValue: ['Fear & Greed', 'fearGreedClassification'],\n    sp500: ['S&P 500', null], sp500Change: ['S&P 500 change', null], dowJones: ['Dow Jones', null],\n    dowJonesChange: ['Dow change', null], vix: ['VIX', null], vixChange: ['VIX change', null],\n    gold: ['Gold', null], goldChange: ['Gold change', null], oil: ['Oil WTI', null], oilChange: ['Oil change', null],\n    dxy: ['Dollar DXY', null], dxyChange: ['DXY change', null], btc: ['Bitcoin', null], btcChange: ['Bitcoin change', null],\n    gdpValue: ['GDP', null], cpiValue: ['CPI', null], unemploymentValue: ['Unemployment', null],\n    fedRateValue: ['Fed Funds', null], treasury10Y: ['10Y Treasury', null], treasury2Y: ['2Y Treasury', null],\n    csi300: ['CSI 300', null], csi300Change: ['CSI 300 change', null], sseComposite: ['SSE Composite', null],\n    sseCompositeChange: ['SSE change', null], szseComponent: ['SZSE Component', null], szseComponentChange: ['SZSE change', null],\n    hangSeng: ['Hang Seng', null], hangSengChange: ['Hang Seng change', null],\n    usdCny: ['USD/CNY', null], usdCnyChange: ['USD/CNY change', null]\n  };\n  // headline_N citations aren't in LBL (dynamic per-day, not a fixed factKey) - handled\n  // separately, quoting the actual headline text (escaped here, at point of use, since\n  // headlinesList was deliberately skipped in the blanket-escape pass above).\n  const evidenceFor = (keys) => (keys || []).map((k) => {\n    const hm = /^headline_(\\d+)$/.exec(k);\n    if (hm) {\n      const hIdx = parseInt(hm[1], 10) - 1;\n      const text = Array.isArray(d.headlinesList) ? d.headlinesList[hIdx] : null;\n      return text ? ('📰 \"' + esc(oneLine(text)) + '\"') : null;\n    }\n    const m = LBL[k]; if (!m) return null;\n    const val = d[k]; if (val === undefined || val === null || val === 'N/A') return null;\n    const st = m[1] && d[m[1]] && d[m[1]] !== 'N/A' ? ' (' + d[m[1]] + ')' : '';\n    return m[0] + ' ' + val + st;\n  }).filter(Boolean).join('; ');\n  let outA = '<b>MARKET SENTIMENT:</b> ' + esc(oneLine(_structured.sentiment || 'n/a'));\n  outA += '\\n<b>Confidence:</b> ' + esc(oneLine(_structured.confidence || 'n/a'));\n  outA += '\\n\\n<b>KEY DRIVERS</b> (each claim cites its source data):';\n  (_structured.claims || []).slice(0, 6).forEach((c, i) => {\n    outA += '\\n' + (i + 1) + '. ' + esc(oneLine(c.claim));\n    const ev = evidenceFor(c.basedOn);\n    if (ev) outA += '\\n   <i>evidence: ' + ev + '</i>';\n  });\n  if (_structured.interpretation) outA += '\\n\\n<b>INTERPRETATION:</b>\\n' + esc(oneLine(_structured.interpretation));\n  if (_structured.wisdom) outA += '\\n\\n<blockquote>' + esc(oneLine(_structured.wisdom)) + '</blockquote>';\n  outA += '\\n\\n<i>[Verified: ' + ((_structured.claims || []).length) + ' claims attributed to source data. All numbers injected from sources, never AI-generated.]</i>';\n  d.llmAnalysis = outA;\n} else {\n  d.llmAnalysis = esc(d.llmAnalysis);\n}\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\nfunction changeIndicator(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '⚪';\n  const val = parseFloat(changeStr);\n  if (isNaN(val)) return '⚪';\n  if (val >= 2) return '🟢🟢';\n  if (val > 0) return '🟢';\n  if (val === 0) return '🟡';\n  if (val > -2) return '🔴';\n  return '🔴🔴';\n}\n\nfunction arrow(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  return changeStr.startsWith('+') ? '▲' : '▼';\n}\n\nfunction cnyIndicator(changeStr) {\n  if (!changeStr || changeStr === 'N/A') return '';\n  const val = parseFloat(changeStr);\n  if (isNaN(val)) return '';\n  if (val > 0) return '(CNY Weakening)';\n  if (val < 0) return '(CNY Strengthening)';\n  return '(Stable)';\n}\n\nconst trackRecordLine = d.trackRecordLast ? ('Last call: ' + d.trackRecordLast + '\\n') : '';\n\nlet message = `📊 <b>MarketPulse Daily Digest (CN)</b>\n━━━━━━━━━━━━━━━━━━━━\n📅 ${dateStr}\n🇨🇳 China Market Edition\n\n${healthBanner}📈 <b>CHINA MARKET INDICES</b>\n${changeIndicator(d.csi300Change)} ${arrow(d.csi300Change)} CSI 300: <code>${d.csi300}</code> (${d.csi300Change})\n${changeIndicator(d.sseCompositeChange)} ${arrow(d.sseCompositeChange)} SSE Composite: <code>${d.sseComposite}</code> (${d.sseCompositeChange})\n${changeIndicator(d.szseComponentChange)} ${arrow(d.szseComponentChange)} SZSE Component: <code>${d.szseComponent}</code> (${d.szseComponentChange})\n${changeIndicator(d.hangSengChange)} ${arrow(d.hangSengChange)} Hang Seng: <code>${d.hangSeng}</code> (${d.hangSengChange})\n\n💰 <b>COMMODITIES &amp; FOREX</b>\n${arrow(d.goldChange)} Gold: <code>${d.gold}</code> (${d.goldChange})\n${arrow(d.usdCnyChange)} USD/CNY: <code>${d.usdCny}</code> (${d.usdCnyChange}) ${cnyIndicator(d.usdCnyChange)}\n\n📊 <b>ECONOMIC INDICATORS (CHINA)</b>\n• GDP Growth (${d.gdpYear}): <code>${d.gdpValue}</code>\n• Inflation/CPI (${d.cpiYear}): <code>${d.cpiValue}</code>\n• Unemployment (${d.unemploymentYear}): <code>${d.unemploymentValue}</code>\n\n📋 <b>WATCHLIST</b>\n${d.watchlistSummary}\n\n📈 <b>TRACK RECORD</b>\nAccuracy: <code>${d.trackRecordAccuracy}</code>\n${trackRecordLine}<i>Was yesterday’s sentiment consistent with what the market did next — scored automatically, never predicted.</i>\n\n💡 <b>AI ANALYSIS</b>\n${d.llmAnalysis}\n\n━━━━━━━━━━━━━━━━━━━━\n⚠️ <i>Disclaimer: AI-generated analysis for informational purposes only. Not financial advice.</i>\n\n📎 Sources: Yahoo Finance, World Bank, Google News\n\n🔗 <a href=\"https://creator35lwb-web.github.io/MarketPulse/\">Full Dashboard</a> · <a href=\"https://github.com/creator35lwb-web/MarketPulse\">Open Source on GitHub</a>\n\nMarketPulse — Verified AI Market Intelligence`;\n\n// ===== TELEGRAM SAFETY: 4096 limit, trimmed by WHOLE LINE so no tag is ever split =====\nif (message.length > 4096) {\n  const i = message.lastIndexOf('━━━━');\n  const note = '\\n…[analysis trimmed to fit Telegram 4096-char limit]\\n';\n  if (i > 0) {\n    const footer = message.slice(i);\n    const budget = 4096 - footer.length - note.length;\n    let lines = message.slice(0, i).split('\\n');\n    while (lines.join('\\n').length > budget && lines.length > 0) lines.pop();\n    message = lines.join('\\n') + note + footer;\n  }\n  if (message.length > 4096) message = message.slice(0, 4093) + '...';\n  console.error('🟠 [MarketPulse][TG-TRIM] message exceeded 4096; trimmed to ' + message.length + ' chars');\n}\nreturn [{ json: { message, timestamp: now.toISOString() } }];\n"
+      },
+      "id": "862f325c-7d8c-4fe1-85dc-1d0a83606921",
+      "name": "Compose Telegram Message1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "4ddcc14b-9a27-410d-8896-eedde986c747",
+      "name": "Send to Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1568,
+        96
+      ],
+      "webhookId": "dba595a7-97a1-4d6d-b84d-65e6f261d655",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 16 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "14f144ce-7062-4623-9799-eaf3e4f18650",
+      "name": "Daily CN Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =====================================================================\n// VERIFY AI ANALYSIS - MarketPulse (Phase 1: SHADOW MODE)\n// Deterministically checks the LLM analysis against fetched ground truth.\n// SHADOW MODE: logs a verdict + attaches _verification, does NOT alter the\n// message. Grep n8n logs:  [MarketPulse][VERIFY]\n// =====================================================================\n// ====== ENFORCEMENT MODE — flip to 'enforce' ONLY after the shadow window ======\n// 'shadow'  = log verdicts, never alter the message (safe default)\n// 'enforce' = on FAIL, withhold the AI prose (verified data still ships); on FLAG, prepend a note\nconst MODE = 'enforce';\n\nconst items = $input.all();\ntry {\n\n// 1) gather ground truth + LLM text from merged input\nconst gt = {};\nlet llmText = '', health = null;\nfor (const it of items) {\n  const j = (it && it.json) || {};\n  for (const k of Object.keys(j)) if (gt[k] === undefined) gt[k] = j[k];\n  if (j._health) health = j._health;\n  if (typeof j.text === 'string' && j.text.length > 30) llmText = j.text;\n  if (typeof j.response === 'string' && j.response.length > 30) llmText = j.response;\n}\nif (!llmText && typeof gt.llmAnalysis === 'string') llmText = gt.llmAnalysis;\n\nconst num = (s) => {\n  if (s === undefined || s === null) return NaN;\n  const mm = String(s).replace(/,/g, '').match(/-?\\d+(\\.\\d+)?/);\n  return mm ? parseFloat(mm[0]) : NaN;\n};\nconst F = (label, raw, kind, kw) => ({ label, n: num(raw), kind, kw });\n// Detect edition from which ground-truth fields are present (US and CN branches are separate)\nconst edition = (gt.csi300 !== undefined || gt.sseComposite !== undefined || gt.hangSeng !== undefined) ? 'CN' : 'US';\nconst US_FACTS = [\n  F('S&P 500', gt.sp500, 'level', ['s&p', 'sp500']),\n  F('S&P 500 change', gt.sp500Change, 'pct', ['s&p', 'sp500']),\n  F('Dow Jones', gt.dowJones, 'level', ['dow']),\n  F('VIX', gt.vix, 'ratio', ['vix', 'volatility']),\n  F('Gold', gt.gold, 'level', ['gold']),\n  F('Oil', gt.oil, 'level', ['oil', 'wti', 'crude']),\n  F('Bitcoin', gt.btc, 'level', ['bitcoin', 'btc']),\n  F('Buffett Indicator', gt.buffettIndicator, 'pct', ['buffett', 'market cap to gdp']),\n  F('CAPE', gt.shillerPE, 'ratio', ['cape', 'shiller', 'p/e', 'pe ratio']),\n  F('Yield curve', gt.yieldCurve, 'pct', ['yield curve', 'spread']),\n  F('S&P vs 200DMA', gt.sp500VsMa200, 'pct', ['200-day', '200d', 'moving average']),\n  F('Fear & Greed', gt.fearGreedValue, 'score', ['fear & greed', 'fear and greed', 'sentiment']),\n  F('GDP', gt.gdpValue, 'pct', ['gdp']),\n  F('CPI', gt.cpiValue, 'pct', ['cpi', 'inflation']),\n  F('Unemployment', gt.unemploymentValue, 'pct', ['unemployment', 'jobless']),\n  F('Fed funds rate', gt.fedRateValue, 'pct', ['fed funds', 'fed rate', 'federal funds']),\n  F('10Y Treasury', gt.treasury10Y, 'pct', ['10y', '10-year', '10 year']),\n  F('2Y Treasury', gt.treasury2Y, 'pct', ['2y', '2-year', '2 year']),\n];\nconst CN_FACTS = [\n  F('CSI 300', gt.csi300, 'level', ['csi 300', 'csi300', 'csi']),\n  F('CSI 300 change', gt.csi300Change, 'pct', ['csi 300', 'csi300', 'csi']),\n  F('SSE Composite', gt.sseComposite, 'level', ['sse composite', 'shanghai composite', 'shanghai', 'sse']),\n  F('SSE change', gt.sseCompositeChange, 'pct', ['sse composite', 'shanghai composite', 'shanghai', 'sse']),\n  F('SZSE Component', gt.szseComponent, 'level', ['szse', 'shenzhen']),\n  F('SZSE change', gt.szseComponentChange, 'pct', ['szse', 'shenzhen']),\n  F('Hang Seng', gt.hangSeng, 'level', ['hang seng', 'hsi', 'hong kong']),\n  F('Hang Seng change', gt.hangSengChange, 'pct', ['hang seng', 'hsi', 'hong kong']),\n  F('Gold', gt.gold, 'level', ['gold']),\n  F('USD/CNY', gt.usdCny, 'ratio', ['usd/cny', 'cny', 'yuan', 'renminbi', 'rmb']),\n  F('GDP', gt.gdpValue, 'pct', ['gdp']),\n  F('CPI', gt.cpiValue, 'pct', ['cpi', 'inflation']),\n  F('Unemployment', gt.unemploymentValue, 'pct', ['unemployment', 'jobless']),\n];\nconst facts = (edition === 'CN' ? CN_FACTS : US_FACTS).filter(f => !isNaN(f.n));\n\nconst tol = (k) => k === 'score' ? 1 : 0.2;\nconst matches = (f, val) => f.kind === 'level'\n  ? Math.abs(f.n - val) / Math.max(f.n, 1) <= 0.006\n  : Math.abs(f.n - val) <= tol(f.kind);\n\nconst v = { status: 'PASS', score: 100, contradictions: [], unverified: [], checked: 0, mode: MODE, action: 'none', edition };\n\n// ===== VERDICT LEDGER (write): persist today's verdict for tomorrow's prior =====\nconst writeLedger = (structuredObj) => {\n  try {\n    const sd = $getWorkflowStaticData('global');\n    if (!sd.mpLedger) sd.mpLedger = {};\n    if (!sd.mpLedger[edition]) sd.mpLedger[edition] = [];\n    const today = new Date().toISOString().slice(0, 10);\n    const entry = {\n      date: today, edition,\n      sentiment: structuredObj ? structuredObj.sentiment : null,\n      confidence: structuredObj ? structuredObj.confidence : null,\n      claims: structuredObj && Array.isArray(structuredObj.claims)\n        ? structuredObj.claims.slice(0, 6).map((c) => ({ claim: String(c.claim || '').slice(0, 200), basedOn: c.basedOn || [] }))\n        : [],\n      verdict: v.status, score: v.score, violations: v.contradictions.length,\n      health: (health && health.status) || 'unknown'\n    };\n    const led = sd.mpLedger[edition];\n    if (led.length && led[led.length - 1].date === today) led[led.length - 1] = entry; else led.push(entry);\n    if (led.length > 30) led.splice(0, led.length - 30);\n    console.log('[MarketPulse][LEDGER] wrote ' + edition + ' ' + today + ' verdict=' + v.status);\n  } catch (e) { console.error('[MarketPulse][LEDGER] write skipped: ' + (e && e.message)); }\n};\n\nconst lc = llmText.toLowerCase();\nconst escapeRe = (s) => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n\n// ===== STRUCTURED-GENERATION LAYER (v3): reasoning-attribution verification =====\n// The LLM must return JSON claims citing basedOn factKeys; numbers are injected\n// downstream from ground truth. Here we verify every attribution deterministically.\nlet parsed = null;\n(function () {\n  let t = String(llmText || '').trim();\n  const f = t.indexOf('{'), l = t.lastIndexOf('}');\n  if (f === -1 || l <= f) return;\n  try {\n    const o = JSON.parse(t.slice(f, l + 1));\n    if (o && typeof o === 'object' && Array.isArray(o.claims)) parsed = o;\n  } catch (e) { /* falls through to legacy free-text verification */ }\n})();\nif (parsed) {\n  v.structured = true;\n  const KEYS = edition === 'CN'\n    ? { csi300: 1, csi300Change: 1, sseComposite: 1, sseCompositeChange: 1, szseComponent: 1, szseComponentChange: 1, hangSeng: 1, hangSengChange: 1, gold: 1, goldChange: 1, usdCny: 1, usdCnyChange: 1, gdpValue: 1, cpiValue: 1, unemploymentValue: 1 }\n    : { buffettIndicator: 1, shillerPE: 1, yieldCurve: 1, sp500VsMa200: 1, maSignal: 1, fearGreedValue: 1, sp500: 1, sp500Change: 1, dowJones: 1, dowJonesChange: 1, vix: 1, vixChange: 1, gold: 1, goldChange: 1, oil: 1, oilChange: 1, dxy: 1, dxyChange: 1, btc: 1, btcChange: 1, gdpValue: 1, cpiValue: 1, unemploymentValue: 1, fedRateValue: 1, treasury10Y: 1, treasury2Y: 1 };\n  const stripStruct = (s) => String(s || '').replace(/s&p ?500|200[- ]?(?:day|d|dma|ma)\\b|10[- ]?(?:y\\b|year)|2[- ]?(?:y\\b|year)|csi ?300|\\/100|0-100/gi, ' ');\n  const claims = parsed.claims.slice(0, 6);\n  if (!claims.length) v.contradictions.push('structured output has no claims');\n  for (const c of claims) {\n    const keys = Array.isArray(c.basedOn) ? c.basedOn : [];\n    if (!keys.length) v.contradictions.push('claim lacks attribution (empty basedOn): ' + String(c.claim).slice(0, 60));\n    for (const k of keys) {\n      const hm = /^headline_(\\d+)$/.exec(k);\n      if (hm) {\n        const hIdx = parseInt(hm[1], 10) - 1;\n        const hList = Array.isArray(gt.headlinesList) ? gt.headlinesList : [];\n        if (hIdx < 0 || hIdx >= hList.length || !hList[hIdx]) v.contradictions.push('claim cites \"' + k + '\" but no such headline exists in the current fetch (' + hList.length + ' available)');\n        continue;\n      }\n      if (!KEYS[k]) { v.contradictions.push('claim cites unknown factKey \"' + k + '\"'); continue; }\n      const val = gt[k];\n      if (val === undefined || val === null || val === '' || val === 'N/A') v.contradictions.push('claim cites \"' + k + '\" but that source is unavailable (N/A) today');\n    }\n    if (/\\d/.test(stripStruct(c.claim))) v.contradictions.push('numeric value written in claim text (numbers must come from source injection): ' + String(c.claim).slice(0, 60));\n  }\n  for (const fld of ['interpretation', 'wisdom']) {\n    if (/\\d/.test(stripStruct(parsed[fld]))) v.contradictions.push('numeric value written in ' + fld + ' text');\n  }\n  const dirs = claims.map((c) => c.direction || '');\n  const nBull = dirs.filter((x) => x === 'supports_bullish').length;\n  const nBear = dirs.filter((x) => x === 'supports_bearish').length;\n  const sent = String(parsed.sentiment || '').toLowerCase();\n  if (sent.includes('bullish') && !sent.includes('bearish') && nBull === 0 && nBear > 0) v.contradictions.push('sentiment says bullish but all cited evidence supports bearish');\n  if (sent.includes('bearish') && !sent.includes('bullish') && nBear === 0 && nBull > 0) v.contradictions.push('sentiment says bearish but all cited evidence supports bullish');\n  v.checked = claims.length;\n  if (v.contradictions.length) v.status = 'FAIL';\n  v.score = Math.max(0, 100 - v.contradictions.length * 40);\n  const tag3 = v.status === 'PASS' ? '✅' : '🔴';\n  console.error(tag3 + ' [MarketPulse][VERIFY] ' + v.status + ' (' + edition + ', structured) claims=' + claims.length + ' violations=' + v.contradictions.length + ' score=' + v.score);\n  if (v.contradictions.length) console.error('   [VERIFY] VIOLATIONS: ' + v.contradictions.join(' || '));\n  if (MODE === 'enforce' && v.status === 'FAIL') {\n    const n = v.contradictions.length;\n    const notice = '🚫 AI analysis withheld — its reasoning failed attribution verification (' + n + ' violation' + (n === 1 ? '' : 's') + '). The verified market data above stands on its own.';\n    for (const it of items) { if (!it || !it.json) continue; for (const k of ['text', 'response', 'llmAnalysis']) { if (typeof it.json[k] === 'string' && it.json[k].length > 30) it.json[k] = notice; } }\n    v.action = 'withheld';\n    console.error('🛡️ [MarketPulse][VERIFY] ENFORCE -> withheld (structured)');\n  } else {\n    let placed = false;\n    for (const it of items) { if (it && it.json && it.json._health !== undefined) { it.json._structured = parsed; placed = true; } }\n    if (!placed && items[0] && items[0].json) items[0].json._structured = parsed;\n  }\n  let att3 = false;\n  for (const it of items) { if (it && it.json && it.json._health !== undefined) { it.json._verification = v; att3 = true; } }\n  if (!att3 && items[0] && items[0].json) items[0].json._verification = v;\n  writeLedger(parsed);\n  return items;\n}\n// (no parseable structured output -> legacy free-text verification below)\n\n// CHECK 1 - fabricated values for unavailable sources\nfor (const miss of (health && health.missing) || []) {\n  const key = miss.toLowerCase().split('/')[0];\n  const f = facts.find(x => x.label.toLowerCase().includes(key)) || { kw: [key] };\n  for (const k of (f.kw || [])) {\n    const re = new RegExp(escapeRe(k) + '[^.\\\\n]{0,25}?\\\\d', 'i');\n    if (re.test(llmText)) { v.contradictions.push('Claims a value for ' + miss + ' but that source was unavailable today'); break; }\n  }\n}\n// CHECK 2 - numeric grounding\nconst STOP = (n, ctx) =>\n  (n === 500 && /s&p|sp500/.test(ctx)) ||\n  (n === 200 && /(day|moving|ma\\b|200d)/.test(ctx)) ||\n  (n === 100 && /(\\/100|out of 100|0-100)/.test(ctx)) ||\n  (n === 300 && /csi/.test(ctx)) ||\n  /\\(\\d|\\.ss|\\.sz|\\.hk|hk\\$/.test(ctx) ||\n  ((n === 10 || n === 2) && /(year|treasury|10y|2y)/.test(ctx)) ||\n  (Number.isInteger(n) && n >= 1990 && n <= 2099) ||   // a bare 4-digit year (e.g. 2024/2025), not a metric\n  /v\\d|version/.test(ctx);\n// match whole numbers (comma-grouped OR plain runs) so years aren't split: \"2024\" stays \"2024\", not \"202\"+\"4\"\nconst numRe = /(\\$?-?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?)(%?)/g;\nlet m;\nwhile ((m = numRe.exec(llmText)) !== null) {\n  const raw = m[1] + m[2];\n  const val = parseFloat(m[1].replace(/[$,]/g, ''));\n  if (isNaN(val)) continue;\n  const ctx = lc.slice(Math.max(0, m.index - 32), m.index + raw.length + 4);\n  if (STOP(val, ctx)) continue;\n  v.checked++;\n  const isPct = raw.indexOf('%') !== -1;\n  const cands = facts.filter(f => f.kw.some(k => ctx.includes(k)));\n  if (cands.length) {\n    // verified if the number matches ANY contextually-implied metric (avoids cross-metric bleed)\n    if (!cands.some(f => matches(f, val))) {\n      const cf = cands.find(f => isPct ? f.kind !== 'level' : f.kind === 'level') || cands[0];\n      v.contradictions.push(cf.label + ': analysis says ' + raw + ', source = ' + cf.n);\n    }\n  } else if (!facts.some(f => matches(f, val))) {\n    v.unverified.push(raw + ' (...' + ctx.trim().slice(-22) + ')');\n  }\n}\n// CHECK 3 - directional/sentiment consistency\nconst fg = String(gt.fearGreedClassification || '').toLowerCase();\nif (/\\b(extreme greed|investors are greedy|greed dominates)\\b/.test(lc) && fg.includes('fear'))\n  v.contradictions.push('Says greed, but Fear & Greed = ' + gt.fearGreedClassification);\nif (/\\b(extreme fear|market panic|fearful sentiment)\\b/.test(lc) && fg.includes('greed'))\n  v.contradictions.push('Says fear, but Fear & Greed = ' + gt.fearGreedClassification);\nconst primaryRaw = edition === 'CN' ? gt.csi300Change : gt.sp500Change;\nconst primaryLabel = edition === 'CN' ? 'CSI 300' : 'S&P 500';\nconst pc = num(primaryRaw);\nif (!isNaN(pc)) {\n  if (pc < -0.1 && /\\b(rally|rallied|surged|soared|broad gains|climbed higher)\\b/.test(lc))\n    v.contradictions.push('Says rally, but ' + primaryLabel + ' change = ' + primaryRaw);\n  if (pc > 0.1 && /\\b(selloff|sold off|plunged|sank|tumbled|broad declines)\\b/.test(lc))\n    v.contradictions.push('Says selloff, but ' + primaryLabel + ' change = ' + primaryRaw);\n}\n// verdict\nif (v.contradictions.length) v.status = 'FAIL';\nelse if (v.unverified.length > 2) v.status = 'FLAG';\nv.score = Math.max(0, 100 - v.contradictions.length * 40 - v.unverified.length * 8);\n\nconst tag = v.status === 'PASS' ? '✅' : (v.status === 'FAIL' ? '🔴' : '🟡');\nconsole.error(tag + ' [MarketPulse][VERIFY] ' + v.status + ' (' + edition + ') score=' + v.score + ' | checked=' + v.checked +\n  ' contradictions=' + v.contradictions.length + ' unverified=' + v.unverified.length);\nif (v.contradictions.length) console.error('   [VERIFY] CONTRADICTIONS: ' + v.contradictions.join(' || '));\nif (v.unverified.length) console.error('   [VERIFY] unverified: ' + v.unverified.join(' || '));\n\n// ===== ENFORCEMENT (dormant unless MODE === 'enforce') =====\nconst ANALYSIS_KEYS = ['text', 'response', 'llmAnalysis'];\nconst rewriteAnalysis = (fn) => {\n  for (const it of items) {\n    if (!it || !it.json) continue;\n    for (const k of ANALYSIS_KEYS) {\n      if (typeof it.json[k] === 'string' && it.json[k].length > 30) it.json[k] = fn(it.json[k]);\n    }\n  }\n};\nif (MODE === 'enforce') {\n  if (v.status === 'FAIL') {\n    const n = v.contradictions.length;\n    const notice = '🚫 AI analysis withheld — it failed automated verification against today\\'s source data (' +\n      n + ' contradiction' + (n === 1 ? '' : 's') + '). The verified market data above stands on its own.';\n    rewriteAnalysis(() => notice);\n    v.action = 'withheld';\n  } else if (v.status === 'FLAG') {\n    const note = '⚠️ ' + v.unverified.length + ' figure(s) below could not be verified against source data.\\n\\n';\n    rewriteAnalysis((orig) => note + orig);\n    v.action = 'flagged';\n  }\n  if (v.action !== 'none') console.error('🛡️ [MarketPulse][VERIFY] ENFORCE -> ' + v.action);\n}\n\n// attach verdict + pass items through (both modes return the items unchanged in structure)\nlet attached = false;\nfor (const it of items) if (it && it.json && it.json._health !== undefined) { it.json._verification = v; attached = true; }\nif (!attached && items[0] && items[0].json) items[0].json._verification = v;\nwriteLedger(null);\nreturn items;\n\n} catch (e) {\n  // SHADOW MODE must never break delivery: log and pass input through untouched.\n  console.error('🟠 [MarketPulse][VERIFY] node error (shadow, ignored): ' + (e && e.message));\n  return items;\n}\n"
+      },
+      "id": "eff7dd8e-1740-42b8-8bab-252c84ae0978",
+      "name": "Verify AI Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        752
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =====================================================================\n// VERIFY AI ANALYSIS - MarketPulse (Phase 1: SHADOW MODE)\n// Deterministically checks the LLM analysis against fetched ground truth.\n// SHADOW MODE: logs a verdict + attaches _verification, does NOT alter the\n// message. Grep n8n logs:  [MarketPulse][VERIFY]\n// =====================================================================\n// ====== ENFORCEMENT MODE — flip to 'enforce' ONLY after the shadow window ======\n// 'shadow'  = log verdicts, never alter the message (safe default)\n// 'enforce' = on FAIL, withhold the AI prose (verified data still ships); on FLAG, prepend a note\nconst MODE = 'enforce';\n\nconst items = $input.all();\ntry {\n\n// 1) gather ground truth + LLM text from merged input\nconst gt = {};\nlet llmText = '', health = null;\nfor (const it of items) {\n  const j = (it && it.json) || {};\n  for (const k of Object.keys(j)) if (gt[k] === undefined) gt[k] = j[k];\n  if (j._health) health = j._health;\n  if (typeof j.text === 'string' && j.text.length > 30) llmText = j.text;\n  if (typeof j.response === 'string' && j.response.length > 30) llmText = j.response;\n}\nif (!llmText && typeof gt.llmAnalysis === 'string') llmText = gt.llmAnalysis;\n\nconst num = (s) => {\n  if (s === undefined || s === null) return NaN;\n  const mm = String(s).replace(/,/g, '').match(/-?\\d+(\\.\\d+)?/);\n  return mm ? parseFloat(mm[0]) : NaN;\n};\nconst F = (label, raw, kind, kw) => ({ label, n: num(raw), kind, kw });\n// Detect edition from which ground-truth fields are present (US and CN branches are separate)\nconst edition = (gt.csi300 !== undefined || gt.sseComposite !== undefined || gt.hangSeng !== undefined) ? 'CN' : 'US';\nconst US_FACTS = [\n  F('S&P 500', gt.sp500, 'level', ['s&p', 'sp500']),\n  F('S&P 500 change', gt.sp500Change, 'pct', ['s&p', 'sp500']),\n  F('Dow Jones', gt.dowJones, 'level', ['dow']),\n  F('VIX', gt.vix, 'ratio', ['vix', 'volatility']),\n  F('Gold', gt.gold, 'level', ['gold']),\n  F('Oil', gt.oil, 'level', ['oil', 'wti', 'crude']),\n  F('Bitcoin', gt.btc, 'level', ['bitcoin', 'btc']),\n  F('Buffett Indicator', gt.buffettIndicator, 'pct', ['buffett', 'market cap to gdp']),\n  F('CAPE', gt.shillerPE, 'ratio', ['cape', 'shiller', 'p/e', 'pe ratio']),\n  F('Yield curve', gt.yieldCurve, 'pct', ['yield curve', 'spread']),\n  F('S&P vs 200DMA', gt.sp500VsMa200, 'pct', ['200-day', '200d', 'moving average']),\n  F('Fear & Greed', gt.fearGreedValue, 'score', ['fear & greed', 'fear and greed', 'sentiment']),\n  F('GDP', gt.gdpValue, 'pct', ['gdp']),\n  F('CPI', gt.cpiValue, 'pct', ['cpi', 'inflation']),\n  F('Unemployment', gt.unemploymentValue, 'pct', ['unemployment', 'jobless']),\n  F('Fed funds rate', gt.fedRateValue, 'pct', ['fed funds', 'fed rate', 'federal funds']),\n  F('10Y Treasury', gt.treasury10Y, 'pct', ['10y', '10-year', '10 year']),\n  F('2Y Treasury', gt.treasury2Y, 'pct', ['2y', '2-year', '2 year']),\n];\nconst CN_FACTS = [\n  F('CSI 300', gt.csi300, 'level', ['csi 300', 'csi300', 'csi']),\n  F('CSI 300 change', gt.csi300Change, 'pct', ['csi 300', 'csi300', 'csi']),\n  F('SSE Composite', gt.sseComposite, 'level', ['sse composite', 'shanghai composite', 'shanghai', 'sse']),\n  F('SSE change', gt.sseCompositeChange, 'pct', ['sse composite', 'shanghai composite', 'shanghai', 'sse']),\n  F('SZSE Component', gt.szseComponent, 'level', ['szse', 'shenzhen']),\n  F('SZSE change', gt.szseComponentChange, 'pct', ['szse', 'shenzhen']),\n  F('Hang Seng', gt.hangSeng, 'level', ['hang seng', 'hsi', 'hong kong']),\n  F('Hang Seng change', gt.hangSengChange, 'pct', ['hang seng', 'hsi', 'hong kong']),\n  F('Gold', gt.gold, 'level', ['gold']),\n  F('USD/CNY', gt.usdCny, 'ratio', ['usd/cny', 'cny', 'yuan', 'renminbi', 'rmb']),\n  F('GDP', gt.gdpValue, 'pct', ['gdp']),\n  F('CPI', gt.cpiValue, 'pct', ['cpi', 'inflation']),\n  F('Unemployment', gt.unemploymentValue, 'pct', ['unemployment', 'jobless']),\n];\nconst facts = (edition === 'CN' ? CN_FACTS : US_FACTS).filter(f => !isNaN(f.n));\n\nconst tol = (k) => k === 'score' ? 1 : 0.2;\nconst matches = (f, val) => f.kind === 'level'\n  ? Math.abs(f.n - val) / Math.max(f.n, 1) <= 0.006\n  : Math.abs(f.n - val) <= tol(f.kind);\n\nconst v = { status: 'PASS', score: 100, contradictions: [], unverified: [], checked: 0, mode: MODE, action: 'none', edition };\n\n// ===== VERDICT LEDGER (write): persist today's verdict for tomorrow's prior =====\nconst writeLedger = (structuredObj) => {\n  try {\n    const sd = $getWorkflowStaticData('global');\n    if (!sd.mpLedger) sd.mpLedger = {};\n    if (!sd.mpLedger[edition]) sd.mpLedger[edition] = [];\n    const today = new Date().toISOString().slice(0, 10);\n    const entry = {\n      date: today, edition,\n      sentiment: structuredObj ? structuredObj.sentiment : null,\n      confidence: structuredObj ? structuredObj.confidence : null,\n      claims: structuredObj && Array.isArray(structuredObj.claims)\n        ? structuredObj.claims.slice(0, 6).map((c) => ({ claim: String(c.claim || '').slice(0, 200), basedOn: c.basedOn || [] }))\n        : [],\n      verdict: v.status, score: v.score, violations: v.contradictions.length,\n      health: (health && health.status) || 'unknown'\n    };\n    const led = sd.mpLedger[edition];\n    if (led.length && led[led.length - 1].date === today) led[led.length - 1] = entry; else led.push(entry);\n    if (led.length > 30) led.splice(0, led.length - 30);\n    console.log('[MarketPulse][LEDGER] wrote ' + edition + ' ' + today + ' verdict=' + v.status);\n  } catch (e) { console.error('[MarketPulse][LEDGER] write skipped: ' + (e && e.message)); }\n};\n\nconst lc = llmText.toLowerCase();\nconst escapeRe = (s) => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n\n// ===== STRUCTURED-GENERATION LAYER (v3): reasoning-attribution verification =====\n// The LLM must return JSON claims citing basedOn factKeys; numbers are injected\n// downstream from ground truth. Here we verify every attribution deterministically.\nlet parsed = null;\n(function () {\n  let t = String(llmText || '').trim();\n  const f = t.indexOf('{'), l = t.lastIndexOf('}');\n  if (f === -1 || l <= f) return;\n  try {\n    const o = JSON.parse(t.slice(f, l + 1));\n    if (o && typeof o === 'object' && Array.isArray(o.claims)) parsed = o;\n  } catch (e) { /* falls through to legacy free-text verification */ }\n})();\nif (parsed) {\n  v.structured = true;\n  const KEYS = edition === 'CN'\n    ? { csi300: 1, csi300Change: 1, sseComposite: 1, sseCompositeChange: 1, szseComponent: 1, szseComponentChange: 1, hangSeng: 1, hangSengChange: 1, gold: 1, goldChange: 1, usdCny: 1, usdCnyChange: 1, gdpValue: 1, cpiValue: 1, unemploymentValue: 1 }\n    : { buffettIndicator: 1, shillerPE: 1, yieldCurve: 1, sp500VsMa200: 1, maSignal: 1, fearGreedValue: 1, sp500: 1, sp500Change: 1, dowJones: 1, dowJonesChange: 1, vix: 1, vixChange: 1, gold: 1, goldChange: 1, oil: 1, oilChange: 1, dxy: 1, dxyChange: 1, btc: 1, btcChange: 1, gdpValue: 1, cpiValue: 1, unemploymentValue: 1, fedRateValue: 1, treasury10Y: 1, treasury2Y: 1 };\n  const stripStruct = (s) => String(s || '').replace(/s&p ?500|200[- ]?(?:day|d|dma|ma)\\b|10[- ]?(?:y\\b|year)|2[- ]?(?:y\\b|year)|csi ?300|\\/100|0-100/gi, ' ');\n  const claims = parsed.claims.slice(0, 6);\n  if (!claims.length) v.contradictions.push('structured output has no claims');\n  for (const c of claims) {\n    const keys = Array.isArray(c.basedOn) ? c.basedOn : [];\n    if (!keys.length) v.contradictions.push('claim lacks attribution (empty basedOn): ' + String(c.claim).slice(0, 60));\n    for (const k of keys) {\n      const hm = /^headline_(\\d+)$/.exec(k);\n      if (hm) {\n        const hIdx = parseInt(hm[1], 10) - 1;\n        const hList = Array.isArray(gt.headlinesList) ? gt.headlinesList : [];\n        if (hIdx < 0 || hIdx >= hList.length || !hList[hIdx]) v.contradictions.push('claim cites \"' + k + '\" but no such headline exists in the current fetch (' + hList.length + ' available)');\n        continue;\n      }\n      if (!KEYS[k]) { v.contradictions.push('claim cites unknown factKey \"' + k + '\"'); continue; }\n      const val = gt[k];\n      if (val === undefined || val === null || val === '' || val === 'N/A') v.contradictions.push('claim cites \"' + k + '\" but that source is unavailable (N/A) today');\n    }\n    if (/\\d/.test(stripStruct(c.claim))) v.contradictions.push('numeric value written in claim text (numbers must come from source injection): ' + String(c.claim).slice(0, 60));\n  }\n  for (const fld of ['interpretation', 'wisdom']) {\n    if (/\\d/.test(stripStruct(parsed[fld]))) v.contradictions.push('numeric value written in ' + fld + ' text');\n  }\n  const dirs = claims.map((c) => c.direction || '');\n  const nBull = dirs.filter((x) => x === 'supports_bullish').length;\n  const nBear = dirs.filter((x) => x === 'supports_bearish').length;\n  const sent = String(parsed.sentiment || '').toLowerCase();\n  if (sent.includes('bullish') && !sent.includes('bearish') && nBull === 0 && nBear > 0) v.contradictions.push('sentiment says bullish but all cited evidence supports bearish');\n  if (sent.includes('bearish') && !sent.includes('bullish') && nBear === 0 && nBull > 0) v.contradictions.push('sentiment says bearish but all cited evidence supports bullish');\n  v.checked = claims.length;\n  if (v.contradictions.length) v.status = 'FAIL';\n  v.score = Math.max(0, 100 - v.contradictions.length * 40);\n  const tag3 = v.status === 'PASS' ? '✅' : '🔴';\n  console.error(tag3 + ' [MarketPulse][VERIFY] ' + v.status + ' (' + edition + ', structured) claims=' + claims.length + ' violations=' + v.contradictions.length + ' score=' + v.score);\n  if (v.contradictions.length) console.error('   [VERIFY] VIOLATIONS: ' + v.contradictions.join(' || '));\n  if (MODE === 'enforce' && v.status === 'FAIL') {\n    const n = v.contradictions.length;\n    const notice = '🚫 AI analysis withheld — its reasoning failed attribution verification (' + n + ' violation' + (n === 1 ? '' : 's') + '). The verified market data above stands on its own.';\n    for (const it of items) { if (!it || !it.json) continue; for (const k of ['text', 'response', 'llmAnalysis']) { if (typeof it.json[k] === 'string' && it.json[k].length > 30) it.json[k] = notice; } }\n    v.action = 'withheld';\n    console.error('🛡️ [MarketPulse][VERIFY] ENFORCE -> withheld (structured)');\n  } else {\n    let placed = false;\n    for (const it of items) { if (it && it.json && it.json._health !== undefined) { it.json._structured = parsed; placed = true; } }\n    if (!placed && items[0] && items[0].json) items[0].json._structured = parsed;\n  }\n  let att3 = false;\n  for (const it of items) { if (it && it.json && it.json._health !== undefined) { it.json._verification = v; att3 = true; } }\n  if (!att3 && items[0] && items[0].json) items[0].json._verification = v;\n  writeLedger(parsed);\n  return items;\n}\n// (no parseable structured output -> legacy free-text verification below)\n\n// CHECK 1 - fabricated values for unavailable sources\nfor (const miss of (health && health.missing) || []) {\n  const key = miss.toLowerCase().split('/')[0];\n  const f = facts.find(x => x.label.toLowerCase().includes(key)) || { kw: [key] };\n  for (const k of (f.kw || [])) {\n    const re = new RegExp(escapeRe(k) + '[^.\\\\n]{0,25}?\\\\d', 'i');\n    if (re.test(llmText)) { v.contradictions.push('Claims a value for ' + miss + ' but that source was unavailable today'); break; }\n  }\n}\n// CHECK 2 - numeric grounding\nconst STOP = (n, ctx) =>\n  (n === 500 && /s&p|sp500/.test(ctx)) ||\n  (n === 200 && /(day|moving|ma\\b|200d)/.test(ctx)) ||\n  (n === 100 && /(\\/100|out of 100|0-100)/.test(ctx)) ||\n  (n === 300 && /csi/.test(ctx)) ||\n  /\\(\\d|\\.ss|\\.sz|\\.hk|hk\\$/.test(ctx) ||\n  ((n === 10 || n === 2) && /(year|treasury|10y|2y)/.test(ctx)) ||\n  (Number.isInteger(n) && n >= 1990 && n <= 2099) ||   // a bare 4-digit year (e.g. 2024/2025), not a metric\n  /v\\d|version/.test(ctx);\n// match whole numbers (comma-grouped OR plain runs) so years aren't split: \"2024\" stays \"2024\", not \"202\"+\"4\"\nconst numRe = /(\\$?-?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?)(%?)/g;\nlet m;\nwhile ((m = numRe.exec(llmText)) !== null) {\n  const raw = m[1] + m[2];\n  const val = parseFloat(m[1].replace(/[$,]/g, ''));\n  if (isNaN(val)) continue;\n  const ctx = lc.slice(Math.max(0, m.index - 32), m.index + raw.length + 4);\n  if (STOP(val, ctx)) continue;\n  v.checked++;\n  const isPct = raw.indexOf('%') !== -1;\n  const cands = facts.filter(f => f.kw.some(k => ctx.includes(k)));\n  if (cands.length) {\n    // verified if the number matches ANY contextually-implied metric (avoids cross-metric bleed)\n    if (!cands.some(f => matches(f, val))) {\n      const cf = cands.find(f => isPct ? f.kind !== 'level' : f.kind === 'level') || cands[0];\n      v.contradictions.push(cf.label + ': analysis says ' + raw + ', source = ' + cf.n);\n    }\n  } else if (!facts.some(f => matches(f, val))) {\n    v.unverified.push(raw + ' (...' + ctx.trim().slice(-22) + ')');\n  }\n}\n// CHECK 3 - directional/sentiment consistency\nconst fg = String(gt.fearGreedClassification || '').toLowerCase();\nif (/\\b(extreme greed|investors are greedy|greed dominates)\\b/.test(lc) && fg.includes('fear'))\n  v.contradictions.push('Says greed, but Fear & Greed = ' + gt.fearGreedClassification);\nif (/\\b(extreme fear|market panic|fearful sentiment)\\b/.test(lc) && fg.includes('greed'))\n  v.contradictions.push('Says fear, but Fear & Greed = ' + gt.fearGreedClassification);\nconst primaryRaw = edition === 'CN' ? gt.csi300Change : gt.sp500Change;\nconst primaryLabel = edition === 'CN' ? 'CSI 300' : 'S&P 500';\nconst pc = num(primaryRaw);\nif (!isNaN(pc)) {\n  if (pc < -0.1 && /\\b(rally|rallied|surged|soared|broad gains|climbed higher)\\b/.test(lc))\n    v.contradictions.push('Says rally, but ' + primaryLabel + ' change = ' + primaryRaw);\n  if (pc > 0.1 && /\\b(selloff|sold off|plunged|sank|tumbled|broad declines)\\b/.test(lc))\n    v.contradictions.push('Says selloff, but ' + primaryLabel + ' change = ' + primaryRaw);\n}\n// verdict\nif (v.contradictions.length) v.status = 'FAIL';\nelse if (v.unverified.length > 2) v.status = 'FLAG';\nv.score = Math.max(0, 100 - v.contradictions.length * 40 - v.unverified.length * 8);\n\nconst tag = v.status === 'PASS' ? '✅' : (v.status === 'FAIL' ? '🔴' : '🟡');\nconsole.error(tag + ' [MarketPulse][VERIFY] ' + v.status + ' (' + edition + ') score=' + v.score + ' | checked=' + v.checked +\n  ' contradictions=' + v.contradictions.length + ' unverified=' + v.unverified.length);\nif (v.contradictions.length) console.error('   [VERIFY] CONTRADICTIONS: ' + v.contradictions.join(' || '));\nif (v.unverified.length) console.error('   [VERIFY] unverified: ' + v.unverified.join(' || '));\n\n// ===== ENFORCEMENT (dormant unless MODE === 'enforce') =====\nconst ANALYSIS_KEYS = ['text', 'response', 'llmAnalysis'];\nconst rewriteAnalysis = (fn) => {\n  for (const it of items) {\n    if (!it || !it.json) continue;\n    for (const k of ANALYSIS_KEYS) {\n      if (typeof it.json[k] === 'string' && it.json[k].length > 30) it.json[k] = fn(it.json[k]);\n    }\n  }\n};\nif (MODE === 'enforce') {\n  if (v.status === 'FAIL') {\n    const n = v.contradictions.length;\n    const notice = '🚫 AI analysis withheld — it failed automated verification against today\\'s source data (' +\n      n + ' contradiction' + (n === 1 ? '' : 's') + '). The verified market data above stands on its own.';\n    rewriteAnalysis(() => notice);\n    v.action = 'withheld';\n  } else if (v.status === 'FLAG') {\n    const note = '⚠️ ' + v.unverified.length + ' figure(s) below could not be verified against source data.\\n\\n';\n    rewriteAnalysis((orig) => note + orig);\n    v.action = 'flagged';\n  }\n  if (v.action !== 'none') console.error('🛡️ [MarketPulse][VERIFY] ENFORCE -> ' + v.action);\n}\n\n// attach verdict + pass items through (both modes return the items unchanged in structure)\nlet attached = false;\nfor (const it of items) if (it && it.json && it.json._health !== undefined) { it.json._verification = v; attached = true; }\nif (!attached && items[0] && items[0].json) items[0].json._verification = v;\nwriteLedger(null);\nreturn items;\n\n} catch (e) {\n  // SHADOW MODE must never break delivery: log and pass input through untouched.\n  console.error('🟠 [MarketPulse][VERIFY] node error (shadow, ignored): ' + (e && e.message));\n  return items;\n}\n"
+      },
+      "id": "2f3ac0ea-e84f-4330-ad37-6a3115937ffe",
+      "name": "Verify AI Analysis1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        272
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "issue",
+        "operation": "create",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "YOUR_GITHUB_USERNAME"
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "MarketPulse-ops"
+        },
+        "title": "={{ $json.githubTitle }}",
+        "body": "={{ $json.githubBody }}"
+      },
+      "id": "a1b2c3d4-e5f6-4890-9abc-def012345678",
+      "name": "Create GitHub Issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        1476
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_GITHUB_OPS_CREDENTIAL_ID",
+          "name": "GitHub account 2"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "webhookId": "ab5bf291-7a8d-46ec-9b37-38abbc154b61"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE DASHBOARD DATA (US) - MarketPulse\n// Shapes the same verified data Compose uses into the JSON contract\n// the public dashboard (docs/) reads. Code-only, no LLM involved -\n// mirrors what already shipped to Telegram, doesn't reinterpret it.\n// ============================================\n\nconst items = $input.all();\nconst d = {};\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) d[key] = j[key];\n  }\n}\n\nfunction safe(v, fallback) {\n  if (fallback === undefined) fallback = 'N/A';\n  return (v === undefined || v === null || v === 'N/A' || v === '') ? fallback : v;\n}\n\nconst _structured = d._structured || null;\nconst _health = d._health || null;\n\nconst now = new Date();\nconst dateLabel = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nconst dashboard = {\n  buffettIndicator: { title: 'Buffett Indicator', value: safe(d.buffettIndicator), status: safe(d.buffettStatus, ''), emoji: d.buffettEmoji || '' },\n  shillerPE: { title: 'Shiller P/E (CAPE)', value: safe(d.shillerPE), status: safe(d.shillerStatus, ''), emoji: d.shillerEmoji || '' },\n  yieldCurve: { title: 'Yield Curve (10Y-2Y)', value: safe(d.yieldCurve), status: safe(d.yieldCurveStatus, ''), emoji: d.yieldCurveEmoji || '' },\n  sp500VsMa200: { title: 'S&P 500 vs 200D-MA', value: safe(d.sp500VsMa200), status: safe(d.sp500VsMa200Status, '') + (d.maSignal ? ' (' + d.maSignal + ')' : ''), emoji: d.sp500VsMa200Emoji || '' }\n};\n\nconst fearGreed = (d.fearGreedValue !== undefined && d.fearGreedValue !== 'N/A')\n  ? { score: d.fearGreedValue, classification: d.fearGreedClassification, change1d: d.fearGreedChange1d, change1w: d.fearGreedChange1w }\n  : null;\n\nconst screener = [\n  { label: 'S&P 500', factKey: 'sp500Change', value: safe(d.sp500), change: safe(d.sp500Change, '') },\n  { label: 'Dow Jones', factKey: 'dowJonesChange', value: safe(d.dowJones), change: safe(d.dowJonesChange, '') },\n  { label: 'VIX', factKey: 'vixChange', value: safe(d.vix), change: safe(d.vixChange, '') },\n  { label: 'Gold', factKey: 'goldChange', value: safe(d.gold), change: safe(d.goldChange, '') },\n  { label: 'Oil (WTI)', factKey: 'oilChange', value: safe(d.oil), change: safe(d.oilChange, '') },\n  { label: 'US Dollar', factKey: 'dxyChange', value: safe(d.dxy), change: safe(d.dxyChange, '') },\n  { label: 'Bitcoin', factKey: 'btcChange', value: safe(d.btc), change: safe(d.btcChange, '') }\n];\n\nconst economic = [\n  { label: 'GDP Growth', period: d.gdpYear || '', factKey: 'gdpValue', value: safe(d.gdpValue) },\n  { label: 'Inflation/CPI', period: d.cpiYear || '', factKey: 'cpiValue', value: safe(d.cpiValue) },\n  { label: 'Unemployment', period: d.unemploymentYear || '', factKey: 'unemploymentValue', value: safe(d.unemploymentValue) },\n  { label: 'Fed Funds Rate', factKey: 'fedRateValue', value: safe(d.fedRateValue) },\n  { label: '10Y Treasury', factKey: 'treasury10Y', value: safe(d.treasury10Y) },\n  { label: '2Y Treasury', factKey: 'treasury2Y', value: safe(d.treasury2Y) }\n];\n\nconst claims = (_structured && Array.isArray(_structured.claims))\n  ? _structured.claims.map(function (c) { return { text: c.claim, basedOn: c.basedOn || [], direction: c.direction || 'neutral' }; })\n  : [];\n\n// ===== HISTORY (read-only): the ledger + track record already persisted by Verify AI\n// Analysis and Combine All Data, read directly here (independent of $json) so the\n// dashboard can show a day-by-day sentiment timeline, not just today's snapshot. =====\nfunction buildHistory(edition) {\n  try {\n    const sd = $getWorkflowStaticData('global');\n    const ledger = (sd.mpLedger && sd.mpLedger[edition]) || [];\n    const tr = (sd.mpTrackRecord && sd.mpTrackRecord[edition]) || [];\n    const scoredByPriorDate = {};\n    for (const t of tr) scoredByPriorDate[t.priorDate] = t;\n    return ledger.map(function (entry) {\n      const scored = scoredByPriorDate[entry.date];\n      return {\n        date: entry.date,\n        sentiment: entry.sentiment || 'n/a',\n        verdict: entry.verdict || 'n/a',\n        result: scored ? scored.result : null,\n        actualChange: scored ? scored.actualChange : null\n      };\n    });\n  } catch (e) { return []; }\n}\nconst history = buildHistory('US');\n\nconst payload = {\n  edition: 'US',\n  generatedAt: now.toISOString(),\n  dateLabel: dateLabel,\n  health: _health ? { status: _health.status, missing: _health.missing || [], suspect: _health.suspect || [] } : { status: 'OK', missing: [], suspect: [] },\n  dashboard: dashboard,\n  fearGreed: fearGreed,\n  screener: screener,\n  economic: economic,\n  watchlist: d.watchlistSummary || '',\n  trackRecord: { accuracy: d.trackRecordAccuracy || 'Building history', last: d.trackRecordLast || '' },\n  history: history,\n  analysis: _structured\n    ? { sentiment: _structured.sentiment || 'n/a', confidence: _structured.confidence || 'n/a', claims: claims, interpretation: _structured.interpretation || '', wisdom: _structured.wisdom || '' }\n    : { sentiment: 'Unavailable', confidence: '', claims: [], interpretation: '', wisdom: '' },\n  sources: ['CNN Fear & Greed', 'FRED', 'MarketWatch', 'Yahoo Finance', 'multpl.com']\n};\n\nconst dashboardJson = JSON.stringify(payload, null, 2);\nconst commitMessage = 'Publish US dashboard data - ' + dateLabel;\n\nreturn [{ json: { dashboardJson: dashboardJson, commitMessage: commitMessage } }];\n"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345001",
+      "name": "Prepare Dashboard Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "YOUR_GITHUB_USERNAME"
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "MarketPulse"
+        },
+        "filePath": "docs/data/latest-us.json",
+        "binaryData": false,
+        "fileContent": "={{ $json.dashboardJson }}",
+        "commitMessage": "={{ $json.commitMessage }}"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345002",
+      "name": "Publish Dashboard Data",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        928
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "webhookId": "1dc47d0a-c904-4bc8-81d6-0adc78a699c5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PREPARE DASHBOARD DATA (CN) - MarketPulse\n// Shapes the same verified data Compose uses into the JSON contract\n// the public dashboard (docs/) reads. Code-only, no LLM involved -\n// mirrors what already shipped to Telegram, doesn't reinterpret it.\n// ============================================\n\nconst items = $input.all();\nconst d = {};\nfor (const item of items) {\n  const j = item.json || {};\n  for (const key of Object.keys(j)) {\n    if (j[key] !== undefined && j[key] !== null) d[key] = j[key];\n  }\n}\n\nfunction safe(v, fallback) {\n  if (fallback === undefined) fallback = 'N/A';\n  return (v === undefined || v === null || v === 'N/A' || v === '') ? fallback : v;\n}\n\nconst _structured = d._structured || null;\nconst _health = d._health || null;\n\nconst now = new Date();\nconst dateLabel = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nconst screener = [\n  { label: 'CSI 300', factKey: 'csi300Change', value: safe(d.csi300), change: safe(d.csi300Change, '') },\n  { label: 'SSE Composite', factKey: 'sseCompositeChange', value: safe(d.sseComposite), change: safe(d.sseCompositeChange, '') },\n  { label: 'SZSE Component', factKey: 'szseComponentChange', value: safe(d.szseComponent), change: safe(d.szseComponentChange, '') },\n  { label: 'Hang Seng', factKey: 'hangSengChange', value: safe(d.hangSeng), change: safe(d.hangSengChange, '') },\n  { label: 'Gold', factKey: 'goldChange', value: safe(d.gold), change: safe(d.goldChange, '') },\n  { label: 'USD/CNY', factKey: 'usdCnyChange', value: safe(d.usdCny), change: safe(d.usdCnyChange, '') }\n];\n\nconst economic = [\n  { label: 'GDP Growth', period: d.gdpYear || '', factKey: 'gdpValue', value: safe(d.gdpValue) },\n  { label: 'Inflation/CPI', period: d.cpiYear || '', factKey: 'cpiValue', value: safe(d.cpiValue) },\n  { label: 'Unemployment', period: d.unemploymentYear || '', factKey: 'unemploymentValue', value: safe(d.unemploymentValue) }\n];\n\nconst claims = (_structured && Array.isArray(_structured.claims))\n  ? _structured.claims.map(function (c) { return { text: c.claim, basedOn: c.basedOn || [], direction: c.direction || 'neutral' }; })\n  : [];\n\n// ===== HISTORY (read-only): the ledger + track record already persisted by Verify AI\n// Analysis and Combine All Data1, read directly here (independent of $json) so the\n// dashboard can show a day-by-day sentiment timeline, not just today's snapshot. =====\nfunction buildHistory(edition) {\n  try {\n    const sd = $getWorkflowStaticData('global');\n    const ledger = (sd.mpLedger && sd.mpLedger[edition]) || [];\n    const tr = (sd.mpTrackRecord && sd.mpTrackRecord[edition]) || [];\n    const scoredByPriorDate = {};\n    for (const t of tr) scoredByPriorDate[t.priorDate] = t;\n    return ledger.map(function (entry) {\n      const scored = scoredByPriorDate[entry.date];\n      return {\n        date: entry.date,\n        sentiment: entry.sentiment || 'n/a',\n        verdict: entry.verdict || 'n/a',\n        result: scored ? scored.result : null,\n        actualChange: scored ? scored.actualChange : null\n      };\n    });\n  } catch (e) { return []; }\n}\nconst history = buildHistory('CN');\n\nconst payload = {\n  edition: 'CN',\n  generatedAt: now.toISOString(),\n  dateLabel: dateLabel,\n  health: _health ? { status: _health.status, missing: _health.missing || [], suspect: _health.suspect || [] } : { status: 'OK', missing: [], suspect: [] },\n  dashboard: {},\n  fearGreed: null,\n  screener: screener,\n  economic: economic,\n  watchlist: d.watchlistSummary || '',\n  trackRecord: { accuracy: d.trackRecordAccuracy || 'Building history', last: d.trackRecordLast || '' },\n  history: history,\n  analysis: _structured\n    ? { sentiment: _structured.sentiment || 'n/a', confidence: _structured.confidence || 'n/a', claims: claims, interpretation: _structured.interpretation || '', wisdom: _structured.wisdom || '' }\n    : { sentiment: 'Unavailable', confidence: '', claims: [], interpretation: '', wisdom: '' },\n  sources: ['Yahoo Finance', 'World Bank', 'Google News']\n};\n\nconst dashboardJson = JSON.stringify(payload, null, 2);\nconst commitMessage = 'Publish CN dashboard data - ' + dateLabel;\n\nreturn [{ json: { dashboardJson: dashboardJson, commitMessage: commitMessage } }];\n"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345003",
+      "name": "Prepare Dashboard Data1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "YOUR_GITHUB_USERNAME"
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "MarketPulse"
+        },
+        "filePath": "docs/data/latest-cn.json",
+        "binaryData": false,
+        "fileContent": "={{ $json.dashboardJson }}",
+        "commitMessage": "={{ $json.commitMessage }}"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345004",
+      "name": "Publish Dashboard Data1",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        448
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "webhookId": "56a71f2e-6dcc-4011-9c1a-ce5b17106492"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dynamic Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result": {
+      "main": [
+        [
+          {
+            "node": "Verify AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create GitHub Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Selection Form": {
+      "main": [
+        [
+          {
+            "node": "Map Form Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Form Fields": {
+      "main": [
+        [
+          {
+            "node": "Compose Status Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Status Message": {
+      "main": [
+        [
+          {
+            "node": "Send Status to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Status to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All China Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set CN Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch CN Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CN Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "China Market LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All1": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data1": {
+      "main": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result1": {
+      "main": [
+        [
+          {
+            "node": "Verify AI Analysis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message1": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Dashboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify AI Analysis1": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Dashboard Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Dashboard Data": {
+      "main": [
+        [
+          {
+            "node": "Publish Dashboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Dashboard Data1": {
+      "main": [
+        [
+          {
+            "node": "Publish Dashboard Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily US Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Dynamic Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily CN Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All China Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set CN Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kuala_Lumpur"
+  }
+}
