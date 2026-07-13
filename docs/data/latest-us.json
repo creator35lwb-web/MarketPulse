@@ -1,31 +1,128 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-12T13:00:58.830Z",
-  "dateLabel": "Sunday, July 12, 2026",
-  "health": { "status": "OK", "missing": [], "suspect": [{ "field": "sp500Change", "value": "+20.62%", "bound": 15 }] },
-  "dashboard": {
-    "buffettIndicator": { "title": "Buffett Indicator", "value": "139%", "status": "Slightly Overvalued", "emoji": "🟡" },
-    "shillerPE": { "title": "Shiller P/E (CAPE)", "value": "42.2", "status": "Strongly Overvalued", "emoji": "🔴" },
-    "yieldCurve": { "title": "Yield Curve (10Y-2Y)", "value": "+0.38%", "status": "Flat (Caution)", "emoji": "🟡" },
-    "sp500VsMa200": { "title": "S&P 500 vs 200D-MA", "value": "+8.8%", "status": "Strong Bullish (Golden Cross)", "emoji": "🟢🟢" }
+  "generatedAt": "2026-07-13T02:56:53.554Z",
+  "dateLabel": "Monday, July 13, 2026",
+  "health": {
+    "status": "OK",
+    "missing": [],
+    "suspect": [
+      {
+        "field": "sp500Change",
+        "value": "+20.62%",
+        "bound": 15
+      }
+    ]
   },
-  "fearGreed": { "score": 49, "classification": "Neutral", "change1d": "+2", "change1w": "+17" },
+  "dashboard": {
+    "buffettIndicator": {
+      "title": "Buffett Indicator",
+      "value": "139%",
+      "status": "Slightly Overvalued",
+      "emoji": "🟡"
+    },
+    "shillerPE": {
+      "title": "Shiller P/E (CAPE)",
+      "value": "42.2",
+      "status": "Strongly Overvalued",
+      "emoji": "🔴"
+    },
+    "yieldCurve": {
+      "title": "Yield Curve (10Y-2Y)",
+      "value": "+0.38%",
+      "status": "Flat (Caution)",
+      "emoji": "🟡"
+    },
+    "sp500VsMa200": {
+      "title": "S&P 500 vs 200D-MA",
+      "value": "+8.8%",
+      "status": "Strong Bullish (Golden Cross)",
+      "emoji": "🟢🟢"
+    }
+  },
+  "fearGreed": {
+    "score": 49,
+    "classification": "Neutral",
+    "change1d": "+2",
+    "change1w": "+17"
+  },
   "screener": [
-    { "label": "S&P 500", "factKey": "sp500Change", "value": "7575.39", "change": "+20.62%" },
-    { "label": "Dow Jones", "factKey": "dowJonesChange", "value": "52637.01", "change": "+0.29%" },
-    { "label": "VIX", "factKey": "vixChange", "value": "15.03", "change": "-5.11%" },
-    { "label": "Gold", "factKey": "goldChange", "value": "$4113.70", "change": "-0.65%" },
-    { "label": "Oil (WTI)", "factKey": "oilChange", "value": "$71.41", "change": "-0.93%" },
-    { "label": "US Dollar", "factKey": "dxyChange", "value": "100.97", "change": "+0.01%" },
-    { "label": "Bitcoin", "factKey": "btcChange", "value": "$63,982", "change": "+0.32%" }
+    {
+      "label": "S&P 500",
+      "factKey": "sp500Change",
+      "value": "7575.39",
+      "change": "+20.62%"
+    },
+    {
+      "label": "Dow Jones",
+      "factKey": "dowJonesChange",
+      "value": "52637.01",
+      "change": "+0.29%"
+    },
+    {
+      "label": "VIX",
+      "factKey": "vixChange",
+      "value": "15.03",
+      "change": "-5.11%"
+    },
+    {
+      "label": "Gold",
+      "factKey": "goldChange",
+      "value": "$4113.70",
+      "change": "-0.65%"
+    },
+    {
+      "label": "Oil (WTI)",
+      "factKey": "oilChange",
+      "value": "$71.41",
+      "change": "-0.93%"
+    },
+    {
+      "label": "US Dollar",
+      "factKey": "dxyChange",
+      "value": "100.97",
+      "change": "+0.01%"
+    },
+    {
+      "label": "Bitcoin",
+      "factKey": "btcChange",
+      "value": "$63,982",
+      "change": "+0.32%"
+    }
   ],
   "economic": [
-    { "label": "GDP Growth", "period": "Jan 2026", "factKey": "gdpValue", "value": "+2.1% (QoQ)" },
-    { "label": "Inflation/CPI", "period": "May 2026", "factKey": "cpiValue", "value": "4.17%" },
-    { "label": "Unemployment", "period": "Jun 2026", "factKey": "unemploymentValue", "value": "4.2%" },
-    { "label": "Fed Funds Rate", "factKey": "fedRateValue", "value": "3.75%" },
-    { "label": "10Y Treasury", "factKey": "treasury10Y", "value": "4.54%" },
-    { "label": "2Y Treasury", "factKey": "treasury2Y", "value": "4.16%" }
+    {
+      "label": "GDP Growth",
+      "period": "Jan 2026",
+      "factKey": "gdpValue",
+      "value": "+2.1% (QoQ)"
+    },
+    {
+      "label": "Inflation/CPI",
+      "period": "May 2026",
+      "factKey": "cpiValue",
+      "value": "4.17%"
+    },
+    {
+      "label": "Unemployment",
+      "period": "Jun 2026",
+      "factKey": "unemploymentValue",
+      "value": "4.2%"
+    },
+    {
+      "label": "Fed Funds Rate",
+      "factKey": "fedRateValue",
+      "value": "3.75%"
+    },
+    {
+      "label": "10Y Treasury",
+      "factKey": "treasury10Y",
+      "value": "4.54%"
+    },
+    {
+      "label": "2Y Treasury",
+      "factKey": "treasury2Y",
+      "value": "4.16%"
+    }
   ],
   "watchlist": "  GOOGL: $357.18 (-0.48%)\n  BABA: $112.33 (+1.07%)\n  ADBE: $223.64 (+0.44%)\n  SOFI: $18.78 (+0.86%)\n  ASML: $1797.32 (-0.38%)",
   "trackRecord": {
@@ -36,13 +133,43 @@
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
-      { "text": "The overall market capitalization relative to national economic output suggests that equities are trading at a premium, reducing the margin of safety.", "basedOn": ["buffettIndicator"], "direction": "supports_bearish" },
-      { "text": "Long-term inflation-adjusted valuation multiples are exceptionally high, indicating that the broader market is highly overvalued.", "basedOn": ["shillerPE"], "direction": "supports_bearish" },
-      { "text": "Broad market price action continues to show upward momentum relative to its long-term moving average, indicating persistent bullish sentiment.", "basedOn": ["sp500VsMa200"], "direction": "supports_bullish" },
-      { "text": "The yield spread between long-term and short-term government debt is positive but narrow, signaling caution regarding future economic growth.", "basedOn": ["yieldCurve"], "direction": "neutral" }
+      {
+        "text": "The overall market capitalization relative to national economic output suggests that equities are trading at a premium, reducing the margin of safety.",
+        "basedOn": [
+          "buffettIndicator"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Long-term inflation-adjusted valuation multiples are exceptionally high, indicating that the broader market is highly overvalued.",
+        "basedOn": [
+          "shillerPE"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Broad market price action continues to show upward momentum relative to its long-term moving average, indicating persistent bullish sentiment.",
+        "basedOn": [
+          "sp500VsMa200"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "The yield spread between long-term and short-term government debt is positive but narrow, signaling caution regarding future economic growth.",
+        "basedOn": [
+          "yieldCurve"
+        ],
+        "direction": "neutral"
+      }
     ],
     "interpretation": "Overall market conditions remain largely unchanged from the previous period, with high valuations and a slim margin of safety persisting. While price momentum remains positive, the discrepancy between business fundamentals and stock prices advises extreme patience. Investors should focus on accumulating capital and waiting for better entry points.",
     "wisdom": "Price is what you pay, value is what you get, so focus on the intrinsic value of businesses rather than the momentum of the market."
   },
-  "sources": ["CNN Fear & Greed", "FRED", "MarketWatch", "Yahoo Finance", "multpl.com"]
+  "sources": [
+    "CNN Fear & Greed",
+    "FRED",
+    "MarketWatch",
+    "Yahoo Finance",
+    "multpl.com"
+  ]
 }
