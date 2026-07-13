@@ -1,17 +1,11 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-13T02:56:53.554Z",
-  "dateLabel": "Monday, July 13, 2026",
+  "generatedAt": "2026-07-13T17:51:15.409Z",
+  "dateLabel": "Tuesday, July 14, 2026",
   "health": {
     "status": "OK",
     "missing": [],
-    "suspect": [
-      {
-        "field": "sp500Change",
-        "value": "+20.62%",
-        "bound": 15
-      }
-    ]
+    "suspect": []
   },
   "dashboard": {
     "buffettIndicator": {
@@ -34,59 +28,59 @@
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+8.8%",
+      "value": "+7.9%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "fearGreed": {
-    "score": 49,
-    "classification": "Neutral",
-    "change1d": "+2",
-    "change1w": "+17"
+    "score": 44,
+    "classification": "Fear",
+    "change1d": "-6",
+    "change1w": "-1"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7575.39",
-      "change": "+20.62%"
+      "value": "7520.43",
+      "change": "-0.73%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52637.01",
-      "change": "+0.29%"
+      "value": "52487.95",
+      "change": "-0.28%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "15.03",
-      "change": "-5.11%"
+      "value": "16.68",
+      "change": "+10.98%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4113.70",
-      "change": "-0.65%"
+      "value": "$4004.50",
+      "change": "-2.65%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$71.41",
-      "change": "-0.93%"
+      "value": "$76.66",
+      "change": "+7.35%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.97",
-      "change": "+0.01%"
+      "value": "101.25",
+      "change": "+0.29%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,982",
-      "change": "+0.32%"
+      "value": "$61,975",
+      "change": "-2.78%"
     }
   ],
   "economic": [
@@ -124,46 +118,26 @@
       "value": "4.16%"
     }
   ],
-  "watchlist": "  GOOGL: $357.18 (-0.48%)\n  BABA: $112.33 (+1.07%)\n  ADBE: $223.64 (+0.44%)\n  SOFI: $18.78 (+0.86%)\n  ASML: $1797.32 (-0.38%)",
+  "watchlist": "  GOOGL: $355.80 (-0.39%)\n  BABA: $112.69 (+0.32%)\n  ADBE: $231.75 (+3.62%)\n  SOFI: $18.19 (-3.16%)\n  ASML: $1726.14 (-3.96%)",
   "trackRecord": {
-    "accuracy": "0/1 (0%)",
-    "last": "Cautiously Bearish (2026-07-11) → market moved +20.62% → Miss"
+    "accuracy": "Building history",
+    "last": ""
   },
+  "history": [
+    {
+      "date": "2026-07-13",
+      "sentiment": "n/a",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
+    }
+  ],
   "analysis": {
-    "sentiment": "Cautiously Bearish",
-    "confidence": "Medium",
-    "claims": [
-      {
-        "text": "The overall market capitalization relative to national economic output suggests that equities are trading at a premium, reducing the margin of safety.",
-        "basedOn": [
-          "buffettIndicator"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "Long-term inflation-adjusted valuation multiples are exceptionally high, indicating that the broader market is highly overvalued.",
-        "basedOn": [
-          "shillerPE"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "Broad market price action continues to show upward momentum relative to its long-term moving average, indicating persistent bullish sentiment.",
-        "basedOn": [
-          "sp500VsMa200"
-        ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "The yield spread between long-term and short-term government debt is positive but narrow, signaling caution regarding future economic growth.",
-        "basedOn": [
-          "yieldCurve"
-        ],
-        "direction": "neutral"
-      }
-    ],
-    "interpretation": "Overall market conditions remain largely unchanged from the previous period, with high valuations and a slim margin of safety persisting. While price momentum remains positive, the discrepancy between business fundamentals and stock prices advises extreme patience. Investors should focus on accumulating capital and waiting for better entry points.",
-    "wisdom": "Price is what you pay, value is what you get, so focus on the intrinsic value of businesses rather than the momentum of the market."
+    "sentiment": "Unavailable",
+    "confidence": "",
+    "claims": [],
+    "interpretation": "",
+    "wisdom": ""
   },
   "sources": [
     "CNN Fear & Greed",
