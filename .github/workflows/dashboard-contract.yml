@@ -1,0 +1,36 @@
+name: Dashboard Data Contract
+
+# Why this exists:
+# The n8n workflow commits docs/data/latest-*.json to this PUBLIC repo every day,
+# automatically, with no human in the loop. That is an unattended write path into a
+# public artifact, and until now it had zero validation — malformed JSON or a dropped
+# key would silently break the dashboard for every reader.
+#
+# This gate enforces the product's actual promise: every claim must cite a factKey that
+# exists in the published data, so a reader can check it. If that contract breaks, we
+# refuse to publish. Publishing data that breaks the promise is worse than publishing none.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/data/**'
+      - '.github/scripts/validate-dashboard-data.mjs'
+      - '.github/workflows/dashboard-contract.yml'
+  pull_request:
+    paths:
+      - 'docs/data/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: verify the verification contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate published dashboard data
+        run: node .github/scripts/validate-dashboard-data.mjs

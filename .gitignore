@@ -48,8 +48,36 @@ temp/
 *.tmp
 nul
 
-# Claude Code local config (optional - keep if you want to share settings)
-# .claude/
-
 # Security scan reports (may contain sensitive info)
 security/reports/
+
+# =============================================
+# Solo-builder safety net (added 2026-07-14)
+# =============================================
+# This repo is PUBLIC. Before this block, `git add -A` would have staged ~3,520 paths —
+# node_modules, local AI-agent state, a stray git worktree, and raw chat-log exports.
+# One careless `git add -A && git push` publishes all of it, permanently and irreversibly.
+# A solo builder has no code reviewer to catch that. This block is the reviewer.
+
+# Dependencies — never belongs in git
+node_modules/
+package-lock.json
+
+# Local AI-agent / editor state (never meant to be published)
+.claude/
+.qwen/
+.cursor/
+.aider*
+.gemini/
+
+# Raw chat-log / session exports — these are working notes, not documentation.
+# They routinely contain paths, tokens-in-prose, and half-formed thinking.
+*-connected-to-my-github-*.txt
+*Qoder*.txt
+*session-transcript*.txt
+*.chatlog.md
+
+# Local scratch and machine-specific helpers
+*.local.json
+remote-workflow-temp.json
+nul
