@@ -1,0 +1,39 @@
+{
+  "edition": "CN",
+  "generatedAt": "2026-07-10T08:30:22.320Z",
+  "dateLabel": "Friday, July 10, 2026",
+  "health": { "status": "OK", "missing": [], "suspect": [] },
+  "dashboard": {},
+  "fearGreed": null,
+  "screener": [
+    { "label": "CSI 300", "factKey": "csi300Change", "value": "4,780.79", "change": "-1.96%" },
+    { "label": "SSE Composite", "factKey": "sseCompositeChange", "value": "3,996.16", "change": "+0.64%" },
+    { "label": "SZSE Component", "factKey": "szseComponentChange", "value": "15,046.67", "change": "+0.72%" },
+    { "label": "Hang Seng", "factKey": "hangSengChange", "value": "24,175.12", "change": "+0.60%" },
+    { "label": "Gold", "factKey": "goldChange", "value": "$4,116.30", "change": "-0.59%" },
+    { "label": "USD/CNY", "factKey": "usdCnyChange", "value": "6.7776", "change": "-0.21%" }
+  ],
+  "economic": [
+    { "label": "GDP Growth", "period": "2025", "factKey": "gdpValue", "value": "+4.96%" },
+    { "label": "Inflation/CPI", "period": "2025", "factKey": "cpiValue", "value": "0.06%" },
+    { "label": "Unemployment", "period": "2025", "factKey": "unemploymentValue", "value": "4.62%" }
+  ],
+  "watchlist": "  Moutai: ¥1,204.98 (+1.93%)\n  CATL: ¥348.76 (-7.12%)\n  BYD: ¥90.00 (+3.60%)\n  Alibaba: HK$110.20 (+2.04%)\n  Tencent: HK$460.20 (-2.00%)",
+  "trackRecord": {
+    "accuracy": "Building history",
+    "last": ""
+  },
+  "analysis": {
+    "sentiment": "Cautiously Bullish",
+    "confidence": "Medium",
+    "claims": [
+      { "text": "The domestic benchmark index representing major mainland large caps experienced a notable decline, showing divergence from broader market sentiment.", "basedOn": ["csi300Change"], "direction": "supports_bearish" },
+      { "text": "Mainboard equities in Shanghai and Shenzhen, along with Hong Kong listed shares, managed modest gains to buck the large-cap downtrend.", "basedOn": ["sseCompositeChange", "szseComponentChange", "hangSengChange"], "direction": "supports_bullish" },
+      { "text": "The Chinese currency strengthened against the US dollar, reflecting resilient underlying capital flows.", "basedOn": ["usdCnyChange"], "direction": "supports_bullish" },
+      { "text": "Consumer price inflation remains extremely low, indicating persistent domestic demand challenges despite steady overall economic growth.", "basedOn": ["cpiValue", "gdpValue"], "direction": "neutral" }
+    ],
+    "interpretation": "As this is our initial assessment, we establish a baseline of cautious optimism driven by resilient broad-market indices and currency strength, despite localized weakness in large-cap blue chips. The sharp divergence between key mainland indices highlights the necessity of selective sector allocation rather than broad passive exposure.",
+    "wisdom": "True margin of safety is found by looking past short-term index volatility and focusing on high-quality enterprises with robust cash flows and enduring competitive advantages."
+  },
+  "sources": ["Yahoo Finance", "World Bank", "Google News"]
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MarketPulse — Verified Market Ledger</title>
+<meta name="description" content="A daily market digest where every number traces to a source and every claim points to its evidence.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="wordmark">Market<em>Pulse</em></div>
+    <div class="edition-toggle" role="group" aria-label="Edition">
+      <button type="button" data-edition="US" aria-pressed="true">US</button>
+      <button type="button" data-edition="CN" aria-pressed="false">CN</button>
+    </div>
+  </div>
+
+  <main id="app">
+    <p class="state-msg">Loading today's ledger…</p>
+  </main>
+
+</div>
+
+<template id="tpl-report">
+  <section class="hero">
+    <div class="eyebrow"><span class="date"></span> · <span class="edition-name"></span> edition</div>
+    <h1>Today's read: <span class="sentiment-word"></span></h1>
+    <p class="sub">Every number below is injected from a fetched, health-checked source — never written by the model. Every claim cites the exact figure it rests on.</p>
+    <div class="hint">Click any claim to see the number it's standing on</div>
+  </section>
+
+  <div class="flag-banner" hidden></div>
+
+  <section class="dashboard-section">
+    <div class="section-label">Value Investor Dashboard</div>
+    <div class="ledger dashboard-ledger"></div>
+  </section>
+
+  <section class="feargreed-section">
+    <div class="section-label">Fear &amp; Greed</div>
+    <div class="gauge-card">
+      <div class="gauge-track"><div class="gauge-dot"></div></div>
+      <div class="gauge-readout">
+        <span class="score"></span>
+        <span class="label"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="screener-section">
+    <div class="section-label">Market Screener</div>
+    <div class="ledger screener-ledger"></div>
+  </section>
+
+  <section class="economic-section">
+    <div class="section-label">Economic Indicators</div>
+    <div class="ledger economic-ledger"></div>
+  </section>
+
+  <section class="watchlist-section">
+    <div class="section-label">Watchlist</div>
+    <pre class="watchlist-block"></pre>
+  </section>
+
+  <section class="trackrecord-section">
+    <div class="section-label">Track Record</div>
+    <div class="trackrecord">
+      <div class="accuracy"></div>
+      <div class="last"></div>
+    </div>
+  </section>
+
+  <section class="analysis-section">
+    <div class="section-label">Valu-Analyst</div>
+    <div class="claims"></div>
+    <p class="interpretation"></p>
+    <p class="wisdom"></p>
+  </section>
+
+  <section class="verify-section">
+    <div class="verified-strip"></div>
+  </section>
+
+  <div class="footer">
+    <div class="sources"></div>
+    <p style="margin-top:10px">AI-generated analysis for informational purposes only. Not financial advice. Part of the <a href="https://github.com/creator35lwb-web/MarketPulse">MarketPulse</a> open-source project.</p>
+  </div>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
