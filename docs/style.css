@@ -302,6 +302,84 @@ section { margin-bottom: 40px; }
   min-width: 220px;
 }
 
+/* ---------- Sentiment history (day-by-day timeline) ---------- */
+
+.history-strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  padding: 16px 4px 10px;
+  overflow-x: auto;
+}
+
+.history-cell {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 34px;
+  border-radius: 2px;
+  background: var(--hairline-strong);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.history-cell.bullish { background: var(--verified); }
+.history-cell.bearish { background: var(--caution); }
+.history-cell.neutral { background: var(--paper-dim); opacity: 0.55; }
+
+.history-cell:hover,
+.history-cell.is-active {
+  transform: scaleY(1.08);
+  opacity: 1;
+}
+
+.history-cell .history-dot {
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+}
+.history-cell .history-dot.hit { background: var(--verified); border-color: var(--verified); }
+.history-cell .history-dot.miss { background: var(--caution); border-color: var(--caution); }
+
+.history-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  margin-top: 18px;
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: rgba(201, 162, 75, 0.05);
+}
+.history-detail .history-detail-date { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+.history-detail .history-detail-sentiment { color: var(--paper); }
+.history-detail .history-detail-result { color: var(--paper-dim); font-size: 12px; }
+
+.history-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--paper-dim);
+}
+.history-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.history-legend .swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.history-legend .swatch.bullish { background: var(--verified); }
+.history-legend .swatch.bearish { background: var(--caution); }
+.history-legend .swatch.neutral { background: var(--paper-dim); opacity: 0.55; }
+.history-legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.history-legend .dot.hit { background: var(--verified); }
+.history-legend .dot.miss { background: var(--caution); }
+
 /* ---------- Data quality banner ---------- */
 
 .flag-banner {

@@ -19,6 +19,20 @@
     return '';
   }
 
+  function sentimentClass(s) {
+    var t = String(s || '').toLowerCase();
+    if (t.indexOf('bullish') !== -1) return 'bullish';
+    if (t.indexOf('bearish') !== -1) return 'bearish';
+    return 'neutral';
+  }
+
+  function fmtHistoryDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
   function el(tag, className, text) {
     var e = document.createElement(tag);
     if (className) e.className = className;
@@ -130,6 +144,29 @@
       node.querySelector('.trackrecord .last').textContent = data.trackRecord.last || '';
     }
 
+    // sentiment history - a day-by-day timeline built from the same ledger the
+    // track record above already summarizes as a single number. Needs at least
+    // a couple of days before a timeline means anything.
+    var history = data.history || [];
+    if (history.length < 2) {
+      node.querySelector('.history-empty').hidden = false;
+      node.querySelector('.history-legend').hidden = true;
+    } else {
+      var historyStrip = node.querySelector('.history-strip');
+      history.forEach(function (h) {
+        var cell = el('div', 'history-cell ' + sentimentClass(h.sentiment));
+        cell.tabIndex = 0;
+        cell.setAttribute('role', 'listitem');
+        cell.title = fmtHistoryDate(h.date) + ': ' + (h.sentiment || 'n/a');
+        cell.dataset.date = h.date || '';
+        cell.dataset.sentiment = h.sentiment || 'n/a';
+        cell.dataset.result = h.result || '';
+        cell.dataset.actualChange = h.actualChange || '';
+        cell.appendChild(el('div', 'history-dot' + (h.result ? ' ' + h.result : '')));
+        historyStrip.appendChild(cell);
+      });
+    }
+
     // claims + interpretation + wisdom (the signature interaction lives here)
     var claimsEl = node.querySelector('.claims');
     var claims = (data.analysis && data.analysis.claims) || [];
@@ -208,6 +245,29 @@
         if (firstClaim) activateClaim(firstClaim);
       });
     }
+
+    // history strip: click/select a day to see its date, sentiment, and whether
+    // it was later scored a hit or a miss against what the market actually did
+    var historyDetail = app.querySelector('.history-detail');
+    function showHistoryDay(cell) {
+      app.querySelectorAll('.history-cell.is-active').forEach(function (c) { c.classList.remove('is-active'); });
+      cell.classList.add('is-active');
+      if (!historyDetail) return;
+      historyDetail.querySelector('.history-detail-date').textContent = fmtHistoryDate(cell.dataset.date);
+      historyDetail.querySelector('.history-detail-sentiment').textContent = cell.dataset.sentiment;
+      var result = cell.dataset.result;
+      var resultText = result === 'hit' ? '✓ correct call — market moved ' + cell.dataset.actualChange
+        : result === 'miss' ? '✗ missed call — market moved ' + cell.dataset.actualChange
+        : 'not yet scored';
+      historyDetail.querySelector('.history-detail-result').textContent = resultText;
+      historyDetail.hidden = false;
+    }
+    app.querySelectorAll('.history-cell').forEach(function (cell) {
+      cell.addEventListener('click', function () { showHistoryDay(cell); });
+      cell.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); showHistoryDay(cell); }
+      });
+    });
   }
 
   function showError(message) {
