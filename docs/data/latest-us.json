@@ -1,6 +1,6 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-13T18:17:34.007Z",
+  "generatedAt": "2026-07-13T18:17:58.833Z",
   "dateLabel": "Tuesday, July 14, 2026",
   "health": {
     "status": "OK",
@@ -43,44 +43,44 @@
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7521.65",
+      "value": "7521.59",
       "change": "-0.71%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52473.81",
-      "change": "-0.31%"
+      "value": "52479.09",
+      "change": "-0.30%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "16.87",
-      "change": "+12.24%"
+      "value": "16.86",
+      "change": "+12.18%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4001.60",
+      "value": "$4001.50",
       "change": "-2.73%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$77.61",
-      "change": "+8.68%"
+      "value": "$77.65",
+      "change": "+8.74%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.24",
+      "value": "101.23",
       "change": "+0.28%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$61,849",
-      "change": "-2.97%"
+      "value": "$61,843",
+      "change": "-2.99%"
     }
   ],
   "economic": [
@@ -118,18 +118,18 @@
       "value": "4.16%"
     }
   ],
-  "watchlist": "  GOOGL: $355.97 (-0.34%)\n  BABA: $112.56 (+0.20%)\n  ADBE: $230.66 (+3.14%)\n  SOFI: $18.18 (-3.19%)\n  ASML: $1732.00 (-3.63%)",
+  "watchlist": "  GOOGL: $355.99 (-0.33%)\n  BABA: $112.57 (+0.21%)\n  ADBE: $230.66 (+3.14%)\n  SOFI: $18.18 (-3.17%)\n  ASML: $1730.90 (-3.70%)",
   "trackRecord": {
-    "accuracy": "Building history",
-    "last": ""
+    "accuracy": "1/1 (100%)",
+    "last": "Cautiously Bearish (2026-07-13) → market moved -0.71% → Correct"
   },
   "history": [
     {
       "date": "2026-07-13",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": null,
-      "actualChange": null
+      "result": "hit",
+      "actualChange": "-0.71%"
     }
   ],
   "analysisModel": "llama-3.3-70b-versatile",
@@ -147,29 +147,29 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "inflation is expected to decrease",
-        "basedOn": [
-          "headline_2"
-        ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "the yield curve is flat which may indicate a potential economic slowdown",
+        "text": "there are indications of a potential economic slowdown",
         "basedOn": [
           "yieldCurve"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "there is fear in the market",
+        "text": "fear is present in the market",
         "basedOn": [
           "fearGreedValue"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "inflation may decrease",
+        "basedOn": [
+          "headline_2"
         ],
         "direction": "neutral"
       }
     ],
-    "interpretation": "the market is currently experiencing a mix of bullish and bearish signals, with the potential for a downturn due to overvaluation and a flat yield curve, but also some positive indicators such as expected inflation decrease, overall the investor should be cautious, my sentiment shifted to cautiously bearish due to the strongly overvalued shiller pe and the flat yield curve",
-    "wisdom": "it is important to be patient and disciplined in times of market uncertainty, as warren buffett once said, price is what you pay, but value is what you get"
+    "interpretation": "the market's overvaluation and potential economic slowdown are causes for concern, while the presence of fear in the market can be a contrarian indicator, but the possible decrease in inflation is a factor to consider for future market movements, overall the conditions suggest a cautious approach to investments",
+    "wisdom": "it is important to be disciplined and patient, as market fluctuations can provide opportunities for value investors to buy quality assets at discounted prices, and to avoid getting caught up in emotional decision-making"
   },
   "sources": [
     "CNN Fear & Greed",
