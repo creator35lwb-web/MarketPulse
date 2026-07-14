@@ -1,6 +1,6 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-13T18:17:58.833Z",
+  "generatedAt": "2026-07-14T13:58:30.285Z",
   "dateLabel": "Tuesday, July 14, 2026",
   "health": {
     "status": "OK",
@@ -16,71 +16,71 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "42.2",
+      "value": "41.9",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.38%",
+      "value": "+0.35%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+7.9%",
+      "value": "+8.1%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "fearGreed": {
-    "score": 43,
+    "score": 45,
     "classification": "Fear",
-    "change1d": "-6",
-    "change1w": "-1"
+    "change1d": "+1",
+    "change1w": "+1"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7521.59",
-      "change": "-0.71%"
+      "value": "7537.38",
+      "change": "+0.29%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52479.09",
-      "change": "-0.30%"
+      "value": "52539.62",
+      "change": "+0.08%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "16.86",
-      "change": "+12.18%"
+      "value": "16.57",
+      "change": "-3.44%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4001.50",
-      "change": "-2.73%"
+      "value": "$4092.80",
+      "change": "+2.17%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$77.65",
-      "change": "+8.74%"
+      "value": "$79.67",
+      "change": "+1.96%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.23",
-      "change": "+0.28%"
+      "value": "100.71",
+      "change": "-0.52%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$61,843",
-      "change": "-2.99%"
+      "value": "$63,749",
+      "change": "+2.39%"
     }
   ],
   "economic": [
@@ -92,9 +92,9 @@
     },
     {
       "label": "Inflation/CPI",
-      "period": "May 2026",
+      "period": "Jun 2026",
       "factKey": "cpiValue",
-      "value": "4.17%"
+      "value": "3.46%"
     },
     {
       "label": "Unemployment",
@@ -110,26 +110,33 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.54%"
+      "value": "4.56%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.16%"
+      "value": "4.21%"
     }
   ],
-  "watchlist": "  GOOGL: $355.99 (-0.33%)\n  BABA: $112.57 (+0.21%)\n  ADBE: $230.66 (+3.14%)\n  SOFI: $18.18 (-3.17%)\n  ASML: $1730.90 (-3.70%)",
+  "watchlist": "  GOOGL: $353.57 (+0.30%)\n  BABA: $112.31 (-0.04%)\n  ADBE: $220.75 (-4.27%)\n  SOFI: $18.64 (+2.79%)\n  ASML: $1778.17 (+3.02%)",
   "trackRecord": {
-    "accuracy": "1/1 (100%)",
-    "last": "Cautiously Bearish (2026-07-13) → market moved -0.71% → Correct"
+    "accuracy": "Building history",
+    "last": ""
   },
   "history": [
     {
       "date": "2026-07-13",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.71%"
+      "result": null,
+      "actualChange": null
+    },
+    {
+      "date": "2026-07-14",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
     }
   ],
   "analysisModel": "llama-3.3-70b-versatile",
@@ -147,13 +154,6 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "there are indications of a potential economic slowdown",
-        "basedOn": [
-          "yieldCurve"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
         "text": "fear is present in the market",
         "basedOn": [
           "fearGreedValue"
@@ -161,15 +161,22 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "inflation may decrease",
+        "text": "there are indications of a potential economic slowdown",
         "basedOn": [
-          "headline_2"
+          "yieldCurve"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "market leaders are citing booming markets and fine consumer trends",
+        "basedOn": [
+          "headline_6"
         ],
         "direction": "neutral"
       }
     ],
-    "interpretation": "the market's overvaluation and potential economic slowdown are causes for concern, while the presence of fear in the market can be a contrarian indicator, but the possible decrease in inflation is a factor to consider for future market movements, overall the conditions suggest a cautious approach to investments",
-    "wisdom": "it is important to be disciplined and patient, as market fluctuations can provide opportunities for value investors to buy quality assets at discounted prices, and to avoid getting caught up in emotional decision-making"
+    "interpretation": "The market continues to show signs of being overvalued, and fear is still present, indicating a potential downturn. However, some market leaders are citing strong market and consumer trends, which could suggest a more stable economy. The presence of fear in the market and indications of a potential economic slowdown suggest caution.",
+    "wisdom": "It is important to be cautious when the market is showing signs of being overvalued and fear is present, as this can be a sign of a potential downturn, and to focus on investing in companies with strong fundamentals and a proven track record of success, as Warren Buffett would advise."
   },
   "sources": [
     "CNN Fear & Greed",
