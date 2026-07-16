@@ -1,19 +1,10 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-14T13:58:30.165Z",
-  "dateLabel": "Tuesday, July 14, 2026",
+  "generatedAt": "2026-07-16T08:30:44.002Z",
+  "dateLabel": "Thursday, July 16, 2026",
   "health": {
-    "status": "OUTAGE",
-    "missing": [
-      "CSI 300",
-      "SSE Composite",
-      "SZSE Component",
-      "Hang Seng",
-      "USD/CNY",
-      "GDP",
-      "CPI",
-      "Unemployment"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {},
@@ -22,61 +13,61 @@
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "N/A",
-      "change": ""
+      "value": "4,698.43",
+      "change": "-1.85%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "N/A",
-      "change": ""
+      "value": "3,882.41",
+      "change": "-2.14%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "N/A",
-      "change": ""
+      "value": "14,488.65",
+      "change": "-2.92%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "N/A",
-      "change": ""
+      "value": "25,008.60",
+      "change": "+1.33%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "N/A",
-      "change": ""
+      "value": "$4,034.00",
+      "change": "-0.44%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
-      "value": "N/A",
-      "change": ""
+      "value": "6.7673",
+      "change": "+0.14%"
     }
   ],
   "economic": [
     {
       "label": "GDP Growth",
-      "period": "N/A",
+      "period": "2025",
       "factKey": "gdpValue",
-      "value": "N/A"
+      "value": "+4.96%"
     },
     {
       "label": "Inflation/CPI",
-      "period": "N/A",
+      "period": "2025",
       "factKey": "cpiValue",
-      "value": "N/A"
+      "value": "0.06%"
     },
     {
       "label": "Unemployment",
-      "period": "N/A",
+      "period": "2025",
       "factKey": "unemploymentValue",
-      "value": "N/A"
+      "value": "4.62%"
     }
   ],
-  "watchlist": "▲ Moutai (600519.SS): ¥1,214.88 (+0.32%)\n▲ CATL (300750.SZ): ¥364.01 (+1.38%)\n▲ BYD (002594.SZ): ¥90.18 (+3.68%)\n▲ Alibaba (9988.HK): HK$110.80 (+0.09%)\n▼ Tencent (0700.HK): HK$456.20 (-0.31%)",
+  "watchlist": "▲ Moutai (600519.SS): ¥1,258.99 (+0.63%)\n▼ CATL (300750.SZ): ¥366.20 (-1.82%)\n▲ BYD (002594.SZ): ¥94.14 (+2.59%)\n▲ Alibaba (9988.HK): HK$116.90 (+3.09%)\n▲ Tencent (0700.HK): HK$484.00 (+2.11%)",
   "trackRecord": {
     "accuracy": "Building history",
     "last": ""
@@ -97,21 +88,53 @@
       "actualChange": null
     },
     {
-      "date": "2026-07-14",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "FAIL",
+      "date": "2026-07-15",
+      "sentiment": "n/a",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
+    },
+    {
+      "date": "2026-07-16",
+      "sentiment": "Neutral",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "llama-3.3-70b-versatile",
-  "analysisProvider": "Groq",
+  "analysisModel": "gemini-3.5-flash",
+  "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Unavailable",
-    "confidence": "",
-    "claims": [],
-    "interpretation": "",
-    "wisdom": ""
+    "sentiment": "Neutral",
+    "confidence": "Medium",
+    "claims": [
+      {
+        "text": "Domestic mainland equity indices experienced declines across the board",
+        "basedOn": [
+          "csi300Change",
+          "sseCompositeChange",
+          "szseComponentChange"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "In contrast, the Hong Kong benchmark index posted positive gains, showcasing divergence between onshore and offshore markets",
+        "basedOn": [
+          "hangSengChange",
+          "headline_3"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "Regulatory focus is reportedly shifting toward tightening market oversight to foster a more sustainable and gradual upward trajectory for equities",
+        "basedOn": [
+          "headline_6"
+        ],
+        "direction": "supports_bullish"
+      }
+    ],
+    "interpretation": "Market sentiment has shifted to a neutral outlook following the establishment of a clearer divergence between struggling onshore indices and resilient offshore shares. While mainland regulators seek to stabilize speculation through tighter oversight, the macroeconomic recovery remains gradual. Investors should monitor whether offshore strength can eventually lift domestic mainland sentiment.",
+    "wisdom": "True value is often uncovered when short-term regulatory tightening and onshore panic overshadow the resilient cash flows of high-quality multinational enterprises."
   },
   "sources": [
     "Yahoo Finance",
