@@ -1,14 +1,14 @@
 # MarketPulse
 
-**AI-Powered Daily Market Intelligence for Value Investors - Built with n8n**
+**Verified AI Market Intelligence for Value Investors — built with n8n**
 
-> *Transforms the overwhelming noise of financial news into a concise, actionable daily intelligence digest, delivered to you before the market opens.*
+> *A daily market digest that structurally cannot state a number that isn't in the data — and publicly scores its own past calls.*
 
 <div align="center">
   <img src="docs/assets/branding/MarketPulse-Icon-new.png" alt="MarketPulse" width="200"/>
 
-  [![Version](https://img.shields.io/badge/version-7.0-blue.svg)](https://github.com/creator35lwb-web/MarketPulse)
-  [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](https://github.com/creator35lwb-web/MarketPulse)
+  [![Analysis](https://img.shields.io/badge/analysis-verified%20%26%20attributed-brightgreen.svg)](https://creator35lwb-web.github.io/MarketPulse/)
+  [![Status](https://img.shields.io/badge/status-live-brightgreen.svg)](https://creator35lwb-web.github.io/MarketPulse/)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
 
@@ -35,48 +35,33 @@ Get daily briefings at 7 AM with Fear & Greed Index, economic indicators, stock 
 
 ## 🌟 What is MarketPulse?
 
-MarketPulse is an open-source n8n workflow that delivers comprehensive daily market briefings for value investors. It aggregates real-time economic data from the Federal Reserve (FRED), market sentiment from CNN Fear & Greed Index, financial news headlines, and stock watchlist prices into a single actionable digest delivered via Telegram.
+MarketPulse is an open-source n8n workflow that delivers a comprehensive daily market briefing for value investors — **US and China editions** — before the market opens. It aggregates real-time data (FRED economic indicators, CNN Fear & Greed, Yahoo Finance prices, financial-news headlines) and hands it to an AI analyst for interpretation.
 
-This project embodies the **"Bootstrapper's Edge"** philosophy: leveraging developer incentives and open-source tools to build persistent, high-value intelligence systems at minimal cost.
+**What makes it different is the verification.** Most AI market tools ask you to trust the model. MarketPulse is built so it *structurally cannot* state a number that isn't in the fetched data: every figure is computed in code, every AI claim must cite the exact data point it is based on, and any claim that can't be traced is withheld. The analysis is **attributed to the model that produced it**, and the system **publicly scores its own past calls** — hits and misses in the open, retrospective only, never a forward prediction.
 
----
+It embodies the **"Bootstrapper's Edge"**: free infrastructure and open-source tooling building a persistent, high-trust intelligence system at near-zero cost.
 
-## 📢 Latest Update: v6.0 (CN) - China Market Edition
-
-**Release Date:** February 10, 2026
-
-This is a new, parallel version of MarketPulse adapted for the Chinese market. It uses the same robust v6.0 foundation but with China-specific data sources.
-
-### What's New in v6.0 (CN)
-
-| Feature | Description |
-|---------|-------------|
-| **China Market Indices** | CSI 300, SSE Composite, SZSE Component, Hang Seng |
-| **China Watchlist** | Moutai, CATL, BYD, Alibaba HK, Tencent HK |
-| **China Economic Data** | GDP, CPI, Unemployment from World Bank |
-| **China News Headlines** | Sourced from Google News RSS for China market |
-| **USD/CNY Forex** | Real-time exchange rate tracking |
-| **AI Analysis (CN)** | Gemini 2.5 Flash provides analysis tailored to the Chinese market |
+> **🔗 Live dashboard:** https://creator35lwb-web.github.io/MarketPulse/ &nbsp;·&nbsp; **📢 Telegram:** [@n8nMarketPulse](https://t.me/n8nMarketPulse)
 
 ---
 
-## 📢 Latest Update: v7.0 - Value Investor Edition
+## 🔍 How the Verification Works
 
-**Release Date:** February 9, 2026
+This is the core of the project — the part that separates it from a model that simply talks about the market:
 
-### What's New in v7.0
+1. **Code computes, the model only narrates.** Every number in the digest is fetched and calculated in code. The AI is never the source of a figure.
+2. **Structured generation + an enforce gate.** The model must return a strict JSON structure where every claim cites a `factKey` that exists in the fetched data. A deterministic check cross-verifies each citation — an invented number, a citation to missing data, or a digit in the prose all fail the gate, and the offending claim is **withheld** rather than published.
+3. **Dual-model with attribution.** The primary analyst is **Google Gemini 3.5 Flash**; if it is unavailable, a **Groq (Llama-3.3-70B)** fallback runs under the *identical* verification contract. Every analysis is stamped with the model that produced it — so accuracy can be measured per model.
+4. **A public, self-scoring track record.** Each day's sentiment call is stored in a ledger and, once the market has actually traded, scored against what happened — hit or miss, in the open. It is strictly retrospective (no forward predictions), and it is reset rather than massaged if a measurement is ever found to be wrong.
+5. **Existence-verified headline citations.** When the analysis references a news headline, that headline is checked to have genuinely appeared in the day's fetch — disclosed as existence-checked, not fact-checked.
 
-| Feature | Description |
-|---------|-------------|
-| **Value Investor Dashboard** | Top-of-message dashboard with 4 critical valuation indicators |
-| **Buffett Indicator** | Market Cap to GDP ratio with color-coded valuation zones |
-| **Shiller PE (CAPE)** | Cyclically Adjusted P/E Ratio with benchmark classification |
-| **Yield Curve (10Y-2Y)** | Treasury spread with inversion warning system |
-| **S&P 500 vs 200D-MA** | Trend signal with Golden/Death Cross detection |
-| **Expanded Market Screener** | Added Oil (WTI), US Dollar (DXY), and Bitcoin |
-| **2Y Treasury Yield** | New economic indicator from FRED (DGS2) |
-| **Buffett Wisdom** | AI includes relevant Warren Buffett quote in analysis |
-| **Valuation Overview** | AI interprets all 4 dashboard indicators together |
+## 📋 What's Inside Each Digest
+
+**US edition** — a Value Investor Dashboard (Buffett Indicator / Market-Cap-to-GDP, Shiller CAPE, 10Y-2Y yield curve with inversion warning, S&P 500 vs its 200-day MA with Golden/Death-Cross signal), a market screener (S&P 500, Dow, VIX, Gold, Oil/WTI, US Dollar/DXY, Bitcoin), FRED economic indicators (GDP, CPI, unemployment, Fed funds, 10Y & 2Y Treasuries), a stock watchlist, the CNN Fear & Greed Index, and the verified AI analysis.
+
+**China edition** — CSI 300, SSE Composite, SZSE Component and Hang Seng indices; a China watchlist (Moutai, CATL, BYD, Alibaba HK, Tencent HK); World Bank economic data; USD/CNY; China-market news headlines; and the same verified analysis layer.
+
+Both editions carry the **track-record accuracy** line and a **verified-claims footer** disclosing how many claims were attributed to source data.
 
 ### Data Sources
 
@@ -115,7 +100,9 @@ This is a new, parallel version of MarketPulse adapted for the Chinese market. I
 | Market Screener (7 instruments) | ✅ Working | S&P 500, Dow, VIX, Gold, Oil, DXY, Bitcoin |
 | FRED Economic Data | ✅ Working | All 7 indicators fetching (incl. 2Y Treasury) |
 | MarketWatch RSS | ✅ Working | 8+ headlines with entity decoding |
-| Google Gemini LLM | ✅ Working | Gemini 2.5 Flash with Buffett-inspired analysis |
+| AI Analyst (dual-model) | ✅ Working | Gemini 3.5 Flash primary + Groq (Llama-3.3-70B) fallback, with model attribution |
+| Verification / enforce gate | ✅ Working | Every AI claim cites fetched data or is withheld |
+| Self-scoring track record | ✅ Working | Retrospective, published to the live dashboard |
 | Yahoo Finance | ✅ Working | 3 stocks (GOOGL, BABA, ADBE) with % change |
 | IPv4 DNS Fix | ✅ Working | Workflow-level fix, no system-wide impact |
 | Retry Logic | ✅ Working | 3 attempts with exponential backoff |
@@ -138,32 +125,31 @@ Professional traders have Bloomberg terminals. Retail investors have information
 
 MarketPulse provides a fully automated workflow that:
 
-1.  **Aggregates News:** Pulls data from multiple financial news RSS feeds (MarketWatch).
-2.  **Analyzes Sentiment:** Uses a free-tier Large Language Model (Groq) to analyze headlines and provide a sentiment score (Bullish, Bearish, Neutral).
-3.  **Gathers Key Metrics:** Fetches the Fear & Greed Index for a broader market context.
-4.  **Delivers a Digest:** Sends a clean, easy-to-read summary to your Telegram channel every morning.
+1.  **Aggregates the data:** Pulls economic indicators (FRED), market sentiment (CNN Fear & Greed), prices (Yahoo Finance), and news headlines (RSS) — every figure computed in code, never invented by the model.
+2.  **Analyzes with verification:** An AI analyst (Gemini 3.5 Flash, with a Groq fallback) interprets the data under a strict contract — it may only cite numbers that exist in the fetch, and any unverifiable claim is withheld.
+3.  **Scores itself:** Records each day's sentiment call and grades past calls against what the market actually did — a public, retrospective track record.
+4.  **Delivers everywhere:** Sends a clean digest to Telegram and publishes the verified data + track record to a live dashboard.
 
 ---
 
 ## 🏗️ Architecture: The n8n Workflow
 
-MarketPulse is a single, powerful n8n workflow running on n8n Cloud. The architecture is designed for efficiency and resilience.
+MarketPulse is a single n8n workflow (US + China editions, ~43 nodes), **self-hosted** on your own machine for zero recurring cost — though it runs on n8n Cloud equally well. The architecture is designed for verification, attribution, and resilience.
 
 <p align="center">
   <img src="docs/assets/diagrams/MarketPulse-Workflow.png" alt="MarketPulse Workflow" width="800"/>
 </p>
 
-### Key Components (v2.2)
+### Key Components
 
-1.  **Schedule Trigger:** Runs the workflow every weekday morning at 7 AM.
-2.  **Data Collection:** HTTP Request nodes gather data from Alternative.me (Fear & Greed) and MarketWatch RSS.
-3.  **RSS Parser:** Code node parses MarketWatch XML format and extracts headlines.
-4.  **Input Validation:** Sanitizes and validates all incoming data.
-5.  **AI Processing:** Groq LLM (Llama-3) analyzes headlines and determines sentiment.
-6.  **Merge Node:** Synchronizes both data streams before composing the message.
-7.  **Message Composer:** Formats the data into a clean digest with required disclaimers.
-8.  **Telegram Delivery:** Sends the final digest to your configured channel.
-9.  **Error Handler:** Sanitized error alerts (no credential leakage).
+1.  **Schedule triggers:** US (daily) and China (weekdays), timed to land before the market opens.
+2.  **Multi-source fetch:** FRED economic data, CNN Fear & Greed, Yahoo Finance prices/indices, and RSS news — with per-source health flags and **sanity bounds** that flag an implausible value for review.
+3.  **Dual-model analyst:** Gemini 3.5 Flash primary with a Groq (Llama-3.3-70B) fallback under the same contract; the model that ran is recorded for attribution.
+4.  **Deterministic verify/enforce gate:** Cross-checks every AI claim against the fetched data; unverifiable claims are withheld, not published.
+5.  **Verdict ledger + track-record scoring:** Persists each day's call and grades past calls once the market has actually traded (a trading-day guard prevents scoring against a stale or unchanged session).
+6.  **Headline citation tier:** Existence-verified references to the day's real news.
+7.  **Telegram delivery + dashboard publish:** The digest goes to the channel; the verified data and track record publish to the GitHub Pages dashboard in parallel.
+8.  **Resilience:** Sanitized error alerts (no credential leakage) and an external freshness watchdog that flags a missed run.
 
 ---
 
@@ -172,7 +158,8 @@ MarketPulse is a single, powerful n8n workflow running on n8n Cloud. The archite
 | Service | Purpose | Free Tier | Get It |
 |---------|---------|-----------|--------|
 | **FRED** | Economic Data | Unlimited (free) | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) |
-| **Google Gemini** | LLM Sentiment Analysis | Free tier available | [ai.google.dev](https://ai.google.dev/) |
+| **Google Gemini** | Primary AI analyst | Free tier available | [ai.google.dev](https://ai.google.dev/) |
+| **Groq** | Fallback AI analyst | Free tier available | [console.groq.com](https://console.groq.com/) |
 | **Telegram Bot** | Message Delivery | Unlimited | [@BotFather](https://t.me/BotFather) |
 | **CNN Fear & Greed** | Market Sentiment | No key required | Built-in |
 | **MarketWatch RSS** | Financial News | No key required | Built-in |
@@ -266,14 +253,18 @@ Use n8n's managed cloud service (paid after trial):
 
 ### The Workflow Files
 
+> **Note:** The published workflow exports are being refreshed to match the current verified architecture (~43 nodes, dual-model + verification). Until then, the live dashboard at [creator35lwb-web.github.io/MarketPulse](https://creator35lwb-web.github.io/MarketPulse/) is the accurate reflection of what is running in production.
+
 | File | Description |
 |------|-------------|
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` | **Latest US production version** (recommended) |
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0-cn.json` | **Latest China production version** |
-| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | Market Screener Edition |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v7.0.json` | US edition — Feb 2026 snapshot (predates the current verification architecture) |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0-cn.json` | China edition — Feb 2026 snapshot |
+| `MarketPulse-Secure/workflows/marketpulse-workflow-v6.0.json` | Market Screener edition — Feb 2026 snapshot |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v5.0.json` | Previous stable version |
 | `MarketPulse-Secure/workflows/marketpulse-workflow-v4.1-fixed.json` | Legacy version |
 | `workflows/MarketPulse.json` | Original v1.0 workflow |
+
+*The two samples below illustrate the digest format. The current live output also carries the track-record accuracy line, per-claim verification, and model attribution.*
 
 ### Example Daily Digest (China Market)
 
@@ -334,7 +325,7 @@ The watchlist reflects this divergence. Mainland-listed BYD showed strength, whi
 
 📎 Sources: Yahoo Finance, World Bank, Google News
 
-MarketPulse v6.0 (CN) | Manus AI & Claude Code
+🔗 Full dashboard & verified track record: creator35lwb-web.github.io/MarketPulse
 ```
 
 ### Example Daily Digest (US Market)
@@ -411,7 +402,7 @@ only. Not financial advice.
 📎 Sources: CNN Fear & Greed, FRED, MarketWatch, Yahoo Finance,
 multpl.com
 
-MarketPulse v7.0 | Manus AI & Claude Code
+🔗 Full dashboard & verified track record: creator35lwb-web.github.io/MarketPulse
 ```
 
 ---
@@ -420,6 +411,7 @@ MarketPulse v7.0 | Manus AI & Claude Code
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **Verified core** | 2026 | Structured generation + deterministic enforce gate (numeric hallucination structurally impossible); verdict ledger + public self-scoring track record; dual-model analyst (Gemini 3.5 Flash + Groq fallback) with attribution; existence-verified headline citations; sanity-bound data-quality checks; live GitHub Pages dashboard; external freshness watchdog |
 | v7.0 | Feb 9, 2026 | Value Investor Dashboard (Buffett Indicator, CAPE, Yield Curve, 200D-MA), expanded screener (Oil, DXY, BTC), Buffett Wisdom AI |
 | v6.0 | Feb 9, 2026 | Market Screener (S&P 500, Dow Jones, VIX, Gold), IPv4 fix, retry logic, Gemini 2.5 Flash |
 | v5.0 | Jan 21, 2026 | FRED API integration, Fed Rate & Treasury, reliable architecture |
