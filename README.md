@@ -12,7 +12,7 @@
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![n8n](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
 
-  [![Telegram](https://img.shields.io/badge/Telegram-Join%20Channel-blue?logo=telegram)](https://t.me/MarketPulse7am)
+  [![Telegram](https://img.shields.io/badge/Telegram-Join%20Channel-blue?logo=telegram)](https://t.me/n8nMarketPulse)
 </div>
 
 ---
@@ -23,7 +23,7 @@
 
 <div align="center">
 
-  ### [👉 Join @MarketPulse7am on Telegram](https://t.me/MarketPulse7am)
+  ### [👉 Join @n8nMarketPulse on Telegram](https://t.me/n8nMarketPulse)
 
 </div>
 
@@ -459,7 +459,7 @@ If MarketPulse helps you stay ahead of the market, consider supporting continued
 
 <div align="center">
 
-  ### [👉 Join @MarketPulse7am on Telegram](https://t.me/MarketPulse7am)
+  ### [👉 Join @n8nMarketPulse on Telegram](https://t.me/n8nMarketPulse)
 
   *You can send a gift via Telegram's built-in gift feature to support the channel!*
 
