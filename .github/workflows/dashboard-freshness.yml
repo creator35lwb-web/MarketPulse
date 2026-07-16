@@ -1,0 +1,83 @@
+name: Dashboard Freshness Watchdog
+
+# Why this exists:
+# The digest runs on a self-hosted n8n on the operator's personal laptop, which is often
+# offline. A watchdog on that laptop cannot report the laptop being offline — a thing cannot
+# monitor its own absence. This job runs on GitHub Actions (always on, OFF the laptop) and
+# checks the one artifact a successful run leaves behind: the `generatedAt` timestamp in the
+# published dashboard JSON. If today's run did not land, it opens a GitHub Issue — which
+# notifies the operator on any device (incl. iPad) via the GitHub app / email.
+#
+# Deliberate design (matches this repo's existing alarm philosophy):
+#   • The job NEVER goes red on a missing digest. A build that is red on every offline day
+#     trains the operator to ignore CI. The alarm is an Issue, not a red build.
+#   • Each edition is checked right after ITS OWN publish window, so "did today's run land?"
+#     is exactly the right question. The CN check runs Mon–Fri only, so weekends (when CN
+#     legitimately does not publish) cannot raise a false alarm.
+#   • No secrets, no webhook URLs in the issue body — this repo is public. Manual recovery is
+#     the operator's saved private trigger shortcut, referenced but never printed here.
+#
+# Third-party actions are pinned to an immutable commit SHA, never a floating tag.
+
+on:
+  schedule:
+    - cron: '0 14 * * *'      # US edition: ~1h after the 13:00 UTC publish window
+    - cron: '30 9 * * 1-5'    # CN edition: ~1h after the 08:30 UTC weekday publish window
+  workflow_dispatch:          # manual run — checks both editions
+    inputs:
+      dry_run:
+        description: 'Check freshness and log the result, but do NOT open an issue'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  freshness:
+    name: is today's digest published?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - id: check
+        name: Check published dashboard freshness
+        run: node .github/scripts/check-freshness.mjs
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+
+      - name: Open an alert issue if a digest is missing
+        if: steps.check.outputs.alert == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EDITIONS: ${{ steps.check.outputs.editions }}
+          TODAY: ${{ steps.check.outputs.today }}
+          SUMMARY: ${{ steps.check.outputs.summary }}
+        run: |
+          TITLE="⚠️ MarketPulse digest missing — ${EDITIONS} — ${TODAY}"
+          EXISTING=$(gh issue list --state open --json title,number \
+            --jq ".[] | select(.title==\"${TITLE}\") | .number")
+          if [ -n "${EXISTING}" ]; then
+            echo "An alert issue is already open (#${EXISTING}) — not duplicating."
+            exit 0
+          fi
+          BODY=$(cat <<EOF
+          Today's MarketPulse digest did not publish for: **${EDITIONS}**.
+
+          ${SUMMARY}
+
+          **Most likely cause:** the laptop hosting n8n was offline (asleep or powered off) at
+          the scheduled trigger time, so the run never fired. The digest has no automatic
+          catch-up by design — recovery is one manual trigger.
+
+          **What to do:** trigger the digest from your saved private shortcut (the manual
+          webhook). Once it publishes, this alert can be closed — it will not reopen until a
+          future run is missed.
+
+          _Filed automatically by the Dashboard Freshness Watchdog. This check runs off the
+          laptop, so it can see an outage the laptop itself cannot report._
+          EOF
+          )
+          gh issue create --title "${TITLE}" --body "${BODY}"
+          echo "Opened alert issue: ${TITLE}"
