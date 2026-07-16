@@ -1,86 +1,88 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-15T13:01:16.663Z",
-  "dateLabel": "Wednesday, July 15, 2026",
+  "generatedAt": "2026-07-16T13:01:52.696Z",
+  "dateLabel": "Thursday, July 16, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "DEGRADED",
+    "missing": [
+      "Buffett"
+    ],
     "suspect": []
   },
   "dashboard": {
     "buffettIndicator": {
       "title": "Buffett Indicator",
-      "value": "139%",
-      "status": "Slightly Overvalued",
-      "emoji": "🟡"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "42.0",
+      "value": "42.2",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.36%",
+      "value": "+0.40%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+8.2%",
+      "value": "+8.5%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "fearGreed": {
-    "score": 44,
-    "classification": "Fear",
-    "change1d": "+0",
-    "change1w": "+0"
+    "score": 47,
+    "classification": "Neutral",
+    "change1d": "+1",
+    "change1w": "+1"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7543.59",
-      "change": "-0.42%"
+      "value": "7572.40",
+      "change": "+0.38%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52508.27",
-      "change": "+0.02%"
+      "value": "52658.64",
+      "change": "+0.29%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "16.16",
-      "change": "-2.06%"
+      "value": "16.43",
+      "change": "+4.85%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4070.40",
-      "change": "+0.02%"
+      "value": "$4003.70",
+      "change": "-1.19%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$79.69",
-      "change": "+0.44%"
+      "value": "$80.47",
+      "change": "+1.09%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.86",
-      "change": "-0.06%"
+      "value": "100.61",
+      "change": "+0.13%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$65,113",
-      "change": "+0.21%"
+      "value": "$63,914",
+      "change": "-1.25%"
     }
   ],
   "economic": [
@@ -110,18 +112,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.62%"
+      "value": "4.58%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.26%"
+      "value": "4.18%"
     }
   ],
-  "watchlist": "  GOOGL: $359.51 (+1.99%)\n  BABA: $112.32 (-0.03%)\n  ADBE: $220.78 (-4.26%)\n  SOFI: $18.55 (+2.32%)\n  ASML: $1775.64 (+2.87%)",
+  "watchlist": "  GOOGL: $370.92 (+3.17%)\n  BABA: $117.69 (+4.78%)\n  ADBE: $224.56 (+1.71%)\n  SOFI: $17.87 (-3.67%)\n  ASML: $1815.27 (+2.23%)",
   "trackRecord": {
-    "accuracy": "1/1 (100%)",
-    "last": "Cautiously Bearish (2026-07-14) → market moved -0.42% → Correct"
+    "accuracy": "1/2 (50%)",
+    "last": "Cautiously Bearish (2026-07-15) → market moved +0.38% → Miss"
   },
   "history": [
     {
@@ -142,48 +144,54 @@
       "date": "2026-07-15",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.38%"
+    },
+    {
+      "date": "2026-07-16",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "llama-3.3-70b-versatile",
-  "analysisProvider": "Groq",
+  "analysisModel": "gemini-3.5-flash",
+  "analysisProvider": "Google",
   "analysis": {
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "the market is showing signs of being overvalued",
+        "text": "Long-term valuation metrics suggest the equity market is heavily overvalued compared to historical norms.",
         "basedOn": [
-          "buffettIndicator",
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "fear is present in the market",
+        "text": "Major stock indices continue to exhibit strong positive momentum by staying comfortably above their long-term trend lines.",
         "basedOn": [
-          "fearGreedValue"
+          "sp500VsMa200"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "A market critic has cautioned that a major crisis resembling historical financial collapses could impact artificial intelligence stocks.",
+        "basedOn": [
+          "headline_3"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "there are indications of a potential economic slowdown",
+        "text": "Consumer spending is receiving a positive lift from automotive sales and promotional shopping events.",
         "basedOn": [
-          "yieldCurve"
+          "headline_4"
         ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "some market leaders are discussing booming markets and consumer trends",
-        "basedOn": [
-          "headline_2"
-        ],
-        "direction": "neutral"
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "Compared to the previous analysis, the sentiment remains cautiously bearish as the market indicators continue to suggest overvaluation and fear in the market, with some signs of a potential economic slowdown. The presence of fear in the market and the potential for an economic slowdown are still concerns. The discussion of booming markets by some leaders is noted, but does not change the overall sentiment.",
-    "wisdom": "It is important to remember that price is what you pay, but value is what you get, and to be cautious when the market is showing signs of being overvalued, as the potential for a correction is higher."
+    "interpretation": "While retail indicators show that consumer spending remains robust and overall market fear has subsided into a neutral state, market multiples are still exceptionally high. Technical trends remain supportive of equities, but warnings of speculative bubbles in tech highlight the underlying structural risks of current valuations. Value-conscious market participants should remain patient, focus on balance sheet strength, and wait for better entry points.",
+    "wisdom": "A great company is not a great investment if you pay too high a price, as the price paid ultimately determines your margin of safety and rate of return."
   },
   "sources": [
     "CNN Fear & Greed",
