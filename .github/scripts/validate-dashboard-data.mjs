@@ -76,6 +76,10 @@ for (const file of FILES) {
     for (const row of (data.screener || [])) if (row.factKey) publishedKeys.add(row.factKey);
     for (const row of (data.economic || [])) if (row.factKey) publishedKeys.add(row.factKey);
     for (const k of Object.keys(data.dashboard || {})) publishedKeys.add(k);
+    // data.facts is the flat published fact table — every factKey the workflow's enforce
+    // gate lets a claim cite, with its value. Guaranteed superset of surviving claims'
+    // citations (the gate rejects claims citing facts unavailable that day).
+    for (const k of Object.keys(data.facts || {})) publishedKeys.add(k);
 
     for (const claim of (a.claims || [])) {
       if (!claim.text) fail(file, 'a claim has no text');
