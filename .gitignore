@@ -92,3 +92,6 @@ MarketPulse-Secure/workflows/marketpulse-service-status.json
 MarketPulse-Secure/workflows/HANDOFF_NOTE.md
 MarketPulse-Secure/workflows/COMPATIBILITY_NOTES.md
 MarketPulse-Secure/workflows/TEST_TELEGRAM_FIX.txt
+
+# Claude Code MCP config - machine-local dev tooling, not product
+.mcp.json
