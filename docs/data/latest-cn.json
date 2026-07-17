@@ -1,7 +1,7 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-16T08:30:44.002Z",
-  "dateLabel": "Thursday, July 16, 2026",
+  "generatedAt": "2026-07-17T08:30:24.144Z",
+  "dateLabel": "Friday, July 17, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -13,38 +13,38 @@
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "4,698.43",
-      "change": "-1.85%"
+      "value": "4,529.10",
+      "change": "-3.60%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "3,882.41",
-      "change": "-2.14%"
+      "value": "3,764.15",
+      "change": "-3.05%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "14,488.65",
-      "change": "-2.92%"
+      "value": "13,706.88",
+      "change": "-5.40%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "25,008.60",
-      "change": "+1.33%"
+      "value": "24,562.24",
+      "change": "-1.78%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4,034.00",
-      "change": "-0.44%"
+      "value": "$3,993.10",
+      "change": "+0.03%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
-      "value": "6.7673",
-      "change": "+0.14%"
+      "value": "6.7766",
+      "change": "+0.20%"
     }
   ],
   "economic": [
@@ -67,10 +67,10 @@
       "value": "4.62%"
     }
   ],
-  "watchlist": "▲ Moutai (600519.SS): ¥1,258.99 (+0.63%)\n▼ CATL (300750.SZ): ¥366.20 (-1.82%)\n▲ BYD (002594.SZ): ¥94.14 (+2.59%)\n▲ Alibaba (9988.HK): HK$116.90 (+3.09%)\n▲ Tencent (0700.HK): HK$484.00 (+2.11%)",
+  "watchlist": "▼ Moutai (600519.SS): ¥1,253.00 (-0.48%)\n▼ CATL (300750.SZ): ¥360.00 (-1.69%)\n▼ BYD (002594.SZ): ¥93.47 (-0.71%)\n▼ Alibaba (9988.HK): HK$112.60 (-3.68%)\n▼ Tencent (0700.HK): HK$461.60 (-4.63%)",
   "trackRecord": {
-    "accuracy": "Building history",
-    "last": ""
+    "accuracy": "0/2 (0%)",
+    "last": "Neutral (2026-07-16) → market moved -3.60% → Miss"
   },
   "history": [
     {
@@ -98,6 +98,13 @@
       "date": "2026-07-16",
       "sentiment": "Neutral",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "-3.60%"
+    },
+    {
+      "date": "2026-07-17",
+      "sentiment": "Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -105,11 +112,11 @@
   "analysisModel": "gemini-3.5-flash",
   "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Neutral",
-    "confidence": "Medium",
+    "sentiment": "Bearish",
+    "confidence": "High",
     "claims": [
       {
-        "text": "Domestic mainland equity indices experienced declines across the board",
+        "text": "Onshore mainland equity indices experienced sharp declines across the board.",
         "basedOn": [
           "csi300Change",
           "sseCompositeChange",
@@ -118,23 +125,29 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "In contrast, the Hong Kong benchmark index posted positive gains, showcasing divergence between onshore and offshore markets",
+        "text": "The offshore Hong Kong benchmark index also fell, reversing its previous divergence.",
         "basedOn": [
-          "hangSengChange",
-          "headline_3"
+          "hangSengChange"
         ],
-        "direction": "supports_bullish"
+        "direction": "supports_bearish"
       },
       {
-        "text": "Regulatory focus is reportedly shifting toward tightening market oversight to foster a more sustainable and gradual upward trajectory for equities",
+        "text": "The Chinese currency depreciated against the United States dollar.",
         "basedOn": [
-          "headline_6"
+          "usdCnyChange"
         ],
-        "direction": "supports_bullish"
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Market outlooks suggest that the trajectory of domestic equities is highly dependent on relations and economic dynamics with the United States.",
+        "basedOn": [
+          "headline_8"
+        ],
+        "direction": "neutral"
       }
     ],
-    "interpretation": "Market sentiment has shifted to a neutral outlook following the establishment of a clearer divergence between struggling onshore indices and resilient offshore shares. While mainland regulators seek to stabilize speculation through tighter oversight, the macroeconomic recovery remains gradual. Investors should monitor whether offshore strength can eventually lift domestic mainland sentiment.",
-    "wisdom": "True value is often uncovered when short-term regulatory tightening and onshore panic overshadow the resilient cash flows of high-quality multinational enterprises."
+    "interpretation": "In contrast to the previous session where offshore equities diverged positively, we now see a coordinated downward movement across all major indices. This synchronized decline indicates widespread cautiousness among market participants, exacerbated by a weaker exchange rate. Investors should focus on assessing whether these declines create long-term entry points for quality enterprises.",
+    "wisdom": "During widespread market downturns, the intelligent investor focuses on the margin of safety, acquiring high-quality assets when market pessimism drives prices below their intrinsic value."
   },
   "sources": [
     "Yahoo Finance",
