@@ -1,127 +1,125 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-17T13:01:41.967Z",
-  "dateLabel": "Friday, July 17, 2026",
+  "generatedAt": "2026-07-18T22:56:33.089Z",
+  "dateLabel": "Sunday, July 19, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "OUTAGE",
+    "missing": [
+      "ALL"
+    ],
     "suspect": []
   },
   "dashboard": {
     "buffettIndicator": {
       "title": "Buffett Indicator",
-      "value": "139%",
-      "status": "Slightly Overvalued",
-      "emoji": "🟡"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "41.9",
-      "status": "Strongly Overvalued",
-      "emoji": "🔴"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.42%",
-      "status": "Flat (Caution)",
-      "emoji": "🟡"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+7.9%",
-      "status": "Strong Bullish (Golden Cross)",
-      "emoji": "🟢🟢"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     }
   },
-  "fearGreed": {
-    "score": 43,
-    "classification": "Fear",
-    "change1d": "+1",
-    "change1w": "-4"
-  },
+  "facts": {},
+  "fearGreed": null,
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7533.77",
-      "change": "-0.51%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52552.97",
-      "change": "-0.20%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.54",
-      "change": "+10.82%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$3971.40",
-      "change": "-0.52%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$80.20",
-      "change": "+2.45%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.83",
-      "change": "+0.07%"
+      "value": "N/A",
+      "change": ""
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,042",
-      "change": "-1.17%"
+      "value": "N/A",
+      "change": ""
     }
   ],
   "economic": [
     {
       "label": "GDP Growth",
-      "period": "Jan 2026",
+      "period": "",
       "factKey": "gdpValue",
-      "value": "+2.1% (QoQ)"
+      "value": "N/A"
     },
     {
       "label": "Inflation/CPI",
-      "period": "Jun 2026",
+      "period": "",
       "factKey": "cpiValue",
-      "value": "3.46%"
+      "value": "N/A"
     },
     {
       "label": "Unemployment",
-      "period": "Jun 2026",
+      "period": "",
       "factKey": "unemploymentValue",
-      "value": "4.2%"
+      "value": "N/A"
     },
     {
       "label": "Fed Funds Rate",
       "factKey": "fedRateValue",
-      "value": "3.75%"
+      "value": "N/A"
     },
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.55%"
+      "value": "N/A"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.13%"
+      "value": "N/A"
     }
   ],
-  "watchlist": "  GOOGL: $354.46 (-4.44%)\n  BABA: $117.49 (-0.17%)\n  ADBE: $235.31 (+4.79%)\n  SOFI: $17.32 (-3.08%)\n  ASML: $1784.87 (-1.67%)",
+  "watchlist": "  GOOGL: $346.77 (-2.17%)\n  BABA: $114.97 (-2.14%)\n  ADBE: $237.25 (+0.82%)\n  SOFI: $17.28 (-0.23%)\n  ASML: $1747.58 (-2.09%)",
   "trackRecord": {
-    "accuracy": "2/3 (67%)",
-    "last": "Cautiously Bearish (2026-07-16) → market moved -0.51% → Correct"
+    "accuracy": "Building history",
+    "last": ""
   },
   "history": [
     {
@@ -158,46 +156,23 @@
       "verdict": "PASS",
       "result": null,
       "actualChange": null
+    },
+    {
+      "date": "2026-07-18",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "FAIL",
+      "result": null,
+      "actualChange": null
     }
   ],
   "analysisModel": "gemini-3.5-flash",
   "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Cautiously Bearish",
-    "confidence": "Medium",
-    "claims": [
-      {
-        "text": "Long-term valuation metrics indicate that the broader stock market remains heavily overvalued relative to historical averages.",
-        "basedOn": [
-          "shillerPE",
-          "buffettIndicator"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "An investment manager has warned of a potential market correction while pointing to opportunities in neglected stocks.",
-        "basedOn": [
-          "headline_6"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "General market sentiment has shifted into a state of fear, indicating growing investor anxiety.",
-        "basedOn": [
-          "fearGreedValue"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "Market volatility has risen significantly, reflecting increased anxiety in the trading environment.",
-        "basedOn": [
-          "vixChange"
-        ],
-        "direction": "supports_bearish"
-      }
-    ],
-    "interpretation": "While the market previously maintained positive momentum above its trend lines, a sudden rise in volatility and a shift toward investor fear have introduced immediate downside caution. Long-term valuation metrics remain severely elevated, suggesting that the broader equity landscape offers little room for error. Investors should look past short-term market swings and focus on identifying overlooked opportunities that present a clear margin of safety.",
-    "wisdom": "The price you pay determines your rate of return, so when structural valuations are historically high, the disciplined investor must resist the temptation to chase momentum and instead patiently wait for prices that offer a true margin of safety."
+    "sentiment": "Unavailable",
+    "confidence": "",
+    "claims": [],
+    "interpretation": "",
+    "wisdom": ""
   },
   "sources": [
     "CNN Fear & Greed",
