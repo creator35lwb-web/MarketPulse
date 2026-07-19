@@ -1,119 +1,149 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-18T22:56:33.089Z",
+  "generatedAt": "2026-07-19T14:41:59.218Z",
   "dateLabel": "Sunday, July 19, 2026",
   "health": {
-    "status": "OUTAGE",
-    "missing": [
-      "ALL"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {
     "buffettIndicator": {
       "title": "Buffett Indicator",
-      "value": "N/A",
-      "status": "",
-      "emoji": ""
+      "value": "139%",
+      "status": "Slightly Overvalued",
+      "emoji": "🟡"
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "N/A",
-      "status": "",
-      "emoji": ""
+      "value": "41.5",
+      "status": "Strongly Overvalued",
+      "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "N/A",
-      "status": "",
-      "emoji": ""
+      "value": "+0.41%",
+      "status": "Flat (Caution)",
+      "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "N/A",
-      "status": "",
-      "emoji": ""
+      "value": "+6.7%",
+      "status": "Strong Bullish (Golden Cross)",
+      "emoji": "🟢🟢"
     }
   },
-  "facts": {},
-  "fearGreed": null,
+  "facts": {
+    "buffettIndicator": "139%",
+    "shillerPE": "41.5",
+    "yieldCurve": "+0.41%",
+    "sp500VsMa200": "+6.7%",
+    "maSignal": "Golden Cross",
+    "fearGreedValue": 37,
+    "sp500": "7457.69",
+    "sp500Change": "-1.01%",
+    "dowJones": "52146.42",
+    "dowJonesChange": "-0.77%",
+    "vix": "18.77",
+    "vixChange": "+12.19%",
+    "gold": "$4018.80",
+    "goldChange": "+0.67%",
+    "oil": "$81.78",
+    "oilChange": "+4.47%",
+    "dxy": "100.75",
+    "dxyChange": "-0.01%",
+    "btc": "$64,455",
+    "btcChange": "-0.52%",
+    "gdpValue": "+2.1% (QoQ)",
+    "cpiValue": "3.46%",
+    "unemploymentValue": "4.2%",
+    "fedRateValue": "3.75%",
+    "treasury10Y": "4.57%",
+    "treasury2Y": "4.16%"
+  },
+  "fearGreed": {
+    "score": 37,
+    "classification": "Fear",
+    "change1d": "-5",
+    "change1w": "-10"
+  },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "N/A",
-      "change": ""
+      "value": "7457.69",
+      "change": "-1.01%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "N/A",
-      "change": ""
+      "value": "52146.42",
+      "change": "-0.77%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "N/A",
-      "change": ""
+      "value": "18.77",
+      "change": "+12.19%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "N/A",
-      "change": ""
+      "value": "$4018.80",
+      "change": "+0.67%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "N/A",
-      "change": ""
+      "value": "$81.78",
+      "change": "+4.47%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "N/A",
-      "change": ""
+      "value": "100.75",
+      "change": "-0.01%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "N/A",
-      "change": ""
+      "value": "$64,455",
+      "change": "-0.52%"
     }
   ],
   "economic": [
     {
       "label": "GDP Growth",
-      "period": "",
+      "period": "Jan 2026",
       "factKey": "gdpValue",
-      "value": "N/A"
+      "value": "+2.1% (QoQ)"
     },
     {
       "label": "Inflation/CPI",
-      "period": "",
+      "period": "Jun 2026",
       "factKey": "cpiValue",
-      "value": "N/A"
+      "value": "3.46%"
     },
     {
       "label": "Unemployment",
-      "period": "",
+      "period": "Jun 2026",
       "factKey": "unemploymentValue",
-      "value": "N/A"
+      "value": "4.2%"
     },
     {
       "label": "Fed Funds Rate",
       "factKey": "fedRateValue",
-      "value": "N/A"
+      "value": "3.75%"
     },
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "N/A"
+      "value": "4.57%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "N/A"
+      "value": "4.16%"
     }
   ],
   "watchlist": "  GOOGL: $346.77 (-2.17%)\n  BABA: $114.97 (-2.14%)\n  ADBE: $237.25 (+0.82%)\n  SOFI: $17.28 (-0.23%)\n  ASML: $1747.58 (-2.09%)",
@@ -163,16 +193,52 @@
       "verdict": "FAIL",
       "result": null,
       "actualChange": null
+    },
+    {
+      "date": "2026-07-19",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
     }
   ],
   "analysisModel": "gemini-3.5-flash",
   "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Unavailable",
-    "confidence": "",
-    "claims": [],
-    "interpretation": "",
-    "wisdom": ""
+    "sentiment": "Cautiously Bearish",
+    "confidence": "Medium",
+    "claims": [
+      {
+        "text": "Market valuation relative to overall economic output indicates that equities are trading at a premium.",
+        "basedOn": [
+          "buffettIndicator"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "The cyclically adjusted price-to-earnings ratio shows that long-term stock valuations remain highly elevated compared to historical earnings.",
+        "basedOn": [
+          "shillerPE"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Investor sentiment has shifted toward apprehension, indicating growing anxiety in the broader market.",
+        "basedOn": [
+          "fearGreedValue"
+        ],
+        "direction": "supports_bearish"
+      },
+      {
+        "text": "Financial headlines are raising concerns about whether a small group of leading tech stocks can sustain the broader equity market.",
+        "basedOn": [
+          "headline_3"
+        ],
+        "direction": "supports_bearish"
+      }
+    ],
+    "interpretation": "Market valuations remain highly elevated, consistent with our previous analysis, but we now observe growing fear and hesitation among investors. While the underlying economic indicators show moderate growth, the high concentration in leading equities poses a risk. Value investors should remain patient and wait for wider margins of safety before deploying capital.",
+    "wisdom": "Price is what you pay, value is what you get; when market valuations are stretched and fear begins to creep in, the disciplined investor focuses on preserving capital and waiting for true bargains."
   },
   "sources": [
     "CNN Fear & Greed",
