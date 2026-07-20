@@ -1,50 +1,67 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-17T08:30:24.144Z",
-  "dateLabel": "Friday, July 17, 2026",
+  "generatedAt": "2026-07-20T08:30:26.422Z",
+  "dateLabel": "Monday, July 20, 2026",
   "health": {
     "status": "OK",
     "missing": [],
     "suspect": []
   },
   "dashboard": {},
+  "facts": {
+    "csi300": "4,598.32",
+    "csi300Change": "+1.53%",
+    "sseComposite": "3,796.28",
+    "sseCompositeChange": "+0.85%",
+    "szseComponent": "13,610.23",
+    "szseComponentChange": "-0.71%",
+    "hangSeng": "25,143.05",
+    "hangSengChange": "+2.36%",
+    "gold": "$4,030.00",
+    "goldChange": "+0.28%",
+    "usdCny": "6.7658",
+    "usdCnyChange": "-0.03%",
+    "gdpValue": "+4.96%",
+    "cpiValue": "0.06%",
+    "unemploymentValue": "4.62%"
+  },
   "fearGreed": null,
   "screener": [
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "4,529.10",
-      "change": "-3.60%"
+      "value": "4,598.32",
+      "change": "+1.53%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "3,764.15",
-      "change": "-3.05%"
+      "value": "3,796.28",
+      "change": "+0.85%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "13,706.88",
-      "change": "-5.40%"
+      "value": "13,610.23",
+      "change": "-0.71%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "24,562.24",
-      "change": "-1.78%"
+      "value": "25,143.05",
+      "change": "+2.36%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$3,993.10",
-      "change": "+0.03%"
+      "value": "$4,030.00",
+      "change": "+0.28%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
-      "value": "6.7766",
-      "change": "+0.20%"
+      "value": "6.7658",
+      "change": "-0.03%"
     }
   ],
   "economic": [
@@ -67,10 +84,10 @@
       "value": "4.62%"
     }
   ],
-  "watchlist": "▼ Moutai (600519.SS): ¥1,253.00 (-0.48%)\n▼ CATL (300750.SZ): ¥360.00 (-1.69%)\n▼ BYD (002594.SZ): ¥93.47 (-0.71%)\n▼ Alibaba (9988.HK): HK$112.60 (-3.68%)\n▼ Tencent (0700.HK): HK$461.60 (-4.63%)",
+  "watchlist": "▲ Moutai (600519.SS): ¥1,327.50 (+5.95%)\n▲ CATL (300750.SZ): ¥376.43 (+4.56%)\n▲ BYD (002594.SZ): ¥93.92 (+0.48%)\n▲ Alibaba (9988.HK): HK$116.80 (+3.73%)\n▲ Tencent (0700.HK): HK$477.80 (+3.51%)",
   "trackRecord": {
-    "accuracy": "0/2 (0%)",
-    "last": "Neutral (2026-07-16) → market moved -3.60% → Miss"
+    "accuracy": "0/3 (0%)",
+    "last": "Bearish (2026-07-17) → market moved +1.53% → Miss"
   },
   "history": [
     {
@@ -105,6 +122,13 @@
       "date": "2026-07-17",
       "sentiment": "Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+1.53%"
+    },
+    {
+      "date": "2026-07-20",
+      "sentiment": "Cautiously Bullish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -112,42 +136,43 @@
   "analysisModel": "gemini-3.5-flash",
   "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Bearish",
-    "confidence": "High",
+    "sentiment": "Cautiously Bullish",
+    "confidence": "Medium",
     "claims": [
       {
-        "text": "Onshore mainland equity indices experienced sharp declines across the board.",
+        "text": "Major onshore and offshore equity indices rebounded significantly, showing positive movement after previous declines.",
         "basedOn": [
           "csi300Change",
           "sseCompositeChange",
-          "szseComponentChange"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "The offshore Hong Kong benchmark index also fell, reversing its previous divergence.",
-        "basedOn": [
           "hangSengChange"
         ],
-        "direction": "supports_bearish"
+        "direction": "supports_bullish"
       },
       {
-        "text": "The Chinese currency depreciated against the United States dollar.",
+        "text": "The Chinese currency appreciated slightly against the United States dollar.",
         "basedOn": [
           "usdCnyChange"
         ],
-        "direction": "supports_bearish"
+        "direction": "supports_bullish"
       },
       {
-        "text": "Market outlooks suggest that the trajectory of domestic equities is highly dependent on relations and economic dynamics with the United States.",
+        "text": "There is a notable divergence within domestic stock indices as some benchmarks fell while others rallied.",
         "basedOn": [
-          "headline_8"
+          "szseComponentChange",
+          "headline_2"
+        ],
+        "direction": "neutral"
+      },
+      {
+        "text": "Market outlooks continue to highlight that the future of Chinese equities and economic performance is closely tied to the United States.",
+        "basedOn": [
+          "headline_7"
         ],
         "direction": "neutral"
       }
     ],
-    "interpretation": "In contrast to the previous session where offshore equities diverged positively, we now see a coordinated downward movement across all major indices. This synchronized decline indicates widespread cautiousness among market participants, exacerbated by a weaker exchange rate. Investors should focus on assessing whether these declines create long-term entry points for quality enterprises.",
-    "wisdom": "During widespread market downturns, the intelligent investor focuses on the margin of safety, acquiring high-quality assets when market pessimism drives prices below their intrinsic value."
+    "interpretation": "Unlike the previous session where markets fell broadly and the currency weakened, today we saw a strong rebound across major onshore and offshore benchmarks alongside a slight appreciation of the Renminbi. However, the domestic market remains highly fragmented as evidenced by the divergence in certain indices. Investors should remain mindful of geopolitical factors as long-term outlooks continue to hinge on relations with external trading partners.",
+    "wisdom": "True value investors look past short-term index divergence and macro noise, focusing instead on high-quality companies with robust competitive advantages that can weather global economic cycles."
   },
   "sources": [
     "Yahoo Finance",
