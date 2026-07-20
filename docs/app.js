@@ -192,6 +192,28 @@
       wisdomEl.hidden = true;
     }
 
+    // today's headlines — each links to its real source when the pipeline captured one
+    var news = data.news || [];
+    if (news.length) {
+      var newsList = node.querySelector('.news-list');
+      news.forEach(function (n) {
+        var li = el('li', 'news-item');
+        if (n.url) {
+          var a = document.createElement('a');
+          a.href = n.url;
+          a.textContent = n.title;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          li.appendChild(a);
+        } else {
+          li.textContent = n.title;
+        }
+        newsList.appendChild(li);
+      });
+    } else {
+      node.querySelector('.news-section').hidden = true;
+    }
+
     // verified strip
     var vCount = (data.analysis && data.analysis.claims && data.analysis.claims.length) || 0;
     node.querySelector('.verified-strip').textContent =
