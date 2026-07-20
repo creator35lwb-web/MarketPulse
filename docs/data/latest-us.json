@@ -1,7 +1,7 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-19T14:41:59.218Z",
-  "dateLabel": "Sunday, July 19, 2026",
+  "generatedAt": "2026-07-20T13:01:53.418Z",
+  "dateLabel": "Monday, July 20, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -44,16 +44,16 @@
     "sp500Change": "-1.01%",
     "dowJones": "52146.42",
     "dowJonesChange": "-0.77%",
-    "vix": "18.77",
-    "vixChange": "+12.19%",
-    "gold": "$4018.80",
-    "goldChange": "+0.67%",
-    "oil": "$81.78",
-    "oilChange": "+4.47%",
-    "dxy": "100.75",
-    "dxyChange": "-0.01%",
-    "btc": "$64,455",
-    "btcChange": "-0.52%",
+    "vix": "18.18",
+    "vixChange": "-3.14%",
+    "gold": "$4016.00",
+    "goldChange": "-0.07%",
+    "oil": "$81.71",
+    "oilChange": "-0.09%",
+    "dxy": "100.86",
+    "dxyChange": "+0.09%",
+    "btc": "$64,600",
+    "btcChange": "-0.12%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
@@ -64,8 +64,8 @@
   "fearGreed": {
     "score": 37,
     "classification": "Fear",
-    "change1d": "-5",
-    "change1w": "-10"
+    "change1d": "+0",
+    "change1w": "-4"
   },
   "screener": [
     {
@@ -83,32 +83,32 @@
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.77",
-      "change": "+12.19%"
+      "value": "18.18",
+      "change": "-3.14%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4018.80",
-      "change": "+0.67%"
+      "value": "$4016.00",
+      "change": "-0.07%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$81.78",
-      "change": "+4.47%"
+      "value": "$81.71",
+      "change": "-0.09%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.75",
-      "change": "-0.01%"
+      "value": "100.86",
+      "change": "+0.09%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,455",
-      "change": "-0.52%"
+      "value": "$64,600",
+      "change": "-0.12%"
     }
   ],
   "economic": [
@@ -200,6 +200,13 @@
       "verdict": "PASS",
       "result": null,
       "actualChange": null
+    },
+    {
+      "date": "2026-07-20",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
     }
   ],
   "analysisModel": "gemini-3.5-flash",
@@ -209,36 +216,36 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Market valuation relative to overall economic output indicates that equities are trading at a premium.",
+        "text": "The overall market capitalization relative to economic output signals that equity valuations remain elevated.",
         "basedOn": [
           "buffettIndicator"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "The cyclically adjusted price-to-earnings ratio shows that long-term stock valuations remain highly elevated compared to historical earnings.",
+        "text": "Long-term valuation metrics based on cyclically adjusted earnings indicate that stocks are trading at a significant premium.",
         "basedOn": [
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment has shifted toward apprehension, indicating growing anxiety in the broader market.",
+        "text": "Market sentiment has shifted into fearful territory, which often indicates growing near-term anxiety among participants.",
         "basedOn": [
           "fearGreedValue"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Financial headlines are raising concerns about whether a small group of leading tech stocks can sustain the broader equity market.",
+        "text": "Market strategists are suggesting that it may be time to move past discussing a concentrated group of dominant technology stocks.",
         "basedOn": [
-          "headline_3"
+          "headline_8"
         ],
-        "direction": "supports_bearish"
+        "direction": "neutral"
       }
     ],
-    "interpretation": "Market valuations remain highly elevated, consistent with our previous analysis, but we now observe growing fear and hesitation among investors. While the underlying economic indicators show moderate growth, the high concentration in leading equities poses a risk. Value investors should remain patient and wait for wider margins of safety before deploying capital.",
-    "wisdom": "Price is what you pay, value is what you get; when market valuations are stretched and fear begins to creep in, the disciplined investor focuses on preserving capital and waiting for true bargains."
+    "interpretation": "While overall market prices continue to hover above their long-term moving averages, underlying systemic valuations remain highly stretched relative to historical earnings and economic output. The primary shift from our prior outlook is a deepening of market anxiety, which presents a favorable environment for patient allocators searching for individual discrepancies between price and intrinsic value. Investors should maintain high standards of quality and avoid chasing overvalued market leaders.",
+    "wisdom": "Price is what you pay, value is what you get, and a margin of safety is best built when market anxiety begins to discount asset prices."
   },
   "sources": [
     "CNN Fear & Greed",
