@@ -29,6 +29,10 @@ on:
         description: 'Check freshness and log the result, but do NOT open an issue'
         type: boolean
         default: false
+      validate_telegram:
+        description: 'Validate the TELEGRAM_BOT_TOKEN secret (getMe + getChat only — sends NO message)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -118,3 +122,24 @@ jobs:
           else
             echo "Telegram send failed (HTTP ${HTTP}) — the GitHub Issue remains the primary alert."
           fi
+
+      # Manual-only validation of the announcement path WITHOUT posting anything:
+      # getMe proves the token is valid; getChat proves the bot can see the channel.
+      # Responses are reduced to ok/username/title — the token itself is never echoed.
+      - name: Validate Telegram credentials (no message sent)
+        if: github.event.inputs.validate_telegram == 'true'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          if [ -z "${TG_TOKEN}" ]; then
+            echo "FAIL: TELEGRAM_BOT_TOKEN secret is not set."
+            exit 1
+          fi
+          ME=$(curl -s "https://api.telegram.org/bot${TG_TOKEN}/getMe")
+          echo "getMe ok: $(echo "${ME}" | jq -r '.ok') — bot: $(echo "${ME}" | jq -r '.result.username // "n/a"')"
+          CHAT=$(curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/getChat" \
+            --data-urlencode "chat_id=@n8nMarketPulse")
+          echo "getChat ok: $(echo "${CHAT}" | jq -r '.ok') — channel: $(echo "${CHAT}" | jq -r '.result.title // "n/a"')"
+          [ "$(echo "${ME}" | jq -r '.ok')" = "true" ] && [ "$(echo "${CHAT}" | jq -r '.ok')" = "true" ] \
+            && echo "VALIDATED: the watchdog can announce to the channel." \
+            || { echo "FAIL: token or channel access is not working."; exit 1; }
