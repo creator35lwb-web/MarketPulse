@@ -1,7 +1,7 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-20T08:30:26.422Z",
-  "dateLabel": "Monday, July 20, 2026",
+  "generatedAt": "2026-07-21T08:30:34.600Z",
+  "dateLabel": "Tuesday, July 21, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -9,18 +9,18 @@
   },
   "dashboard": {},
   "facts": {
-    "csi300": "4,598.32",
-    "csi300Change": "+1.53%",
-    "sseComposite": "3,796.28",
-    "sseCompositeChange": "+0.85%",
-    "szseComponent": "13,610.23",
-    "szseComponentChange": "-0.71%",
-    "hangSeng": "25,143.05",
-    "hangSengChange": "+2.36%",
-    "gold": "$4,030.00",
-    "goldChange": "+0.28%",
+    "csi300": "4,739.23",
+    "csi300Change": "+3.06%",
+    "sseComposite": "3,864.37",
+    "sseCompositeChange": "+2.66%",
+    "szseComponent": "14,264.29",
+    "szseComponentChange": "+4.07%",
+    "hangSeng": "25,132.29",
+    "hangSengChange": "-0.04%",
+    "gold": "$4,071.50",
+    "goldChange": "+1.38%",
     "usdCny": "6.7658",
-    "usdCnyChange": "-0.03%",
+    "usdCnyChange": "+0.12%",
     "gdpValue": "+4.96%",
     "cpiValue": "0.06%",
     "unemploymentValue": "4.62%"
@@ -30,38 +30,38 @@
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "4,598.32",
-      "change": "+1.53%"
+      "value": "4,739.23",
+      "change": "+3.06%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "3,796.28",
-      "change": "+0.85%"
+      "value": "3,864.37",
+      "change": "+2.66%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "13,610.23",
-      "change": "-0.71%"
+      "value": "14,264.29",
+      "change": "+4.07%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "25,143.05",
-      "change": "+2.36%"
+      "value": "25,132.29",
+      "change": "-0.04%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4,030.00",
-      "change": "+0.28%"
+      "value": "$4,071.50",
+      "change": "+1.38%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
       "value": "6.7658",
-      "change": "-0.03%"
+      "change": "+0.12%"
     }
   ],
   "economic": [
@@ -84,10 +84,10 @@
       "value": "4.62%"
     }
   ],
-  "watchlist": "▲ Moutai (600519.SS): ¥1,327.50 (+5.95%)\n▲ CATL (300750.SZ): ¥376.43 (+4.56%)\n▲ BYD (002594.SZ): ¥93.92 (+0.48%)\n▲ Alibaba (9988.HK): HK$116.80 (+3.73%)\n▲ Tencent (0700.HK): HK$477.80 (+3.51%)",
+  "watchlist": "▼ Moutai (600519.SS): ¥1,308.00 (-1.47%)\n▲ CATL (300750.SZ): ¥382.20 (+1.53%)\n▲ BYD (002594.SZ): ¥94.30 (+0.40%)\n▲ Alibaba (9988.HK): HK$117.00 (+0.17%)\n▼ Tencent (0700.HK): HK$474.00 (-0.80%)",
   "trackRecord": {
-    "accuracy": "0/3 (0%)",
-    "last": "Bearish (2026-07-17) → market moved +1.53% → Miss"
+    "accuracy": "1/4 (25%)",
+    "last": "Cautiously Bullish (2026-07-20) → market moved +3.06% → Correct"
   },
   "history": [
     {
@@ -129,6 +129,13 @@
       "date": "2026-07-20",
       "sentiment": "Cautiously Bullish",
       "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "+3.06%"
+    },
+    {
+      "date": "2026-07-21",
+      "sentiment": "Bullish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -136,44 +143,77 @@
   "analysisModel": "gemini-3.5-flash",
   "analysisProvider": "Google",
   "analysis": {
-    "sentiment": "Cautiously Bullish",
-    "confidence": "Medium",
+    "sentiment": "Bullish",
+    "confidence": "High",
     "claims": [
       {
-        "text": "Major onshore and offshore equity indices rebounded significantly, showing positive movement after previous declines.",
+        "text": "Major domestic A-share benchmarks surged significantly, led by strong gains in the Shenzhen and Shanghai indices.",
         "basedOn": [
           "csi300Change",
           "sseCompositeChange",
-          "hangSengChange"
+          "szseComponentChange"
         ],
         "direction": "supports_bullish"
       },
       {
-        "text": "The Chinese currency appreciated slightly against the United States dollar.",
+        "text": "Regulators pledged to maintain a stable market environment as A-shares rebounded on coordinated purchasing.",
+        "basedOn": [
+          "headline_1"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "The Hong Kong benchmark showed a minor decline, diverging from the mainland rallies.",
+        "basedOn": [
+          "hangSengChange"
+        ],
+        "direction": "neutral"
+      },
+      {
+        "text": "The Chinese currency depreciated slightly against the greenback.",
         "basedOn": [
           "usdCnyChange"
         ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "There is a notable divergence within domestic stock indices as some benchmarks fell while others rallied.",
-        "basedOn": [
-          "szseComponentChange",
-          "headline_2"
-        ],
-        "direction": "neutral"
-      },
-      {
-        "text": "Market outlooks continue to highlight that the future of Chinese equities and economic performance is closely tied to the United States.",
-        "basedOn": [
-          "headline_7"
-        ],
-        "direction": "neutral"
+        "direction": "supports_bearish"
       }
     ],
-    "interpretation": "Unlike the previous session where markets fell broadly and the currency weakened, today we saw a strong rebound across major onshore and offshore benchmarks alongside a slight appreciation of the Renminbi. However, the domestic market remains highly fragmented as evidenced by the divergence in certain indices. Investors should remain mindful of geopolitical factors as long-term outlooks continue to hinge on relations with external trading partners.",
-    "wisdom": "True value investors look past short-term index divergence and macro noise, focusing instead on high-quality companies with robust competitive advantages that can weather global economic cycles."
+    "interpretation": "Onshore equities experienced a much stronger and more coordinated surge compared to the previous period, bolstered by explicit regulatory commitments to market stability. Meanwhile, offshore equities failed to participate in the rally, and the domestic currency reversed its previous appreciation to weaken slightly against the greenback. This creates a sharper divergence between onshore policy-driven momentum and offshore caution.",
+    "wisdom": "Policy-driven market recoveries offer excellent entry points for quality companies, but investors should focus on intrinsic business strength rather than relying solely on temporary regulatory interventions."
   },
+  "news": [
+    {
+      "title": "CSRC’s Wu vows ‘stable market’ as A-shares rebound on concerted buying",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQb0dDcl9iYXdKNkFONmJmYzYzRF8wWlpYb214VjBua0VFUkNQN0ZqdjdqdlFvNmxaUURtMGJOV0lMRUVNa1FHdi1SMXVCQlo4TkdqWFhkY1daWFF2QW5Bd3pTWlpvWHVMcXBVSHBHQUJTdXJCeTVyc1pZdkFWZVRXal8wTjBZYkFWb1BwSVlZdFo4TExUVXBEMGVYdmxjOWZ2cy15a0o2eXhIWmhITVVsaDkxMFhPMVY4ZVJjMUJqLU1QTU9xZ1hVeNIByAFBVV95cUxQclRwdmFyYzRxN216Q3AzZWFHQkJVblp6NDdNZFZzd0JOVEE1YVk5RU1xRjVXT2xnWlNKcm5hQmp4UUJacEstcmladVhrdWwxYV9zWHFpUi1zdkxIMWY1ZWF0MXRwNzlEX3haSHJpQlhfa2FHYVdnUWFKMTZUcUVTS0lhMHdXcG8xeDg5NGdkVnplYzI5YlV2VkhMUERtYk9SajFDVjhDOUFRV0ZKekJQR0ItNzQ5aHR3WFNxLVJ1Qkx6azEwUWczaQ?oc=5"
+    },
+    {
+      "title": "China’s economy grows in 2020 as rebound from virus gains",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPa3dTNklFUXUxWmM2MTFzUUVXdEdLUFRtX1o3WXpMUURROXJFQUptalVvb2YxLUFkNHBIX3ZEZ2JPdE5uYkJoNnphY1FxZUNWYkJSb1RQVEgxWVZBRU1NaGUxZ0ZMS2tEVlFNWXZEM29WUW9OMWw2c29sck41NjNFdFVzeWFaRmxXVkVRUHhmMUtQNWluMHlkeV9hMXVTMHllbnRPUXNBc0tLQQ?oc=5"
+    },
+    {
+      "title": "China’s divergent stock market displays a microcosm of the nation’s economy",
+      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNSzZOQWNIczRYV29icXp3c080QlV0TnJmLW1DSWpuX0tDdS16YV8wY3Q4UXFIZUd6VmhMeHZxZEZMS0luUkRjaFRjOExqbWdiZHhvbjVubFFMWGE0bDE5YV9SZm1adWlRSm0zVkN2QmpGb2tUOW9obG9hb0ZwZTN6NE40YmJpSXJ2bGdtM29PT1J6XzNneG85a3VTVUx2M1kyS1lZZ1o0TmNRbWVWS3JqeC1wLVhVSUl1aU1WSTdpR1VMWEdYWjJuMFNENWF2aHdoTllXaXVmc0rSAdgBQVVfeXFMT1NTbGM0Z2NPYTItNkYtWGdLTDBBaUNINThjcDN6eHQ1ZjJ0X1FQZUZHSDZBbWs2Wjd0eDZYNUo0NGJnQmJXRlNwT2EzQmhGY0k0QWlfWXhwdHEzSzJ3NWtVWU9IdFlFWFZMeE9obE5uWWZXMTZjMXR3czZzdmxfWldSSEI4V3c3cktWeWZGRF9BQVpLQ2VsdzdFR1FhcnhBVHVhemQtSmFQaG82dk90UTdCZ09ZcGN5bXYtSTVBQVhhcXB5THk0SnQ1UHJKT2hiUmhmTWMyVHlK?oc=5"
+    },
+    {
+      "title": "The AI boom, China's walled-in wealth and the financial barriers that separate the two.",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE0xZ1FFYWZXa3IzMzlPRDJpd0xBZm1meEIwMm9WZGMyMTBCNWw0aGoyZjR6b2pkZGpIYTZYRHg1QllxSlJKWmhhdjNoQ1d6cWdha2U3NTBrYzhFbnd0NnkyZkhyb1czSDNXbmxUenFscllNMXc?oc=5"
+    },
+    {
+      "title": "Chinese Economy Is Booming, But Stock Markets Haven’t Recovered in 20 Years",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQSmdkem43cFVrTUpINmRZWG96aTFWS01WeVlMOEIyM21BS21PbHlhRERYNld2aFJKT0RVR1dvV01YZFUyM0IwXzBRNmRMdDFvZmZINERZY1VfZWFHQ3JUSWJBM1JzblZvZ2hDSm5EYTNhejR2VDh1S1ZUZmNGQnBQX0VjcDI2dDlDQW5vY0FWeWloalR6a2JMN20ycWlHMVRBN2diMQ?oc=5"
+    },
+    {
+      "title": "7 Best-Performing China Stocks for July 2026",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9raWRYMHpiaEt6dzBFYVA1Z1otb05UNlQzaV9JSVJlZ210T2IteDNqZ0ZLWG9tay1RdFVBcnNKeVRKRHFTVVdwRVdBSFpRVy02UndpY1ViVHlDYkpsWmJHVXN4VGd5UC12?oc=5"
+    },
+    {
+      "title": "If you're surprised by how well the stock market is doing, so is Jamie Dimon",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOQ05ONS1uRV9SZGFzOG5BLVZIbFpsXzdQQTlKRGU3Y29qMEtHTldXMDJBaWF2WHVnTUhpZFBrWXNnTDVyOUdoMnE1NFIyVzJmOTNCajJUQmZCWDVRUW5wX0R0VHRickpJN08yNEVNalNaVHdIenppUUFYNUg3NjFVaDMxLVVvYURiOC1kaUFrNENmUmtCREw0?oc=5"
+    },
+    {
+      "title": "Who ate all the Chinese stock market returns?",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5YNGVGYWRRTmpPWUdWYXJHZ1BsV1FESkVaX0hlQm80dW55VjZkZXFqTjVIZ1E5dS1wU3ZpRlRzQUt4LVM0bmRGUnlFLU9YcHFQWXI3di14M3pHNjJtRzI0VGVpRWt1RGVMb3BVc2ppLXE?oc=5"
+    }
+  ],
   "sources": [
     "Yahoo Finance",
     "World Bank",
