@@ -48,6 +48,7 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
 
       - name: Open an alert issue if a digest is missing
+        id: issue
         if: steps.check.outputs.alert == 'true' && github.event.inputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,3 +82,39 @@ jobs:
           )
           gh issue create --title "${TITLE}" --body "${BODY}"
           echo "Opened alert issue: ${TITLE}"
+          echo "created=true" >> "$GITHUB_OUTPUT"
+
+      # Presence when absent: subscribers hear "no digest today" even with the host fully off.
+      # Runs only when a NEW alert issue was just opened (same dedupe as the issue itself), and
+      # never fails the build — the Issue above stays the primary alert if Telegram is down.
+      # Requires the TELEGRAM_BOT_TOKEN repo secret; silently skips until it is configured.
+      - name: Announce the missed digest on Telegram
+        if: steps.issue.outputs.created == 'true'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          EDITIONS: ${{ steps.check.outputs.editions }}
+          TODAY: ${{ steps.check.outputs.today }}
+        run: |
+          if [ -z "${TG_TOKEN}" ]; then
+            echo "TELEGRAM_BOT_TOKEN secret not set — skipping the Telegram announcement."
+            exit 0
+          fi
+          TEXT="📡 <b>MarketPulse status — ${TODAY}</b>
+
+          Today's ${EDITIONS} digest did not publish — the host machine is offline (or the market is closed and the operator is away).
+
+          No stale data was sent: when a run can't verify fresh numbers, it publishes nothing. The last verified digest remains on the dashboard:
+          https://creator35lwb-web.github.io/MarketPulse/
+
+          Service resumes with the next scheduled run."
+          HTTP=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+            "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=@n8nMarketPulse" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "disable_web_page_preview=true")
+          if [ "${HTTP}" = "200" ]; then
+            echo "Telegram status announcement sent."
+          else
+            echo "Telegram send failed (HTTP ${HTTP}) — the GitHub Issue remains the primary alert."
+          fi
