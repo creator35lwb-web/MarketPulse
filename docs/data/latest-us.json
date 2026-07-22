@@ -1,10 +1,12 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-21T13:01:19.637Z",
-  "dateLabel": "Tuesday, July 21, 2026",
+  "generatedAt": "2026-07-22T13:01:09.570Z",
+  "dateLabel": "Wednesday, July 22, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "DEGRADED",
+    "missing": [
+      "CPI"
+    ],
     "suspect": []
   },
   "dashboard": {
@@ -16,99 +18,103 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.6",
+      "value": "41.0",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.37%",
+      "value": "+0.39%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+6.5%",
+      "value": "+7.4%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "139%",
-    "shillerPE": "40.6",
-    "yieldCurve": "+0.37%",
-    "sp500VsMa200": "+6.5%",
+    "shillerPE": "41.0",
+    "yieldCurve": "+0.39%",
+    "sp500VsMa200": "+7.4%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 37,
-    "sp500": "7443.28",
-    "sp500Change": "-0.19%",
-    "dowJones": "51839.26",
-    "dowJonesChange": "-0.59%",
-    "vix": "17.93",
-    "vixChange": "-3.86%",
-    "gold": "$4063.80",
-    "goldChange": "+1.19%",
-    "oil": "$84.01",
-    "oilChange": "+1.85%",
-    "dxy": "101.01",
-    "dxyChange": "+0.06%",
-    "btc": "$66,509",
-    "btcChange": "+1.99%",
+    "fearGreedValue": 41,
+    "sp500": "7509.20",
+    "sp500Change": "+0.89%",
+    "dowJones": "52224.64",
+    "dowJonesChange": "+0.74%",
+    "vix": "17.51",
+    "vixChange": "+2.70%",
+    "gold": "$4123.40",
+    "goldChange": "+1.15%",
+    "oil": "$87.05",
+    "oilChange": "+3.21%",
+    "dxy": "101.14",
+    "dxyChange": "-0.03%",
+    "btc": "$65,588",
+    "btcChange": "-1.38%",
     "gdpValue": "+2.1% (QoQ)",
-    "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.55%",
-    "treasury2Y": "4.18%"
+    "treasury10Y": "4.60%",
+    "treasury2Y": "4.21%",
+    "googlChange": "-1.38%",
+    "babaChange": "-1.97%",
+    "adbeChange": "-3.23%",
+    "sofiChange": "+3.70%",
+    "asmlChange": "+3.59%"
   },
   "fearGreed": {
-    "score": 37,
+    "score": 41,
     "classification": "Fear",
-    "change1d": "-1",
-    "change1w": "-4"
+    "change1d": "+0",
+    "change1w": "+0"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7443.28",
-      "change": "-0.19%"
+      "value": "7509.20",
+      "change": "+0.89%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "51839.26",
-      "change": "-0.59%"
+      "value": "52224.64",
+      "change": "+0.74%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "17.93",
-      "change": "-3.86%"
+      "value": "17.51",
+      "change": "+2.70%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4063.80",
-      "change": "+1.19%"
+      "value": "$4123.40",
+      "change": "+1.15%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$84.01",
-      "change": "+1.85%"
+      "value": "$87.05",
+      "change": "+3.21%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.01",
-      "change": "+0.06%"
+      "value": "101.14",
+      "change": "-0.03%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$66,509",
-      "change": "+1.99%"
+      "value": "$65,588",
+      "change": "-1.38%"
     }
   ],
   "economic": [
@@ -120,9 +126,9 @@
     },
     {
       "label": "Inflation/CPI",
-      "period": "Jun 2026",
+      "period": "N/A",
       "factKey": "cpiValue",
-      "value": "3.46%"
+      "value": "N/A"
     },
     {
       "label": "Unemployment",
@@ -138,18 +144,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.55%"
+      "value": "4.60%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.18%"
+      "value": "4.21%"
     }
   ],
-  "watchlist": "  GOOGL: $351.99 (+1.51%)\n  BABA: $120.34 (+4.67%)\n  ADBE: $234.74 (-1.06%)\n  SOFI: $17.01 (-1.56%)\n  ASML: $1739.02 (-0.49%)",
+  "watchlist": "  GOOGL: $347.15 (-1.38%)\n  BABA: $117.97 (-1.97%)\n  ADBE: $227.16 (-3.23%)\n  SOFI: $17.64 (+3.70%)\n  ASML: $1801.51 (+3.59%)",
   "trackRecord": {
-    "accuracy": "3/4 (75%)",
-    "last": "Cautiously Bearish (2026-07-20) → market moved -0.19% → Correct"
+    "accuracy": "3/5 (60%)",
+    "last": "Cautiously Bearish (2026-07-21) → market moved +0.89% → Miss"
   },
   "history": [
     {
@@ -212,80 +218,87 @@
       "date": "2026-07-21",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.89%"
+    },
+    {
+      "date": "2026-07-22",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "llama-3.3-70b-versatile",
-  "analysisProvider": "Groq",
+  "analysisModel": "gemini-3.6-flash",
+  "analysisProvider": "Google",
   "analysis": {
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "The overall market capitalization relative to economic output signals that equity valuations remain elevated",
+        "text": "The broad market output valuation ratio indicates equity prices remain elevated above historical fair value.",
         "basedOn": [
           "buffettIndicator"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Long-term valuation metrics based on cyclically adjusted earnings indicate that stocks are trading at a significant premium",
+        "text": "Long term cyclical price to earnings valuations reflect extreme market optimism and depressed margin of safety.",
         "basedOn": [
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Market sentiment has shifted into fearful territory, which often indicates growing near-term anxiety among participants",
+        "text": "Investor sentiment continues to reflect elevated widespread market anxiety.",
         "basedOn": [
           "fearGreedValue"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Some market participants are discussing the potential risks and costs associated with healthcare and retirement",
+        "text": "A major technological shift is projected to create a natural gas supply deficit.",
         "basedOn": [
-          "headline_2"
+          "headline_1"
         ],
         "direction": "neutral"
       }
     ],
-    "interpretation": "The current market conditions suggest that investors should exercise caution due to elevated valuations and fearful market sentiment. However, some market participants are discussing various topics that may impact the market, including healthcare and retirement costs. This mix of signals requires careful consideration for a value investor.",
-    "wisdom": "It is essential to be disciplined and patient, focusing on the intrinsic value of companies rather than their stock prices, as Mr. Buffett has often emphasized."
+    "interpretation": "Compared to the previous assessment, market anxiety remains prevailing while energy price pressures and high cyclical valuations continue to constrain potential value opportunities. Overall market pricing stays well above long-term economic benchmarks, offering minimal margin of safety for new commitments. Disciplined investors should preserve liquidity and await clear mispricings in individual high-quality franchises.",
+    "wisdom": "Price is what you pay, value is what you get. Extraordinary valuation levels require patience and an unrelenting demand for a wide margin of safety."
   },
   "news": [
     {
-      "title": "It's getting easier for terminally ill people to end their own lives. What to know as laws change.",
-      "url": "https://www.marketwatch.com/story/its-getting-easier-for-terminally-ill-people-to-end-their-own-lives-what-to-know-as-laws-change-4fa04c54?mod=mw_rss_topstories"
+      "title": "Artificial intelligence will drive an unprecedented natural-gas deficit, this investor warns. Here are the stocks to buy before the crunch.",
+      "url": "https://www.marketwatch.com/story/artificial-intelligence-will-drive-an-unprecedented-natural-gas-deficit-this-investor-warns-here-are-the-stocks-to-buy-before-a-crunch-0d011a29?mod=mw_rss_topstories"
     },
     {
-      "title": "Your healthcare could now cost $185,500 in retirement  -  and that doesn't include long-term care",
-      "url": "https://www.marketwatch.com/story/your-healthcare-could-now-cost-185-500-in-retirement-and-that-doesnt-include-long-term-care-5f4f6da8?mod=mw_rss_topstories"
+      "title": "Yes, the AI stock selloff looks terrifying. But it might actually save the bull market.",
+      "url": "https://www.marketwatch.com/story/yes-the-ai-stock-selloff-looks-terrifying-but-it-might-actually-save-the-bull-market-3bef59be?mod=mw_rss_topstories"
     },
     {
-      "title": "Alphabet is pouring record cash into data centers, and earnings will show whether that's paying off",
-      "url": "https://www.marketwatch.com/story/alphabet-is-pouring-record-cash-into-data-centers-and-earnings-will-show-if-thats-paying-off-fad38a2c?mod=mw_rss_topstories"
+      "title": "'I have a $2,000 deductible': I reported a cracked windshield on my Hertz rental car. Can they charge me?",
+      "url": "https://www.marketwatch.com/story/i-have-a-2-000-deductible-i-reported-a-cracked-windshield-on-my-hertz-rental-car-can-they-charge-me-1e07d28a?mod=mw_rss_topstories"
     },
     {
-      "title": "Novo Nordisk sues Eli Lilly over ads comparing GLP-1 medications",
-      "url": "https://www.marketwatch.com/story/novo-nordisk-sues-eli-lilly-over-ads-comparing-glp-1-medications-6b223080?mod=mw_rss_topstories"
-    },
-    {
-      "title": "GM's stock bounces back as revenue grows for the first time in over a year",
-      "url": "https://www.marketwatch.com/story/gms-stock-bounces-back-as-revenue-grows-for-the-first-time-in-over-a-year-d5d95804?mod=mw_rss_topstories"
-    },
-    {
-      "title": "Why are gasoline prices rising faster than oil prices? Blame it on the 'crack.'",
-      "url": "https://www.marketwatch.com/story/why-are-gasoline-prices-rising-faster-than-oil-prices-blame-it-on-the-crack-22b454e7?mod=mw_rss_topstories"
-    },
-    {
-      "title": "The co-founder of Stocktwits dumped chip stocks before their 20% slide. Where he's putting his money now.",
-      "url": "https://www.marketwatch.com/story/the-co-founder-of-stocktwits-dumped-chip-stocks-before-a-20-slide-where-hes-putting-his-money-now-07e8724f?mod=mw_rss_topstories"
+      "title": "Having $100,000 invested was once the gateway to building real wealth. For young people today, it's double that.",
+      "url": "https://www.marketwatch.com/story/having-100-000-invested-was-once-the-gateway-to-building-real-wealth-for-young-people-today-its-double-that-dc96fcc7?mod=mw_rss_topstories"
     },
     {
       "title": "Do I use $300,000 of my $1.2 million retirement savings so my daughter can attend her dream college?",
       "url": "https://www.marketwatch.com/story/do-i-use-300-000-of-my-1-2-million-retirement-savings-so-my-daughter-can-attend-her-dream-college-50842e7a?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Bond-market weakness makes a strong investment case for this unloved sector, strategist says",
+      "url": "https://www.marketwatch.com/story/bond-market-weakness-makes-a-strong-investment-case-for-this-unloved-sector-strategist-says-2cf258f8?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Oil prices climb to six-week high as hopes of de-escalation in Iran diminish",
+      "url": "https://www.marketwatch.com/story/oil-prices-climb-to-six-week-high-as-hopes-of-de-escalation-in-iran-diminish-b5fb0942?mod=mw_rss_topstories"
+    },
+    {
+      "title": "The Treasury market is on the verge of a worrying milestone not seen since 2007",
+      "url": "https://www.marketwatch.com/story/the-treasury-market-is-on-the-verge-of-a-worrying-milestone-not-seen-since-2007-81158082?mod=mw_rss_topstories"
     }
   ],
   "sources": [
