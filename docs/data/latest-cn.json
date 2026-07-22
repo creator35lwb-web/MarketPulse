@@ -1,7 +1,7 @@
 {
   "edition": "CN",
-  "generatedAt": "2026-07-21T08:30:34.600Z",
-  "dateLabel": "Tuesday, July 21, 2026",
+  "generatedAt": "2026-07-22T08:30:21.473Z",
+  "dateLabel": "Wednesday, July 22, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -9,18 +9,18 @@
   },
   "dashboard": {},
   "facts": {
-    "csi300": "4,739.23",
-    "csi300Change": "+3.06%",
-    "sseComposite": "3,864.37",
-    "sseCompositeChange": "+2.66%",
-    "szseComponent": "14,264.29",
-    "szseComponentChange": "+4.07%",
-    "hangSeng": "25,132.29",
-    "hangSengChange": "-0.04%",
-    "gold": "$4,071.50",
-    "goldChange": "+1.38%",
-    "usdCny": "6.7658",
-    "usdCnyChange": "+0.12%",
+    "csi300": "4,717.24",
+    "csi300Change": "-0.46%",
+    "sseComposite": "3,867.03",
+    "sseCompositeChange": "+1.86%",
+    "szseComponent": "14,061.44",
+    "szseComponentChange": "+3.32%",
+    "hangSeng": "24,892.66",
+    "hangSengChange": "-0.95%",
+    "gold": "$4,119.00",
+    "goldChange": "+1.05%",
+    "usdCny": "6.7622",
+    "usdCnyChange": "+0.08%",
     "gdpValue": "+4.96%",
     "cpiValue": "0.06%",
     "unemploymentValue": "4.62%"
@@ -30,38 +30,38 @@
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "4,739.23",
-      "change": "+3.06%"
+      "value": "4,717.24",
+      "change": "-0.46%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "3,864.37",
-      "change": "+2.66%"
+      "value": "3,867.03",
+      "change": "+1.86%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "14,264.29",
-      "change": "+4.07%"
+      "value": "14,061.44",
+      "change": "+3.32%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "25,132.29",
-      "change": "-0.04%"
+      "value": "24,892.66",
+      "change": "-0.95%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4,071.50",
-      "change": "+1.38%"
+      "value": "$4,119.00",
+      "change": "+1.05%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
-      "value": "6.7658",
-      "change": "+0.12%"
+      "value": "6.7622",
+      "change": "+0.08%"
     }
   ],
   "economic": [
@@ -84,10 +84,10 @@
       "value": "4.62%"
     }
   ],
-  "watchlist": "▼ Moutai (600519.SS): ¥1,308.00 (-1.47%)\n▲ CATL (300750.SZ): ¥382.20 (+1.53%)\n▲ BYD (002594.SZ): ¥94.30 (+0.40%)\n▲ Alibaba (9988.HK): HK$117.00 (+0.17%)\n▼ Tencent (0700.HK): HK$474.00 (-0.80%)",
+  "watchlist": "▼ Moutai (600519.SS): ¥1,305.00 (-0.23%)\n▼ CATL (300750.SZ): ¥372.26 (-2.60%)\n▼ BYD (002594.SZ): ¥91.57 (-2.90%)\n▼ Alibaba (9988.HK): HK$113.60 (-2.91%)\n▼ Tencent (0700.HK): HK$440.60 (-7.05%)",
   "trackRecord": {
-    "accuracy": "1/4 (25%)",
-    "last": "Cautiously Bullish (2026-07-20) → market moved +3.06% → Correct"
+    "accuracy": "1/5 (20%)",
+    "last": "Bullish (2026-07-21) → market moved -0.46% → Miss"
   },
   "history": [
     {
@@ -136,51 +136,35 @@
       "date": "2026-07-21",
       "sentiment": "Bullish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "-0.46%"
+    },
+    {
+      "date": "2026-07-22",
+      "sentiment": "Cautiously Bullish",
+      "verdict": "FAIL",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "gemini-3.5-flash",
-  "analysisProvider": "Google",
+  "analysisModel": "llama-3.3-70b-versatile",
+  "analysisProvider": "Groq",
   "analysis": {
-    "sentiment": "Bullish",
-    "confidence": "High",
-    "claims": [
-      {
-        "text": "Major domestic A-share benchmarks surged significantly, led by strong gains in the Shenzhen and Shanghai indices.",
-        "basedOn": [
-          "csi300Change",
-          "sseCompositeChange",
-          "szseComponentChange"
-        ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "Regulators pledged to maintain a stable market environment as A-shares rebounded on coordinated purchasing.",
-        "basedOn": [
-          "headline_1"
-        ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "The Hong Kong benchmark showed a minor decline, diverging from the mainland rallies.",
-        "basedOn": [
-          "hangSengChange"
-        ],
-        "direction": "neutral"
-      },
-      {
-        "text": "The Chinese currency depreciated slightly against the greenback.",
-        "basedOn": [
-          "usdCnyChange"
-        ],
-        "direction": "supports_bearish"
-      }
-    ],
-    "interpretation": "Onshore equities experienced a much stronger and more coordinated surge compared to the previous period, bolstered by explicit regulatory commitments to market stability. Meanwhile, offshore equities failed to participate in the rally, and the domestic currency reversed its previous appreciation to weaken slightly against the greenback. This creates a sharper divergence between onshore policy-driven momentum and offshore caution.",
-    "wisdom": "Policy-driven market recoveries offer excellent entry points for quality companies, but investors should focus on intrinsic business strength rather than relying solely on temporary regulatory interventions."
+    "sentiment": "Unavailable",
+    "confidence": "",
+    "claims": [],
+    "interpretation": "",
+    "wisdom": ""
   },
   "news": [
+    {
+      "title": "Opinion | China’s stock market intervention is a confidence booster",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPaTc0bGhSX21DaEtNVDJRNVFGUG9ibVptOEVpeWhjMWtfZkJnYWJnMlBSZ3dlaTZYb1c2bElFek80VHYteTJlX1FGN2xlcl93UTNLRFFla0g5NVVVWngxRThZcE9aT3BxNVJFV3RMVkFPdTh2T3VaUm84RkpQNDhYcHY4T2VteWRKX2hNYllTX0Y5SHNUZVl6R2dnd0F1eS0wLXk2aHhpONIBpwFBVV95cUxNNXI2ejc5Q3BYZkhVVmZocmlWWXY4WXk4YVE1VnczUk9Mak5uN1ZlbXVnakJJSlQ1eWh5cG1nSmxTNUtySzU2Y0QxYVpJQ3JZbERWSG1TZ0tmbDJHTnpvQjhKMDAtWEZLLW1IMTBtNFZqTjh2X1ZjdGlDb0N6V0tNVzAxSTZXZ2dHV3c1a0YwTlM3XzJpZ3ZjTkZxU2RKZjRuUVlZU3FSbw?oc=5"
+    },
+    {
+      "title": "China breaks step with global markets, and investors buy in",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNQ3h0djZqeHZyVGNZTGlJbXFQMmhSQ1NobzBncUpLV2dLcnBJV0JVQWhjUlhQcDZCVWVxSzJiSWNlelJtU1NoUkt3eTkxS1FBRUhZbWx6aExMLWtrXy1lVkZ1ZVE0blFHc1BRUmc4MDBoWVAwS3pDSjRFeDNBYUUyd3pqOU42R2ZpM0FUV19SVEFmejN2ZElnSThpbUExX1l2?oc=5"
+    },
     {
       "title": "CSRC’s Wu vows ‘stable market’ as A-shares rebound on concerted buying",
       "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQb0dDcl9iYXdKNkFONmJmYzYzRF8wWlpYb214VjBua0VFUkNQN0ZqdjdqdlFvNmxaUURtMGJOV0lMRUVNa1FHdi1SMXVCQlo4TkdqWFhkY1daWFF2QW5Bd3pTWlpvWHVMcXBVSHBHQUJTdXJCeTVyc1pZdkFWZVRXal8wTjBZYkFWb1BwSVlZdFo4TExUVXBEMGVYdmxjOWZ2cy15a0o2eXhIWmhITVVsaDkxMFhPMVY4ZVJjMUJqLU1QTU9xZ1hVeNIByAFBVV95cUxQclRwdmFyYzRxN216Q3AzZWFHQkJVblp6NDdNZFZzd0JOVEE1YVk5RU1xRjVXT2xnWlNKcm5hQmp4UUJacEstcmladVhrdWwxYV9zWHFpUi1zdkxIMWY1ZWF0MXRwNzlEX3haSHJpQlhfa2FHYVdnUWFKMTZUcUVTS0lhMHdXcG8xeDg5NGdkVnplYzI5YlV2VkhMUERtYk9SajFDVjhDOUFRV0ZKekJQR0ItNzQ5aHR3WFNxLVJ1Qkx6azEwUWczaQ?oc=5"
@@ -188,10 +172,6 @@
     {
       "title": "China’s economy grows in 2020 as rebound from virus gains",
       "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPa3dTNklFUXUxWmM2MTFzUUVXdEdLUFRtX1o3WXpMUURROXJFQUptalVvb2YxLUFkNHBIX3ZEZ2JPdE5uYkJoNnphY1FxZUNWYkJSb1RQVEgxWVZBRU1NaGUxZ0ZMS2tEVlFNWXZEM29WUW9OMWw2c29sck41NjNFdFVzeWFaRmxXVkVRUHhmMUtQNWluMHlkeV9hMXVTMHllbnRPUXNBc0tLQQ?oc=5"
-    },
-    {
-      "title": "China’s divergent stock market displays a microcosm of the nation’s economy",
-      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNSzZOQWNIczRYV29icXp3c080QlV0TnJmLW1DSWpuX0tDdS16YV8wY3Q4UXFIZUd6VmhMeHZxZEZMS0luUkRjaFRjOExqbWdiZHhvbjVubFFMWGE0bDE5YV9SZm1adWlRSm0zVkN2QmpGb2tUOW9obG9hb0ZwZTN6NE40YmJpSXJ2bGdtM29PT1J6XzNneG85a3VTVUx2M1kyS1lZZ1o0TmNRbWVWS3JqeC1wLVhVSUl1aU1WSTdpR1VMWEdYWjJuMFNENWF2aHdoTllXaXVmc0rSAdgBQVVfeXFMT1NTbGM0Z2NPYTItNkYtWGdLTDBBaUNINThjcDN6eHQ1ZjJ0X1FQZUZHSDZBbWs2Wjd0eDZYNUo0NGJnQmJXRlNwT2EzQmhGY0k0QWlfWXhwdHEzSzJ3NWtVWU9IdFlFWFZMeE9obE5uWWZXMTZjMXR3czZzdmxfWldSSEI4V3c3cktWeWZGRF9BQVpLQ2VsdzdFR1FhcnhBVHVhemQtSmFQaG82dk90UTdCZ09ZcGN5bXYtSTVBQVhhcXB5THk0SnQ1UHJKT2hiUmhmTWMyVHlK?oc=5"
     },
     {
       "title": "The AI boom, China's walled-in wealth and the financial barriers that separate the two.",
@@ -208,10 +188,6 @@
     {
       "title": "If you're surprised by how well the stock market is doing, so is Jamie Dimon",
       "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOQ05ONS1uRV9SZGFzOG5BLVZIbFpsXzdQQTlKRGU3Y29qMEtHTldXMDJBaWF2WHVnTUhpZFBrWXNnTDVyOUdoMnE1NFIyVzJmOTNCajJUQmZCWDVRUW5wX0R0VHRickpJN08yNEVNalNaVHdIenppUUFYNUg3NjFVaDMxLVVvYURiOC1kaUFrNENmUmtCREw0?oc=5"
-    },
-    {
-      "title": "Who ate all the Chinese stock market returns?",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5YNGVGYWRRTmpPWUdWYXJHZ1BsV1FESkVaX0hlQm80dW55VjZkZXFqTjVIZ1E5dS1wU3ZpRlRzQUt4LVM0bmRGUnlFLU9YcHFQWXI3di14M3pHNjJtRzI0VGVpRWt1RGVMb3BVc2ppLXE?oc=5"
     }
   ],
   "sources": [
