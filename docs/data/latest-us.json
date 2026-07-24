@@ -1,6 +1,6 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-24T14:14:30.195Z",
+  "generatedAt": "2026-07-24T14:15:03.861Z",
   "dateLabel": "Friday, July 24, 2026",
   "health": {
     "status": "OK",
@@ -153,8 +153,8 @@
   ],
   "watchlist": "  GOOGL: $322.24 (+1.43%)\n  BABA: $112.47 (-1.39%)\n  ADBE: $219.40 (+3.41%)\n  SOFI: $16.49 (-0.96%)\n  ASML: $1769.53 (-1.86%)",
   "trackRecord": {
-    "accuracy": "4/6 (67%)",
-    "last": "Cautiously Bearish (2026-07-22) → market moved -0.01% → Correct"
+    "accuracy": "Building history",
+    "last": ""
   },
   "history": [
     {
@@ -242,36 +242,32 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad equity market valuation metrics relative to overall national economic output indicate stocks remain priced above intrinsic historical levels.",
+        "text": "Overall market capitalization relative to national economic output alongside valuation multiples based on historical earnings remain highly stretched, limiting the margin of safety.",
         "basedOn": [
-          "buffettIndicator"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "Cyclically adjusted price to earnings multiples remain significantly elevated above historical averages, narrowing the margin of safety.",
-        "basedOn": [
+          "buffettIndicator",
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Prevailing sentiment indicators demonstrate persistent cautious behavior and widespread apprehension among market participants.",
+        "text": "Long-term Treasury yield momentum presents potential headwind risks for equity valuations.",
         "basedOn": [
-          "fearGreedValue"
+          "headline_4",
+          "treasury10Y"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Major corporate earnings reporting highlights a notable recovery for a prominent semiconductor enterprise.",
+        "text": "Market participant sentiment reflects widespread fear despite broader market index technical strength above long-term moving averages.",
         "basedOn": [
-          "headline_1"
+          "fearGreedValue",
+          "sp500VsMa200"
         ],
-        "direction": "supports_bullish"
+        "direction": "neutral"
       }
     ],
-    "interpretation": "Market valuations remain heavily stretched across structural metrics, maintaining a reduced margin of safety for disciplined investors. While corporate earnings in individual technology firms demonstrate operational turnarounds, macroeconomic bond yields and geopolitical tensions continue to introduce headwinds. Relative to prior analysis, corporate recovery stories have emerged while aggregate market multiples remain demandingly high.",
-    "wisdom": "Price is what you pay, value is what you get, so focus on buying wonderful businesses with high margins of safety rather than chasing market momentum during periods of elevated overall valuations."
+    "interpretation": "Market sentiment remains cautiously bearish as equity valuations remain elevated well past conservative entry points while rising treasury yields increase competition for investor capital. Compared to prior analysis, persistent macroeconomic headlines regarding borrowing costs and inflation headwinds reinforce the need for patience rather than chasing market momentum. Value investors should continue prioritizing high-quality businesses with strong balance sheets and high return on capital, waiting for broader price pullbacks.",
+    "wisdom": "Price is what you pay, value is what you get; when structural market valuations are elevated and yields are rising, demanding a strict margin of safety is essential."
   },
   "news": [
     {
