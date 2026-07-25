@@ -1,10 +1,12 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-24T14:15:03.861Z",
-  "dateLabel": "Friday, July 24, 2026",
+  "generatedAt": "2026-07-25T13:01:11.796Z",
+  "dateLabel": "Saturday, July 25, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "DEGRADED",
+    "missing": [
+      "Unemployment"
+    ],
     "suspect": []
   },
   "dashboard": {
@@ -16,55 +18,54 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.4",
+      "value": "40.5",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.36%",
+      "value": "+0.34%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+5.7%",
+      "value": "+5.8%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "139%",
-    "shillerPE": "40.4",
-    "yieldCurve": "+0.36%",
-    "sp500VsMa200": "+5.7%",
+    "shillerPE": "40.5",
+    "yieldCurve": "+0.34%",
+    "sp500VsMa200": "+5.8%",
     "maSignal": "Golden Cross",
     "fearGreedValue": 39,
-    "sp500": "7407.32",
-    "sp500Change": "-0.01%",
-    "dowJones": "51850.94",
-    "dowJonesChange": "+0.27%",
-    "vix": "18.63",
-    "vixChange": "-0.37%",
-    "gold": "$4060.60",
-    "goldChange": "+0.26%",
-    "oil": "$90.08",
-    "oilChange": "-2.29%",
+    "sp500": "7411.98",
+    "sp500Change": "+0.05%",
+    "dowJones": "51947.25",
+    "dowJonesChange": "+0.46%",
+    "vix": "18.58",
+    "vixChange": "-0.64%",
+    "gold": "$4070.80",
+    "goldChange": "+0.51%",
+    "oil": "$89.31",
+    "oilChange": "-3.12%",
     "dxy": "101.47",
-    "dxyChange": "+0.02%",
-    "btc": "$63,971",
-    "btcChange": "-1.66%",
+    "dxyChange": "-0.00%",
+    "btc": "$64,056",
+    "btcChange": "-0.06%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
-    "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.67%",
-    "treasury2Y": "4.31%",
-    "googlChange": "+1.43%",
-    "babaChange": "-1.39%",
-    "adbeChange": "+3.41%",
-    "sofiChange": "-0.96%",
-    "asmlChange": "-1.86%"
+    "treasury10Y": "4.71%",
+    "treasury2Y": "4.37%",
+    "googlChange": "+0.65%",
+    "babaChange": "-1.68%",
+    "adbeChange": "+6.10%",
+    "sofiChange": "-1.14%",
+    "asmlChange": "-2.55%"
   },
   "fearGreed": {
     "score": 39,
@@ -76,44 +77,44 @@
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7407.32",
-      "change": "-0.01%"
+      "value": "7411.98",
+      "change": "+0.05%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "51850.94",
-      "change": "+0.27%"
+      "value": "51947.25",
+      "change": "+0.46%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.63",
-      "change": "-0.37%"
+      "value": "18.58",
+      "change": "-0.64%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4060.60",
-      "change": "+0.26%"
+      "value": "$4070.80",
+      "change": "+0.51%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$90.08",
-      "change": "-2.29%"
+      "value": "$89.31",
+      "change": "-3.12%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
       "value": "101.47",
-      "change": "+0.02%"
+      "change": "-0.00%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,971",
-      "change": "-1.66%"
+      "value": "$64,056",
+      "change": "-0.06%"
     }
   ],
   "economic": [
@@ -131,9 +132,9 @@
     },
     {
       "label": "Unemployment",
-      "period": "Jun 2026",
+      "period": "N/A",
       "factKey": "unemploymentValue",
-      "value": "4.2%"
+      "value": "N/A"
     },
     {
       "label": "Fed Funds Rate",
@@ -143,18 +144,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.67%"
+      "value": "4.71%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.31%"
+      "value": "4.37%"
     }
   ],
-  "watchlist": "  GOOGL: $322.24 (+1.43%)\n  BABA: $112.47 (-1.39%)\n  ADBE: $219.40 (+3.41%)\n  SOFI: $16.49 (-0.96%)\n  ASML: $1769.53 (-1.86%)",
+  "watchlist": "  GOOGL: $319.74 (+0.65%)\n  BABA: $112.14 (-1.68%)\n  ADBE: $225.11 (+6.10%)\n  SOFI: $16.46 (-1.14%)\n  ASML: $1757.09 (-2.55%)",
   "trackRecord": {
-    "accuracy": "Building history",
-    "last": ""
+    "accuracy": "4/7 (57%)",
+    "last": "Cautiously Bearish (2026-07-24) → market moved +0.05% → Miss"
   },
   "history": [
     {
@@ -231,6 +232,13 @@
       "date": "2026-07-24",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.05%"
+    },
+    {
+      "date": "2026-07-25",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -242,65 +250,69 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Overall market capitalization relative to national economic output alongside valuation multiples based on historical earnings remain highly stretched, limiting the margin of safety.",
+        "text": "The cyclically adjusted price to earnings multiple indicates that equity market valuations remain significantly stretched relative to long term historical averages.",
         "basedOn": [
-          "buffettIndicator",
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Long-term Treasury yield momentum presents potential headwind risks for equity valuations.",
+        "text": "Total market valuation relative to broad national economic output remains well above fair value thresholds, narrowing the required margin of safety.",
         "basedOn": [
-          "headline_4",
-          "treasury10Y"
+          "buffettIndicator"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Market participant sentiment reflects widespread fear despite broader market index technical strength above long-term moving averages.",
+        "text": "Market sentiment reflects fear among individual investors, which may present selective entry opportunities for patient disciplined capital.",
         "basedOn": [
-          "fearGreedValue",
-          "sp500VsMa200"
+          "fearGreedValue"
         ],
-        "direction": "neutral"
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "A major software holdings enterprise recorded substantial positive price momentum during the recent session.",
+        "basedOn": [
+          "adbeChange"
+        ],
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "Market sentiment remains cautiously bearish as equity valuations remain elevated well past conservative entry points while rising treasury yields increase competition for investor capital. Compared to prior analysis, persistent macroeconomic headlines regarding borrowing costs and inflation headwinds reinforce the need for patience rather than chasing market momentum. Value investors should continue prioritizing high-quality businesses with strong balance sheets and high return on capital, waiting for broader price pullbacks.",
-    "wisdom": "Price is what you pay, value is what you get; when structural market valuations are elevated and yields are rising, demanding a strict margin of safety is essential."
+    "interpretation": "Market sentiment remains anchored in cautious fear even as broad market indices trade above long-term trend lines. While individual technology holdings display localized price strength, macro valuation gauges continue to signal limited margin of safety across broader equities. Compared to prior analysis, persistent high market multiples reinforce the need for extreme selectivity and cash preservation.",
+    "wisdom": "Price is what you pay, value is what you get; when market multiples are high and margins of safety are narrow, cash combined with patience serves as the ultimate asset."
   },
   "news": [
     {
-      "title": "Intel earnings show just how dramatically the company has come back from being 'near-dead'",
-      "url": "https://www.marketwatch.com/story/intel-earnings-show-just-how-dramatically-the-company-has-come-back-from-being-near-dead-37f81c38?mod=mw_rss_topstories"
+      "title": "SpaceX isn't the wireless threat that investors fear  -  unless someone breaks this unspoken agreement",
+      "url": "https://www.marketwatch.com/story/spacex-isnt-the-wireless-threat-that-investors-fear-unless-someone-breaks-this-unspoken-agreement-864dab90?mod=mw_rss_topstories"
     },
     {
-      "title": "U.S. economy began to speed up  -  until Iran peace talks failed and oil prices surged again",
-      "url": "https://www.marketwatch.com/story/u-s-economy-began-to-speed-up-until-iran-peace-talks-failed-and-oil-prices-surged-again-3fce66b2?mod=mw_rss_topstories"
+      "title": "We have $8 million in traditional IRAs. Should we tap them to buy a house  -  and take the tax hit?",
+      "url": "https://www.marketwatch.com/story/we-have-8-million-in-traditional-iras-should-we-tap-them-to-buy-a-house-and-take-the-tax-hit-c2478daa?mod=mw_rss_topstories"
     },
     {
-      "title": "Pay raises keep shrinking. Here's how much smaller they'll be next year.",
-      "url": "https://www.marketwatch.com/story/pay-raises-keep-shrinking-heres-how-much-smaller-theyll-be-next-year-3fa51395?mod=mw_rss_topstories"
+      "title": "Investors are in the dark about the Fed's decision this week  -  and that's just how Warsh wants it",
+      "url": "https://www.marketwatch.com/story/investors-are-in-the-dark-about-the-feds-decision-this-week-and-thats-just-how-warsh-wants-it-c9cbfd3f?mod=mw_rss_topstories"
     },
     {
-      "title": "The 30-year Treasury yield is closing in on 5.2%. A surge to 6% could slam stocks.",
-      "url": "https://www.marketwatch.com/story/the-30-year-treasury-yield-is-closing-in-on-5-2-a-surge-to-6-could-slam-stocks-fa9631fb?mod=mw_rss_topstories"
+      "title": "I want to transfer $17,000 in credit-card debt. Why did Wells Fargo offer me only a $4,000 credit limit?",
+      "url": "https://www.marketwatch.com/story/i-wanted-to-transfer-17-000-in-credit-card-debt-why-did-wells-fargo-offer-me-only-a-4-000-credit-limit-7ad0a3f0?mod=mw_rss_topstories"
     },
     {
-      "title": "SAP's stock rises on strong revenue, but analysts warn of guidance risks",
-      "url": "https://www.marketwatch.com/story/saps-stock-rises-on-strong-revenue-but-analysts-warn-of-guidance-risks-654babc9?mod=mw_rss_topstories"
+      "title": "'It's nothing personal': Should I tell my 96-year-old stepmother that I don't want her inheritance?",
+      "url": "https://www.marketwatch.com/story/it-would-feel-like-a-burden-my-stepmother-96-owns-the-house-i-grew-up-in-is-it-wrong-to-tell-her-i-dont-want-to-inherit-it-9d5810c2?mod=mw_rss_topstories"
     },
     {
-      "title": "Why fixing the housing crisis for under-40s could trigger 10% Treasury yields",
-      "url": "https://www.marketwatch.com/story/why-fixing-the-housing-crisis-for-under-40s-could-trigger-10-treasury-yields-04c65b78?mod=mw_rss_topstories"
+      "title": "'We are not romantically involved': I'm marrying my platonic best friend of 20 years. Should I leave him my home?",
+      "url": "https://www.marketwatch.com/story/we-are-not-romantically-involved-im-marrying-my-platonic-best-friend-of-20-years-should-i-leave-him-my-home-3faa0a77?mod=mw_rss_topstories"
     },
     {
-      "title": "Charter sees further 'erosion' of its internet business, sending the stock sharply lower",
-      "url": "https://www.marketwatch.com/story/charter-sees-further-erosion-of-its-internet-business-sending-the-stock-sharply-lower-13ccadfe?mod=mw_rss_topstories"
+      "title": "Would you take $65,000 today, or flip a coin for a chance to win $1.3 million?",
+      "url": "https://www.marketwatch.com/story/would-you-take-65-000-today-or-flip-a-coin-for-a-chance-to-win-1-3-million-d134961a?mod=mw_rss_topstories"
     },
     {
-      "title": "My second husband and I have kids from previous relationships. Should my house go to him or my children if I die first?",
-      "url": "https://www.marketwatch.com/story/i-have-children-from-my-first-marriage-should-my-second-husband-inherit-my-house-if-i-die-d9bd8687?mod=mw_rss_topstories"
+      "title": "I will definitely claim Social Security early. Why do so few people talk about the elephant in the room?",
+      "url": "https://www.marketwatch.com/story/i-will-claim-social-security-early-why-do-so-few-people-talk-about-the-elephant-in-the-room-64820675?mod=mw_rss_topstories"
     }
   ],
   "sources": [
