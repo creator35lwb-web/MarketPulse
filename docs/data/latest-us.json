@@ -1,7 +1,7 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-26T13:01:10.586Z",
-  "dateLabel": "Sunday, July 26, 2026",
+  "generatedAt": "2026-07-27T13:01:51.283Z",
+  "dateLabel": "Monday, July 27, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -44,16 +44,16 @@
     "sp500Change": "+0.05%",
     "dowJones": "51947.25",
     "dowJonesChange": "+0.46%",
-    "vix": "18.58",
-    "vixChange": "-0.64%",
-    "gold": "$4070.80",
-    "goldChange": "+0.51%",
-    "oil": "$89.31",
-    "oilChange": "-3.12%",
-    "dxy": "101.47",
-    "dxyChange": "-0.00%",
-    "btc": "$64,405",
-    "btcChange": "+0.15%",
+    "vix": "17.75",
+    "vixChange": "-4.47%",
+    "gold": "$4084.40",
+    "goldChange": "+0.33%",
+    "oil": "$83.95",
+    "oilChange": "-6.00%",
+    "dxy": "101.41",
+    "dxyChange": "-0.06%",
+    "btc": "$65,021",
+    "btcChange": "-0.48%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
@@ -70,7 +70,7 @@
     "score": 39,
     "classification": "Fear",
     "change1d": "+0",
-    "change1w": "+2"
+    "change1w": "+1"
   },
   "screener": [
     {
@@ -88,32 +88,32 @@
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.58",
-      "change": "-0.64%"
+      "value": "17.75",
+      "change": "-4.47%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4070.80",
-      "change": "+0.51%"
+      "value": "$4084.40",
+      "change": "+0.33%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$89.31",
-      "change": "-3.12%"
+      "value": "$83.95",
+      "change": "-6.00%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.47",
-      "change": "-0.00%"
+      "value": "101.41",
+      "change": "-0.06%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,405",
-      "change": "+0.15%"
+      "value": "$65,021",
+      "change": "-0.48%"
     }
   ],
   "economic": [
@@ -247,6 +247,13 @@
       "verdict": "PASS",
       "result": null,
       "actualChange": null
+    },
+    {
+      "date": "2026-07-27",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
     }
   ],
   "analysisModel": "gemini-3.6-flash",
@@ -256,69 +263,71 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad market valuation measured against national economic output indicates equities remain elevated well above historical fair value.",
+        "text": "Broad market valuation relative to national economic output continues to signal overvaluation, urging disciplined investors to remain cautious.",
         "basedOn": [
-          "buffettIndicator"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "The cyclically adjusted valuation ratio signals persistent structural overvaluation across broad market equities.",
-        "basedOn": [
+          "buffettIndicator",
           "shillerPE"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment reflects fear, which may create selective opportunities to acquire wonderful businesses below intrinsic value.",
+        "text": "Prevailing investor fear signals market anxiety, which can create selective opportunities for value investors searching for a margin of safety.",
         "basedOn": [
           "fearGreedValue"
         ],
         "direction": "supports_bullish"
       },
       {
-        "text": "A major semiconductor manufacturing equipment company on the watchlist experienced notable downward price action.",
+        "text": "Crude oil benchmarks experienced notable price declines amid news of a pause in strikes.",
         "basedOn": [
-          "asmlChange"
+          "oilChange",
+          "headline_8"
         ],
-        "direction": "supports_bearish"
+        "direction": "neutral"
+      },
+      {
+        "text": "A software design firm on the watchlist showed strong positive price movement amidst overall selective market performance.",
+        "basedOn": [
+          "adbeChange"
+        ],
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "Elevated market-wide valuation multiples continue to constrain the availability of broad market bargains, keeping our stance aligned with prior observations. Relative to our previous analysis, price pressure in specialized technology watchlist assets emphasizes that individual equity volatility is surfacing despite high index-level multiples. Value investors should preserve liquidity and insist on a strong margin of safety before deploying capital.",
-    "wisdom": "Price is what you pay, value is what you get, and no market climate justifies compromising on a discount to intrinsic value."
+    "interpretation": "While structural valuation metrics continue to indicate an overvalued broader market, sector dynamics are shifting as energy costs retreat significantly and select individual watchlist holdings rally. Compared to the prior assessment, commodity price easing provides temporary relief, yet aggregate stock prices remain stretched relative to business fundamentals. Value investors should maintain patience, keeping capital reserved until widespread market fear produces genuine margins of safety across high quality businesses.",
+    "wisdom": "Price is what you pay, value is what you get, so never buy a security simply because momentum is positive when underlying broad market valuations remain historically elevated."
   },
   "news": [
     {
-      "title": "I will definitely claim Social Security early. Why do so few people talk about the elephant in the room?",
-      "url": "https://www.marketwatch.com/story/i-will-claim-social-security-early-why-do-so-few-people-talk-about-the-elephant-in-the-room-64820675?mod=mw_rss_topstories"
+      "title": "Would you take $65,000 today, or flip a coin for a chance to win $1.3 million?",
+      "url": "https://www.marketwatch.com/story/would-you-take-65-000-today-or-flip-a-coin-for-a-chance-to-win-1-3-million-d134961a?mod=mw_rss_topstories"
     },
     {
-      "title": "The Treasury market is sending Fed Chair Kevin Warsh a clear warning about rates",
-      "url": "https://www.marketwatch.com/story/the-treasury-market-is-sending-fed-chair-kevin-warsh-a-clear-warning-about-rates-d0026da9?mod=mw_rss_topstories"
+      "title": "Here's how to use the salary ranges in job postings to get paid more",
+      "url": "https://www.marketwatch.com/story/heres-how-to-use-salary-transparency-laws-to-get-paid-more-a941c75f?mod=mw_rss_topstories"
     },
     {
-      "title": "'I'm still confused': I sold $80,000 in shares on June 30, so why didn't I receive my dividend?",
-      "url": "https://www.marketwatch.com/story/im-still-confused-i-sold-80-000-in-shares-on-june-30-so-why-didnt-i-receive-my-dividend-d066016c?mod=mw_rss_topstories"
+      "title": "For 44 years, this investor held aces in the long-bond game. He just folded.",
+      "url": "https://www.marketwatch.com/story/for-44-years-this-investor-held-aces-in-the-long-bond-game-he-just-folded-dcd39375?mod=mw_rss_topstories"
     },
     {
-      "title": "'Time will tell whether that was a good bet': My adviser got me a full SpaceX IPO allocation. Was I lucky?",
-      "url": "https://www.marketwatch.com/story/time-will-tell-whether-that-was-a-good-bet-my-adviser-got-me-a-full-spacex-ipo-allocation-was-i-lucky-7f319645?mod=mw_rss_topstories"
+      "title": "He brought AI to Wall Street in 1994  -  but won't trust ChatGPT with his money",
+      "url": "https://www.marketwatch.com/story/he-brought-ai-to-wall-street-in-1994-but-wont-trust-chatgpt-with-his-money-b8abc031?mod=mw_rss_topstories"
     },
     {
-      "title": "I want to transfer $17,000 in credit-card debt. Why did Wells Fargo offer me only a $4,000 credit limit?",
-      "url": "https://www.marketwatch.com/story/i-wanted-to-transfer-17-000-in-credit-card-debt-why-did-wells-fargo-offer-me-only-a-4-000-credit-limit-7ad0a3f0?mod=mw_rss_topstories"
+      "title": "Is your AI data-center stock vulnerable to voter backlash? Use this 5-part test to find out.",
+      "url": "https://www.marketwatch.com/story/is-your-ai-data-center-stock-vulnerable-to-voter-backlash-use-this-5-part-test-to-find-out-36f039fa?mod=mw_rss_topstories"
     },
     {
-      "title": "I am a 63-year-old semiretired physician. If I saved $2 million for retirement, should my Social Security become optional?",
-      "url": "https://www.marketwatch.com/story/i-am-a-63-year-old-semiretired-physician-if-you-have-saved-2-million-for-retirement-should-social-security-be-optional-0de70d53?mod=mw_rss_topstories"
+      "title": "Navigating the Fed's next move? Here's why these trades may be an investor's best weapon.",
+      "url": "https://www.marketwatch.com/story/navigating-the-feds-next-move-why-these-trades-may-be-an-investors-best-weapon-7a7e80c0?mod=mw_rss_topstories"
     },
     {
-      "title": "Yes, the AI stock selloff looks terrifying. But it might actually save the bull market.",
-      "url": "https://www.marketwatch.com/story/yes-the-ai-stock-selloff-looks-terrifying-but-it-might-actually-save-the-bull-market-3bef59be?mod=mw_rss_topstories"
+      "title": "'It's a high price to pay': My adviser says I don't need a withdrawal plan for my $2.3 million portfolio. Is he right?",
+      "url": "https://www.marketwatch.com/story/its-a-high-price-to-pay-my-adviser-says-i-dont-need-a-withdrawal-plan-for-my-2-3-million-portfolio-is-he-right-06cb1eb2?mod=mw_rss_topstories"
     },
     {
-      "title": "College kids are moving into retirement communities for reasons beyond 'cheap rent'",
-      "url": "https://www.marketwatch.com/story/college-kids-are-moving-into-retirement-communities-for-reasons-beyond-cheap-rent-577dc94b?mod=mw_rss_topstories"
+      "title": "Oil prices see largest one-day declines in two months amid pause in strikes",
+      "url": "https://www.marketwatch.com/story/oil-prices-see-largest-one-day-declines-in-two-months-amid-pause-in-strikes-d819160a?mod=mw_rss_topstories"
     }
   ],
   "sources": [
