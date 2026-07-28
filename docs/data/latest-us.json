@@ -1,7 +1,7 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-27T13:01:51.283Z",
-  "dateLabel": "Monday, July 27, 2026",
+  "generatedAt": "2026-07-28T13:01:55.114Z",
+  "dateLabel": "Tuesday, July 28, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -22,7 +22,7 @@
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.34%",
+      "value": "+0.36%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
@@ -36,84 +36,84 @@
   "facts": {
     "buffettIndicator": "139%",
     "shillerPE": "40.5",
-    "yieldCurve": "+0.34%",
+    "yieldCurve": "+0.36%",
     "sp500VsMa200": "+5.8%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 39,
-    "sp500": "7411.98",
-    "sp500Change": "+0.05%",
-    "dowJones": "51947.25",
-    "dowJonesChange": "+0.46%",
-    "vix": "17.75",
-    "vixChange": "-4.47%",
-    "gold": "$4084.40",
-    "goldChange": "+0.33%",
-    "oil": "$83.95",
-    "oilChange": "-6.00%",
-    "dxy": "101.41",
-    "dxyChange": "-0.06%",
-    "btc": "$65,021",
-    "btcChange": "-0.48%",
+    "fearGreedValue": 41,
+    "sp500": "7413.18",
+    "sp500Change": "+0.02%",
+    "dowJones": "52210.08",
+    "dowJonesChange": "+0.51%",
+    "vix": "18.60",
+    "vixChange": "-0.37%",
+    "gold": "$4034.00",
+    "goldChange": "-1.05%",
+    "oil": "$80.99",
+    "oilChange": "-1.96%",
+    "dxy": "101.53",
+    "dxyChange": "-0.00%",
+    "btc": "$63,475",
+    "btcChange": "-0.36%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.71%",
-    "treasury2Y": "4.37%",
-    "googlChange": "+0.65%",
-    "babaChange": "-1.68%",
-    "adbeChange": "+6.10%",
-    "sofiChange": "-1.14%",
-    "asmlChange": "-2.55%"
+    "treasury10Y": "4.69%",
+    "treasury2Y": "4.33%",
+    "googlChange": "+2.13%",
+    "babaChange": "+2.55%",
+    "adbeChange": "+5.62%",
+    "sofiChange": "+2.55%",
+    "asmlChange": "-5.80%"
   },
   "fearGreed": {
-    "score": 39,
+    "score": 41,
     "classification": "Fear",
-    "change1d": "+0",
-    "change1w": "+1"
+    "change1d": "+1",
+    "change1w": "-3"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7411.98",
-      "change": "+0.05%"
+      "value": "7413.18",
+      "change": "+0.02%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "51947.25",
-      "change": "+0.46%"
+      "value": "52210.08",
+      "change": "+0.51%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "17.75",
-      "change": "-4.47%"
+      "value": "18.60",
+      "change": "-0.37%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4084.40",
-      "change": "+0.33%"
+      "value": "$4034.00",
+      "change": "-1.05%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$83.95",
-      "change": "-6.00%"
+      "value": "$80.99",
+      "change": "-1.96%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.41",
-      "change": "-0.06%"
+      "value": "101.53",
+      "change": "-0.00%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$65,021",
-      "change": "-0.48%"
+      "value": "$63,475",
+      "change": "-0.36%"
     }
   ],
   "economic": [
@@ -143,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.71%"
+      "value": "4.69%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.37%"
+      "value": "4.33%"
     }
   ],
-  "watchlist": "  GOOGL: $319.74 (+0.65%)\n  BABA: $112.14 (-1.68%)\n  ADBE: $225.11 (+6.10%)\n  SOFI: $16.46 (-1.14%)\n  ASML: $1757.09 (-2.55%)",
+  "watchlist": "  GOOGL: $326.56 (+2.13%)\n  BABA: $115.00 (+2.55%)\n  ADBE: $237.75 (+5.62%)\n  SOFI: $16.88 (+2.55%)\n  ASML: $1655.26 (-5.80%)",
   "trackRecord": {
-    "accuracy": "Building history",
-    "last": ""
+    "accuracy": "4/8 (50%)",
+    "last": "Cautiously Bearish (2026-07-27) → market moved +0.02% → Miss"
   },
   "history": [
     {
@@ -252,6 +252,13 @@
       "date": "2026-07-27",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.02%"
+    },
+    {
+      "date": "2026-07-28",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -263,7 +270,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad market valuation relative to national economic output continues to signal overvaluation, urging disciplined investors to remain cautious.",
+        "text": "Broad market equity capitalization relative to gross domestic product and long term adjusted price earnings multiples indicate persistent market overvaluation.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -271,63 +278,66 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Prevailing investor fear signals market anxiety, which can create selective opportunities for value investors searching for a margin of safety.",
+        "text": "Investor sentiment signals fear while equity volatility remains contained, creating potential entry points for selective investors.",
         "basedOn": [
-          "fearGreedValue"
+          "fearGreedValue",
+          "vix"
         ],
         "direction": "supports_bullish"
       },
       {
-        "text": "Crude oil benchmarks experienced notable price declines amid news of a pause in strikes.",
+        "text": "Energy prices fell following public reports of potential high level talks involving foreign affairs.",
         "basedOn": [
           "oilChange",
-          "headline_8"
+          "headline_7"
         ],
         "direction": "neutral"
       },
       {
-        "text": "A software design firm on the watchlist showed strong positive price movement amidst overall selective market performance.",
+        "text": "A major semiconductor equipment manufacturer recorded a sharp decline while software and internet platform equities moved higher.",
         "basedOn": [
+          "asmlChange",
+          "googlChange",
           "adbeChange"
         ],
-        "direction": "supports_bullish"
+        "direction": "neutral"
       }
     ],
-    "interpretation": "While structural valuation metrics continue to indicate an overvalued broader market, sector dynamics are shifting as energy costs retreat significantly and select individual watchlist holdings rally. Compared to the prior assessment, commodity price easing provides temporary relief, yet aggregate stock prices remain stretched relative to business fundamentals. Value investors should maintain patience, keeping capital reserved until widespread market fear produces genuine margins of safety across high quality businesses.",
-    "wisdom": "Price is what you pay, value is what you get, so never buy a security simply because momentum is positive when underlying broad market valuations remain historically elevated."
+    "interpretation": "Compared to the previous review, main benchmarks remained mostly sideways while watchlist equities exhibited noticeable dispersion. Severe macro overvaluation persists, suggesting that broad equity index exposure offers limited protection. Value investors should maintain a disciplined stance, preserving capital until high quality businesses sell at attractive discounts.",
+    "wisdom": "Price is what you pay and value is what you get, meaning the disciplined value investor must wait patiently for market prices to trade well below intrinsic business value."
   },
   "news": [
     {
-      "title": "Would you take $65,000 today, or flip a coin for a chance to win $1.3 million?",
-      "url": "https://www.marketwatch.com/story/would-you-take-65-000-today-or-flip-a-coin-for-a-chance-to-win-1-3-million-d134961a?mod=mw_rss_topstories"
+      "title": "Apple is now letting you lease an iPhone like a car. Here's what to know.",
+      "url": "https://www.marketwatch.com/story/apple-is-now-letting-you-lease-an-iphone-like-a-car-heres-what-to-know-51a10a91?mod=mw_rss_topstories"
     },
     {
-      "title": "Here's how to use the salary ranges in job postings to get paid more",
-      "url": "https://www.marketwatch.com/story/heres-how-to-use-salary-transparency-laws-to-get-paid-more-a941c75f?mod=mw_rss_topstories"
+      "title": "PayPal delivers an earnings beat  -  and suggests it's not against a merger deal",
+      "url": "https://www.marketwatch.com/story/paypal-delivers-an-earnings-beat-as-investors-await-updates-on-possible-merger-105930b7?mod=mw_rss_topstories"
     },
     {
-      "title": "For 44 years, this investor held aces in the long-bond game. He just folded.",
-      "url": "https://www.marketwatch.com/story/for-44-years-this-investor-held-aces-in-the-long-bond-game-he-just-folded-dcd39375?mod=mw_rss_topstories"
+      "title": "As chips sell off, rattled investors should heed this Cisco Systems lesson from the last millennium",
+      "url": "https://www.marketwatch.com/story/as-semis-sell-off-rattled-investors-should-heed-last-millenniums-lesson-from-cisco-systems-4bb53304?mod=mw_rss_topstories"
     },
     {
-      "title": "He brought AI to Wall Street in 1994  -  but won't trust ChatGPT with his money",
-      "url": "https://www.marketwatch.com/story/he-brought-ai-to-wall-street-in-1994-but-wont-trust-chatgpt-with-his-money-b8abc031?mod=mw_rss_topstories"
+      "title": "Boeing's stock rallies as surprisingly large loss is offset by upbeat revenue and backlog",
+      "url": "https://www.marketwatch.com/story/boeings-stock-rallies-as-surprisingly-large-loss-is-offset-by-upbeat-revenue-and-backlog-e0ad69c9?mod=mw_rss_topstories"
     },
     {
-      "title": "Is your AI data-center stock vulnerable to voter backlash? Use this 5-part test to find out.",
-      "url": "https://www.marketwatch.com/story/is-your-ai-data-center-stock-vulnerable-to-voter-backlash-use-this-5-part-test-to-find-out-36f039fa?mod=mw_rss_topstories"
+      "title": "Meta is up against a wall of AI pessimism heading into earnings",
+      "url": "https://www.marketwatch.com/story/meta-is-up-against-a-wall-of-ai-pessimism-heading-into-earnings-4d3bbcc9?mod=mw_rss_topstories"
     },
     {
-      "title": "Navigating the Fed's next move? Here's why these trades may be an investor's best weapon.",
-      "url": "https://www.marketwatch.com/story/navigating-the-feds-next-move-why-these-trades-may-be-an-investors-best-weapon-7a7e80c0?mod=mw_rss_topstories"
+      "title": "Forget oil. A surging El Ni&#xf1;o could kill Fed rate cuts  -  and these stocks stand to win.",
+      "url": "https://www.marketwatch.com/story/forget-oil-a-surging-el-nino-could-kill-fed-rate-cuts-and-these-stocks-stand-to-win-41f8e67f?mod=mw_rss_topstories"
     },
     {
-      "title": "'It's a high price to pay': My adviser says I don't need a withdrawal plan for my $2.3 million portfolio. Is he right?",
-      "url": "https://www.marketwatch.com/story/its-a-high-price-to-pay-my-adviser-says-i-dont-need-a-withdrawal-plan-for-my-2-3-million-portfolio-is-he-right-06cb1eb2?mod=mw_rss_topstories"
+      "title": "Oil prices decline further after Trump claims 'deep talks' are underway with Iran",
+      "url": "https://www.marketwatch.com/story/oil-prices-decline-further-after-trump-claims-deep-talks-are-underway-with-iran-167a5393?mod=mw_rss_topstories"
     },
     {
-      "title": "Oil prices see largest one-day declines in two months amid pause in strikes",
-      "url": "https://www.marketwatch.com/story/oil-prices-see-largest-one-day-declines-in-two-months-amid-pause-in-strikes-d819160a?mod=mw_rss_topstories"
+      "title": "'Time will tell whether that was a good bet': My adviser got me a full SpaceX IPO allocation. Was I lucky?",
+      "url": "https://www.marketwatch.com/story/time-will-tell-whether-that-was-a-good-bet-my-adviser-got-me-a-full-spacex-ipo-allocation-was-i-lucky-7f319645?mod=mw_rss_topstories"
     }
   ],
   "sources": [
