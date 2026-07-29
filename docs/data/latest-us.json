@@ -1,10 +1,12 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-28T13:01:55.114Z",
-  "dateLabel": "Tuesday, July 28, 2026",
+  "generatedAt": "2026-07-29T13:01:48.529Z",
+  "dateLabel": "Wednesday, July 29, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "DEGRADED",
+    "missing": [
+      "10Y Treasury"
+    ],
     "suspect": []
   },
   "dashboard": {
@@ -16,104 +18,102 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.5",
+      "value": "40.6",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.36%",
-      "status": "Flat (Caution)",
-      "emoji": "🟡"
+      "value": "N/A",
+      "status": "",
+      "emoji": ""
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+5.8%",
+      "value": "+5.9%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "139%",
-    "shillerPE": "40.5",
-    "yieldCurve": "+0.36%",
-    "sp500VsMa200": "+5.8%",
+    "shillerPE": "40.6",
+    "sp500VsMa200": "+5.9%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 41,
-    "sp500": "7413.18",
-    "sp500Change": "+0.02%",
-    "dowJones": "52210.08",
-    "dowJonesChange": "+0.51%",
-    "vix": "18.60",
-    "vixChange": "-0.37%",
-    "gold": "$4034.00",
-    "goldChange": "-1.05%",
-    "oil": "$80.99",
-    "oilChange": "-1.96%",
-    "dxy": "101.53",
-    "dxyChange": "-0.00%",
-    "btc": "$63,475",
-    "btcChange": "-0.36%",
+    "fearGreedValue": 40,
+    "sp500": "7428.78",
+    "sp500Change": "+0.21%",
+    "dowJones": "52747.32",
+    "dowJonesChange": "+1.03%",
+    "vix": "18.66",
+    "vixChange": "+2.47%",
+    "gold": "$4078.70",
+    "goldChange": "-0.49%",
+    "oil": "$84.23",
+    "oilChange": "+6.27%",
+    "dxy": "101.46",
+    "dxyChange": "+0.04%",
+    "btc": "$64,202",
+    "btcChange": "+0.55%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.69%",
-    "treasury2Y": "4.33%",
-    "googlChange": "+2.13%",
-    "babaChange": "+2.55%",
-    "adbeChange": "+5.62%",
-    "sofiChange": "+2.55%",
-    "asmlChange": "-5.80%"
+    "treasury2Y": "4.31%",
+    "googlChange": "+2.19%",
+    "babaChange": "+0.17%",
+    "adbeChange": "+4.81%",
+    "sofiChange": "-0.83%",
+    "asmlChange": "-4.37%"
   },
   "fearGreed": {
-    "score": 41,
+    "score": 40,
     "classification": "Fear",
     "change1d": "+1",
-    "change1w": "-3"
+    "change1w": "-4"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7413.18",
-      "change": "+0.02%"
+      "value": "7428.78",
+      "change": "+0.21%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52210.08",
-      "change": "+0.51%"
+      "value": "52747.32",
+      "change": "+1.03%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.60",
-      "change": "-0.37%"
+      "value": "18.66",
+      "change": "+2.47%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4034.00",
-      "change": "-1.05%"
+      "value": "$4078.70",
+      "change": "-0.49%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$80.99",
-      "change": "-1.96%"
+      "value": "$84.23",
+      "change": "+6.27%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.53",
-      "change": "-0.00%"
+      "value": "101.46",
+      "change": "+0.04%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,475",
-      "change": "-0.36%"
+      "value": "$64,202",
+      "change": "+0.55%"
     }
   ],
   "economic": [
@@ -143,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.69%"
+      "value": "N/A"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.33%"
+      "value": "4.31%"
     }
   ],
-  "watchlist": "  GOOGL: $326.56 (+2.13%)\n  BABA: $115.00 (+2.55%)\n  ADBE: $237.75 (+5.62%)\n  SOFI: $16.88 (+2.55%)\n  ASML: $1655.26 (-5.80%)",
+  "watchlist": "  GOOGL: $333.71 (+2.19%)\n  BABA: $115.19 (+0.17%)\n  ADBE: $249.18 (+4.81%)\n  SOFI: $16.74 (-0.83%)\n  ASML: $1582.95 (-4.37%)",
   "trackRecord": {
-    "accuracy": "4/8 (50%)",
-    "last": "Cautiously Bearish (2026-07-27) → market moved +0.02% → Miss"
+    "accuracy": "4/9 (44%)",
+    "last": "Cautiously Bearish (2026-07-28) → market moved +0.21% → Miss"
   },
   "history": [
     {
@@ -259,6 +259,13 @@
       "date": "2026-07-28",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.21%"
+    },
+    {
+      "date": "2026-07-29",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -270,7 +277,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad market equity capitalization relative to gross domestic product and long term adjusted price earnings multiples indicate persistent market overvaluation.",
+        "text": "Broad stock market valuation measures continue to show elevated price levels relative to historic fundamentals and national output.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -278,66 +285,58 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment signals fear while equity volatility remains contained, creating potential entry points for selective investors.",
-        "basedOn": [
-          "fearGreedValue",
-          "vix"
-        ],
-        "direction": "supports_bullish"
-      },
-      {
-        "text": "Energy prices fell following public reports of potential high level talks involving foreign affairs.",
+        "text": "Crude oil prices spiked sharply following report of military strikes involving international forces.",
         "basedOn": [
           "oilChange",
-          "headline_7"
+          "headline_3"
         ],
-        "direction": "neutral"
+        "direction": "supports_bearish"
       },
       {
-        "text": "A major semiconductor equipment manufacturer recorded a sharp decline while software and internet platform equities moved higher.",
+        "text": "Software and internet technology firms showed gains while semiconductor equipment producers declined.",
         "basedOn": [
-          "asmlChange",
           "googlChange",
-          "adbeChange"
+          "adbeChange",
+          "asmlChange"
         ],
         "direction": "neutral"
       }
     ],
-    "interpretation": "Compared to the previous review, main benchmarks remained mostly sideways while watchlist equities exhibited noticeable dispersion. Severe macro overvaluation persists, suggesting that broad equity index exposure offers limited protection. Value investors should maintain a disciplined stance, preserving capital until high quality businesses sell at attractive discounts.",
-    "wisdom": "Price is what you pay and value is what you get, meaning the disciplined value investor must wait patiently for market prices to trade well below intrinsic business value."
+    "interpretation": "Compared to the previous assessment, geopolitical conflict has driven a sharp reversal in energy commodity prices, compounding existing inflationary headwinds. Broad market valuations remain deeply stretched, making margin of safety difficult to find across major index holdings. Value investors should preserve cash and maintain patience until market volatility offers truly discounted opportunities.",
+    "wisdom": "Be fearful when others are greedy and greedy when others are fearful, but never sacrifice a margin of safety when market valuations are historically high."
   },
   "news": [
     {
-      "title": "Apple is now letting you lease an iPhone like a car. Here's what to know.",
-      "url": "https://www.marketwatch.com/story/apple-is-now-letting-you-lease-an-iphone-like-a-car-heres-what-to-know-51a10a91?mod=mw_rss_topstories"
+      "title": "Two rival AI super PACs are backing the same congressman. What gives?",
+      "url": "https://www.marketwatch.com/story/two-rival-ai-super-pacs-are-backing-the-same-congressman-what-gives-dbc93094?mod=mw_rss_topstories"
     },
     {
-      "title": "PayPal delivers an earnings beat  -  and suggests it's not against a merger deal",
-      "url": "https://www.marketwatch.com/story/paypal-delivers-an-earnings-beat-as-investors-await-updates-on-possible-merger-105930b7?mod=mw_rss_topstories"
+      "title": "Think a 1% advisory fee sounds cheap? It is actually eating 15% of your investment returns.",
+      "url": "https://www.marketwatch.com/story/think-a-1-advisory-fee-sounds-cheap-it-is-actually-eating-15-of-your-investment-returns-ceead305?mod=mw_rss_topstories"
     },
     {
-      "title": "As chips sell off, rattled investors should heed this Cisco Systems lesson from the last millennium",
-      "url": "https://www.marketwatch.com/story/as-semis-sell-off-rattled-investors-should-heed-last-millenniums-lesson-from-cisco-systems-4bb53304?mod=mw_rss_topstories"
+      "title": "Oil prices rise after U.S. and Saudi Arabia attack Iran-backed militias in Iraq",
+      "url": "https://www.marketwatch.com/story/oil-prices-rise-after-u-s-and-saudi-arabia-attack-iran-backed-militias-in-iraq-f0f409ea?mod=mw_rss_topstories"
     },
     {
-      "title": "Boeing's stock rallies as surprisingly large loss is offset by upbeat revenue and backlog",
-      "url": "https://www.marketwatch.com/story/boeings-stock-rallies-as-surprisingly-large-loss-is-offset-by-upbeat-revenue-and-backlog-e0ad69c9?mod=mw_rss_topstories"
+      "title": "A profit squeeze is coming for tech. This manager is betting on these unglamorous stocks instead.",
+      "url": "https://www.marketwatch.com/story/a-profit-squeeze-is-coming-for-tech-this-manager-is-betting-on-these-unglamorous-stocks-instead-ea19a2ab?mod=mw_rss_topstories"
     },
     {
-      "title": "Meta is up against a wall of AI pessimism heading into earnings",
-      "url": "https://www.marketwatch.com/story/meta-is-up-against-a-wall-of-ai-pessimism-heading-into-earnings-4d3bbcc9?mod=mw_rss_topstories"
+      "title": "'Nothing seems to shake this market.' Why it's time to go all-in on stocks, according to these bullish strategists.",
+      "url": "https://www.marketwatch.com/story/oil-is-up-40-and-tech-is-tumbling-why-its-time-to-go-all-in-on-stocks-according-to-these-bullish-strategists-41d812f7?mod=mw_rss_topstories"
     },
     {
-      "title": "Forget oil. A surging El Ni&#xf1;o could kill Fed rate cuts  -  and these stocks stand to win.",
-      "url": "https://www.marketwatch.com/story/forget-oil-a-surging-el-nino-could-kill-fed-rate-cuts-and-these-stocks-stand-to-win-41f8e67f?mod=mw_rss_topstories"
+      "title": "Saudi Arabia has a new, and pricier, workaround to export its oil",
+      "url": "https://www.marketwatch.com/story/saudi-arabia-has-a-new-and-pricier-workaround-to-export-its-oil-fb5085a5?mod=mw_rss_topstories"
     },
     {
-      "title": "Oil prices decline further after Trump claims 'deep talks' are underway with Iran",
-      "url": "https://www.marketwatch.com/story/oil-prices-decline-further-after-trump-claims-deep-talks-are-underway-with-iran-167a5393?mod=mw_rss_topstories"
+      "title": "'I feel lucky': I'm 71 and inherited $20,000. What should I do with this money?",
+      "url": "https://www.marketwatch.com/story/i-feel-lucky-im-71-and-inherited-20-000-what-should-i-do-with-this-money-1ab90925?mod=mw_rss_topstories"
     },
     {
-      "title": "'Time will tell whether that was a good bet': My adviser got me a full SpaceX IPO allocation. Was I lucky?",
-      "url": "https://www.marketwatch.com/story/time-will-tell-whether-that-was-a-good-bet-my-adviser-got-me-a-full-spacex-ipo-allocation-was-i-lucky-7f319645?mod=mw_rss_topstories"
+      "title": "Medicare is about to change a drug program that held down the cost of premiums. Here's what to know.",
+      "url": "https://www.marketwatch.com/story/medicare-is-about-to-change-a-program-that-held-down-the-cost-of-premiums-heres-what-to-know-42c0612e?mod=mw_rss_topstories"
     }
   ],
   "sources": [
