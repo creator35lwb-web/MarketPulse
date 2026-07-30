@@ -345,6 +345,10 @@ section { margin-bottom: 40px; }
 }
 .history-cell .history-dot.hit { background: var(--verified); border-color: var(--verified); }
 .history-cell .history-dot.miss { background: var(--caution); border-color: var(--caution); }
+/* "flat": the market moved too little to judge a directional call either way. Deliberately
+   neither green nor red — a filled dim centre distinguishes it from the hollow "not yet
+   scored" dot, without implying a verdict that was never earned. */
+.history-cell .history-dot.flat { background: var(--paper-dim); border-color: var(--paper-dim); opacity: 0.5; }
 
 .history-detail {
   display: flex;
@@ -379,6 +383,7 @@ section { margin-bottom: 40px; }
 .history-legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 .history-legend .dot.hit { background: var(--verified); }
 .history-legend .dot.miss { background: var(--caution); }
+.history-legend .dot.flat { background: var(--paper-dim); opacity: 0.5; }
 
 /* ---------- Data quality banner ---------- */
 

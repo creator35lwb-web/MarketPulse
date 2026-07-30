@@ -278,8 +278,12 @@
       historyDetail.querySelector('.history-detail-date').textContent = fmtHistoryDate(cell.dataset.date);
       historyDetail.querySelector('.history-detail-sentiment').textContent = cell.dataset.sentiment;
       var result = cell.dataset.result;
+      // "flat" is a real outcome, not a missing one: the market moved too little for a
+      // directional call to be right or wrong, so the day is recorded and left out of the
+      // accuracy tally. Kept distinct from "not yet scored", which means no verdict exists.
       var resultText = result === 'hit' ? '✓ correct call — market moved ' + cell.dataset.actualChange
         : result === 'miss' ? '✗ missed call — market moved ' + cell.dataset.actualChange
+        : result === 'flat' ? '— too flat to judge — market moved only ' + cell.dataset.actualChange
         : 'not yet scored';
       historyDetail.querySelector('.history-detail-result').textContent = resultText;
       historyDetail.hidden = false;
