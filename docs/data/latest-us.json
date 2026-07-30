@@ -1,11 +1,11 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-29T13:01:48.529Z",
-  "dateLabel": "Wednesday, July 29, 2026",
+  "generatedAt": "2026-07-30T13:01:19.533Z",
+  "dateLabel": "Thursday, July 30, 2026",
   "health": {
     "status": "DEGRADED",
     "missing": [
-      "10Y Treasury"
+      "2Y Treasury"
     ],
     "suspect": []
   },
@@ -18,7 +18,7 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.6",
+      "value": "39.9",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
@@ -30,90 +30,90 @@
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+5.9%",
-      "status": "Strong Bullish (Golden Cross)",
-      "emoji": "🟢🟢"
+      "value": "+4.3%",
+      "status": "Bullish (Golden Cross)",
+      "emoji": "🟢"
     }
   },
   "facts": {
     "buffettIndicator": "139%",
-    "shillerPE": "40.6",
-    "sp500VsMa200": "+5.9%",
+    "shillerPE": "39.9",
+    "sp500VsMa200": "+4.3%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 40,
-    "sp500": "7428.78",
-    "sp500Change": "+0.21%",
-    "dowJones": "52747.32",
-    "dowJonesChange": "+1.03%",
-    "vix": "18.66",
-    "vixChange": "+2.47%",
-    "gold": "$4078.70",
-    "goldChange": "-0.49%",
-    "oil": "$84.23",
-    "oilChange": "+6.27%",
-    "dxy": "101.46",
-    "dxyChange": "+0.04%",
-    "btc": "$64,202",
-    "btcChange": "+0.55%",
+    "fearGreedValue": 34,
+    "sp500": "7316.15",
+    "sp500Change": "-1.52%",
+    "dowJones": "51594.14",
+    "dowJonesChange": "-2.19%",
+    "vix": "19.13",
+    "vixChange": "-7.41%",
+    "gold": "$4133.30",
+    "goldChange": "+0.89%",
+    "oil": "$83.97",
+    "oilChange": "-0.58%",
+    "dxy": "100.68",
+    "dxyChange": "-0.20%",
+    "btc": "$64,840",
+    "btcChange": "+1.47%",
     "gdpValue": "+2.1% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury2Y": "4.31%",
-    "googlChange": "+2.19%",
-    "babaChange": "+0.17%",
-    "adbeChange": "+4.81%",
-    "sofiChange": "-0.83%",
-    "asmlChange": "-4.37%"
+    "treasury10Y": "4.61%",
+    "googlChange": "+0.90%",
+    "babaChange": "-0.14%",
+    "adbeChange": "+5.72%",
+    "sofiChange": "-8.90%",
+    "asmlChange": "-2.04%"
   },
   "fearGreed": {
-    "score": 40,
+    "score": 34,
     "classification": "Fear",
-    "change1d": "+1",
+    "change1d": "+2",
     "change1w": "-4"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7428.78",
-      "change": "+0.21%"
+      "value": "7316.15",
+      "change": "-1.52%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52747.32",
-      "change": "+1.03%"
+      "value": "51594.14",
+      "change": "-2.19%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "18.66",
-      "change": "+2.47%"
+      "value": "19.13",
+      "change": "-7.41%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4078.70",
-      "change": "-0.49%"
+      "value": "$4133.30",
+      "change": "+0.89%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$84.23",
-      "change": "+6.27%"
+      "value": "$83.97",
+      "change": "-0.58%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "101.46",
-      "change": "+0.04%"
+      "value": "100.68",
+      "change": "-0.20%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,202",
-      "change": "+0.55%"
+      "value": "$64,840",
+      "change": "+1.47%"
     }
   ],
   "economic": [
@@ -143,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "N/A"
+      "value": "4.61%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.31%"
+      "value": "N/A"
     }
   ],
-  "watchlist": "  GOOGL: $333.71 (+2.19%)\n  BABA: $115.19 (+0.17%)\n  ADBE: $249.18 (+4.81%)\n  SOFI: $16.74 (-0.83%)\n  ASML: $1582.95 (-4.37%)",
+  "watchlist": "  GOOGL: $336.71 (+0.90%)\n  BABA: $115.03 (-0.14%)\n  ADBE: $263.43 (+5.72%)\n  SOFI: $15.25 (-8.90%)\n  ASML: $1550.69 (-2.04%)",
   "trackRecord": {
-    "accuracy": "4/9 (44%)",
-    "last": "Cautiously Bearish (2026-07-28) → market moved +0.21% → Miss"
+    "accuracy": "5/10 (50%)",
+    "last": "Cautiously Bearish (2026-07-29) → market moved -1.52% → Correct"
   },
   "history": [
     {
@@ -266,18 +266,25 @@
       "date": "2026-07-29",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-1.52%"
+    },
+    {
+      "date": "2026-07-30",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "gemini-3.6-flash",
-  "analysisProvider": "Google",
+  "analysisModel": "llama-3.3-70b-versatile",
+  "analysisProvider": "Groq",
   "analysis": {
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad stock market valuation measures continue to show elevated price levels relative to historic fundamentals and national output.",
+        "text": "Market valuation measures continue to indicate elevated price levels",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -285,58 +292,63 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Crude oil prices spiked sharply following report of military strikes involving international forces.",
+        "text": "A historic crash in highflying stocks may lead to a trap for a quick tech rebound",
         "basedOn": [
-          "oilChange",
-          "headline_3"
+          "headline_1"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Software and internet technology firms showed gains while semiconductor equipment producers declined.",
+        "text": "The economy shows growth but inflation remains a concern",
         "basedOn": [
-          "googlChange",
-          "adbeChange",
-          "asmlChange"
+          "gdpValue",
+          "cpiValue"
         ],
         "direction": "neutral"
+      },
+      {
+        "text": "Some investors are achieving high returns with global equity funds that hold few US stocks",
+        "basedOn": [
+          "headline_5"
+        ],
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "Compared to the previous assessment, geopolitical conflict has driven a sharp reversal in energy commodity prices, compounding existing inflationary headwinds. Broad market valuations remain deeply stretched, making margin of safety difficult to find across major index holdings. Value investors should preserve cash and maintain patience until market volatility offers truly discounted opportunities.",
-    "wisdom": "Be fearful when others are greedy and greedy when others are fearful, but never sacrifice a margin of safety when market valuations are historically high."
+    "interpretation": "The market continues to show signs of overvaluation, and recent events, such as the crash in highflying stocks, may lead to a trap for investors seeking a quick rebound. However, the economy is growing, and some investors are finding success with global equity funds. As a value investor, it is essential to remain cautious and consider the potential risks and opportunities in the market.",
+    "wisdom": "It is essential to be patient and disciplined in investing, as the market can be unpredictable, and it is crucial to focus on the fundamentals of the companies and the overall economy, rather than following the crowd or trying to time the market."
   },
   "news": [
     {
-      "title": "Two rival AI super PACs are backing the same congressman. What gives?",
-      "url": "https://www.marketwatch.com/story/two-rival-ai-super-pacs-are-backing-the-same-congressman-what-gives-dbc93094?mod=mw_rss_topstories"
+      "title": "Wall Street just suffered a historic crash in highflying stocks. Why a quick tech rebound could be a trap.",
+      "url": "https://www.marketwatch.com/story/wall-street-just-suffered-a-historic-crash-in-high-flying-stocks-here-is-why-a-quick-tech-rebound-could-be-a-trap-c021318a?mod=mw_rss_topstories"
     },
     {
-      "title": "Think a 1% advisory fee sounds cheap? It is actually eating 15% of your investment returns.",
-      "url": "https://www.marketwatch.com/story/think-a-1-advisory-fee-sounds-cheap-it-is-actually-eating-15-of-your-investment-returns-ceead305?mod=mw_rss_topstories"
+      "title": "GDP shows the economy grew 1.5% in the second quarter  -  but it's even better than it looks",
+      "url": "https://www.marketwatch.com/story/gdp-shows-the-economy-grew-1-5-in-the-second-quarter-but-its-even-better-than-it-looks-11b7f4fe?mod=mw_rss_topstories"
     },
     {
-      "title": "Oil prices rise after U.S. and Saudi Arabia attack Iran-backed militias in Iraq",
-      "url": "https://www.marketwatch.com/story/oil-prices-rise-after-u-s-and-saudi-arabia-attack-iran-backed-militias-in-iraq-f0f409ea?mod=mw_rss_topstories"
+      "title": "Fed-favored PCE inflation gauge falls for first time since pandemic, but danger far from over",
+      "url": "https://www.marketwatch.com/story/fed-favored-pce-inflation-gauge-falls-for-first-time-since-pandemic-but-danger-far-from-over-57e382bf?mod=mw_rss_topstories"
     },
     {
-      "title": "A profit squeeze is coming for tech. This manager is betting on these unglamorous stocks instead.",
-      "url": "https://www.marketwatch.com/story/a-profit-squeeze-is-coming-for-tech-this-manager-is-betting-on-these-unglamorous-stocks-instead-ea19a2ab?mod=mw_rss_topstories"
+      "title": "Congrats, Gen Z, you're turning 30. Here are the most important money moves to make next.",
+      "url": "https://www.marketwatch.com/story/congrats-gen-z-youre-turning-30-here-are-the-most-important-money-moves-to-make-next-9e30bb0a?mod=mw_rss_topstories"
     },
     {
-      "title": "'Nothing seems to shake this market.' Why it's time to go all-in on stocks, according to these bullish strategists.",
-      "url": "https://www.marketwatch.com/story/oil-is-up-40-and-tech-is-tumbling-why-its-time-to-go-all-in-on-stocks-according-to-these-bullish-strategists-41d812f7?mod=mw_rss_topstories"
+      "title": "This global equity fund boasts a 150% five-year return for investors, despite holding few U.S. stocks",
+      "url": "https://www.marketwatch.com/story/this-global-equity-fund-boasts-a-150-five-year-return-for-investors-despite-being-well-underweight-u-s-stocks-624ff6b4?mod=mw_rss_topstories"
     },
     {
-      "title": "Saudi Arabia has a new, and pricier, workaround to export its oil",
-      "url": "https://www.marketwatch.com/story/saudi-arabia-has-a-new-and-pricier-workaround-to-export-its-oil-fb5085a5?mod=mw_rss_topstories"
+      "title": "Nearly half of small-cap and midcap stocks are losing money",
+      "url": "https://www.marketwatch.com/story/nearly-half-of-small-cap-and-midcap-stocks-are-losing-money-ca851c98?mod=mw_rss_topstories"
     },
     {
-      "title": "'I feel lucky': I'm 71 and inherited $20,000. What should I do with this money?",
-      "url": "https://www.marketwatch.com/story/i-feel-lucky-im-71-and-inherited-20-000-what-should-i-do-with-this-money-1ab90925?mod=mw_rss_topstories"
+      "title": "'Don't get suckered like I did': I paid $185 to the wrong passport website. Can I get my money back?",
+      "url": "https://www.marketwatch.com/story/dont-get-suckered-like-i-did-i-paid-185-to-the-wrong-passport-website-can-i-get-my-money-back-3a781412?mod=mw_rss_topstories"
     },
     {
-      "title": "Medicare is about to change a drug program that held down the cost of premiums. Here's what to know.",
-      "url": "https://www.marketwatch.com/story/medicare-is-about-to-change-a-program-that-held-down-the-cost-of-premiums-heres-what-to-know-42c0612e?mod=mw_rss_topstories"
+      "title": "Why you shouldn't worry about the stock market's break below its 50-day moving average",
+      "url": "https://www.marketwatch.com/story/why-you-shouldnt-worry-about-the-stock-markets-break-below-its-50-day-moving-average-4dfab87a?mod=mw_rss_topstories"
     }
   ],
   "sources": [
