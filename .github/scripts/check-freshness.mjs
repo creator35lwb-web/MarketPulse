@@ -81,13 +81,35 @@ const summaryLines = stale.map((r) => `- **${r.label} edition**: ${r.reason}`);
 const summary = summaryLines.join('\n');
 const editionsLabel = stale.map((r) => r.label).join(' + ');
 
+// ===== LATE-vs-MISSING RESOLUTION (2026-07-30) =====
+// This watchdog can only ever answer "is it published *right now*?", so a digest that is
+// merely LATE looks identical to one that is MISSING. On 2026-07-30 the CN run fired 3h38m
+// late: this check announced an outage to the channel at 19:29 MYT and the digest arrived at
+// 20:08 — subscribers saw a missing-digest warning followed 39 minutes later by the digest.
+// Every step was accurate and the net effect was still damaging: a monitor that cries outage
+// and then delivers reads as unreliable, which costs more credibility than the delay did.
+//
+// The fix is not to alarm less eagerly — detecting a genuinely offline host quickly is the
+// whole point of running off-box. It is to CLOSE THE STORY: emit the fresh editions too, so
+// the workflow can retire any alert its earlier self opened and tell the channel the digest
+// landed. An alarm that never resolves is an alarm that gets ignored.
+const freshResults = results.filter((r) => !r.stale);
+const freshLabel = freshResults.map((r) => r.label).join(' ');
+const freshSummary = freshResults
+  .map((r) => `- **${r.label} edition**: published ${r.generatedAt} (${r.ageHours}h ago)`)
+  .join('\n');
+
 // Emit outputs for the workflow's issue-opening step.
 if (process.env.GITHUB_OUTPUT) {
   appendFileSync(process.env.GITHUB_OUTPUT, `alert=${alert}\n`);
   appendFileSync(process.env.GITHUB_OUTPUT, `editions=${editionsLabel}\n`);
   appendFileSync(process.env.GITHUB_OUTPUT, `today=${todayUTC()}\n`);
-  // Multi-line output via a heredoc-style delimiter.
+  // Space-separated labels, safe to iterate in shell; empty when nothing is fresh.
+  appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${freshResults.length > 0}\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `fresh_editions=${freshLabel}\n`);
+  // Multi-line outputs via heredoc-style delimiters.
   appendFileSync(process.env.GITHUB_OUTPUT, `summary<<FRESHNESS_EOF\n${summary}\nFRESHNESS_EOF\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `fresh_summary<<FRESHNESS_EOF\n${freshSummary}\nFRESHNESS_EOF\n`);
 }
 
 // Always exit 0 — the alarm is the Issue, not a red build.

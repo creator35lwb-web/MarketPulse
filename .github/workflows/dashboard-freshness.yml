@@ -130,6 +130,86 @@ jobs:
             echo "Telegram send failed (HTTP ${HTTP}) — the GitHub Issue remains the primary alert."
           fi
 
+      # ===== LATE-vs-MISSING RESOLUTION (2026-07-30) =====
+      # A digest that is merely LATE is indistinguishable from a MISSING one at check time, so
+      # on 2026-07-30 the channel was told the CN digest was missing at 19:29 MYT and received
+      # it at 20:08. Detecting fast is correct; leaving the warning hanging is not. When an
+      # edition is fresh and an alert this watchdog opened is still open, retire it here.
+      #
+      # Only an alert whose title names EXACTLY this edition ("— CN —") is closed. A combined
+      # "US + CN" alert is deliberately left open: one edition recovering does not clear both.
+      - name: Retire any open alert once the digest lands
+        id: resolve
+        if: steps.check.outputs.fresh == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FRESH_EDITIONS: ${{ steps.check.outputs.fresh_editions }}
+          FRESH_SUMMARY: ${{ steps.check.outputs.fresh_summary }}
+        run: |
+          CLOSED=""
+          for ED in ${FRESH_EDITIONS}; do
+            NUMS=$(gh issue list --state open --limit 30 --json title,number \
+              --jq ".[] | select(.title | contains(\"MarketPulse digest missing\") and contains(\" — ${ED} — \")) | .number")
+            for N in ${NUMS}; do
+              gh issue close "${N}" --comment "✅ **Resolved automatically — the ${ED} digest has published.**
+
+          ${FRESH_SUMMARY}
+
+          This alert was filed when the digest had not yet appeared. It has now landed, so the
+          run was **late rather than missing** — the host was offline at the scheduled hour and
+          completed once it came back. No stale data was published in the interval: a run that
+          cannot verify fresh numbers publishes nothing.
+
+          _Retired by the Dashboard Freshness Watchdog._"
+              echo "Closed alert issue #${N} (${ED} digest landed)."
+              CLOSED="${CLOSED} ${ED}#${N}"
+            done
+          done
+          if [ -n "${CLOSED}" ]; then
+            echo "resolved=true" >> "$GITHUB_OUTPUT"
+            echo "resolved_editions=$(echo ${FRESH_EDITIONS})" >> "$GITHUB_OUTPUT"
+          else
+            echo "No open alert to retire — nothing was announced for these editions."
+          fi
+
+      # Close the story in the channel too. Fires ONLY when an alert was actually retired,
+      # which means subscribers previously saw a missing-digest warning that now needs an
+      # ending. Never fails the build; the Issue comment above is the durable record.
+      - name: Announce the late arrival on Telegram
+        if: steps.resolve.outputs.resolved == 'true'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          EDITIONS: ${{ steps.resolve.outputs.resolved_editions }}
+          TODAY: ${{ steps.check.outputs.today }}
+        run: |
+          if [ -z "${TG_TOKEN}" ]; then
+            echo "TELEGRAM_BOT_TOKEN secret not set — skipping the resolution announcement."
+            exit 0
+          fi
+          # Paste-proof the secret exactly as the announce step does.
+          TG_TOKEN=$(printf '%s' "${TG_TOKEN}" | tr -d '[:space:]')
+          case "${TG_TOKEN}" in
+            [Bb][Oo][Tt][0-9]*:*) TG_TOKEN="${TG_TOKEN#[Bb][Oo][Tt]}" ;;
+          esac
+          TEXT="✅ <b>MarketPulse status — resolved — ${TODAY}</b>
+
+          The ${EDITIONS} digest we reported as missing earlier today has now published — it was <b>late, not skipped</b>. The host machine was offline at the scheduled hour and the run completed once it came back.
+
+          Nothing stale was published in between: a run that cannot verify fresh numbers publishes nothing at all.
+
+          🔗 https://creator35lwb-web.github.io/MarketPulse/"
+          HTTP=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+            "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=@n8nMarketPulse" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "disable_web_page_preview=true")
+          if [ "${HTTP}" = "200" ]; then
+            echo "Telegram resolution announcement sent."
+          else
+            echo "Telegram send failed (HTTP ${HTTP}) — the closed Issue remains the record."
+          fi
+
       # Manual-only validation of the announcement path WITHOUT posting anything:
       # getMe proves the token is valid; getChat proves the bot can see the channel.
       # Responses are reduced to ok/username/title — the token itself is never echoed.
