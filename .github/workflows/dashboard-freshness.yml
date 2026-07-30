@@ -138,8 +138,14 @@ jobs:
       #
       # Only an alert whose title names EXACTLY this edition ("— CN —") is closed. A combined
       # "US + CN" alert is deliberately left open: one edition recovering does not clear both.
+      #
+      # continue-on-error: this job's founding rule is that it NEVER goes red — a build that
+      # is red on every offline day trains the operator to ignore CI. Retiring an alert is
+      # housekeeping, so a GitHub API hiccup here must not turn the run red and must not stop
+      # the freshness check that precedes it from having done its job.
       - name: Retire any open alert once the digest lands
         id: resolve
+        continue-on-error: true
         if: steps.check.outputs.fresh == 'true' && github.event.inputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -176,6 +182,7 @@ jobs:
       # which means subscribers previously saw a missing-digest warning that now needs an
       # ending. Never fails the build; the Issue comment above is the durable record.
       - name: Announce the late arrival on Telegram
+        continue-on-error: true
         if: steps.resolve.outputs.resolved == 'true'
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
