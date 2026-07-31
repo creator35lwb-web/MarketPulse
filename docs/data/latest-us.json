@@ -1,7 +1,7 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-30T13:01:19.533Z",
-  "dateLabel": "Thursday, July 30, 2026",
+  "generatedAt": "2026-07-31T13:01:43.098Z",
+  "dateLabel": "Friday, July 31, 2026",
   "health": {
     "status": "DEGRADED",
     "missing": [
@@ -12,13 +12,13 @@
   "dashboard": {
     "buffettIndicator": {
       "title": "Buffett Indicator",
-      "value": "139%",
+      "value": "136%",
       "status": "Slightly Overvalued",
       "emoji": "🟡"
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "39.9",
+      "value": "40.6",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
@@ -30,98 +30,98 @@
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+4.3%",
-      "status": "Bullish (Golden Cross)",
-      "emoji": "🟢"
+      "value": "+6.0%",
+      "status": "Strong Bullish (Golden Cross)",
+      "emoji": "🟢🟢"
     }
   },
   "facts": {
-    "buffettIndicator": "139%",
-    "shillerPE": "39.9",
-    "sp500VsMa200": "+4.3%",
+    "buffettIndicator": "136%",
+    "shillerPE": "40.6",
+    "sp500VsMa200": "+6.0%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 34,
-    "sp500": "7316.15",
-    "sp500Change": "-1.52%",
-    "dowJones": "51594.14",
-    "dowJonesChange": "-2.19%",
-    "vix": "19.13",
-    "vixChange": "-7.41%",
-    "gold": "$4133.30",
-    "goldChange": "+0.89%",
-    "oil": "$83.97",
-    "oilChange": "-0.58%",
-    "dxy": "100.68",
-    "dxyChange": "-0.20%",
-    "btc": "$64,840",
-    "btcChange": "+1.47%",
-    "gdpValue": "+2.1% (QoQ)",
+    "fearGreedValue": 39,
+    "sp500": "7437.63",
+    "sp500Change": "+1.66%",
+    "dowJones": "52208.06",
+    "dowJonesChange": "+1.19%",
+    "vix": "17.25",
+    "vixChange": "+0.94%",
+    "gold": "$4097.70",
+    "goldChange": "-1.51%",
+    "oil": "$85.47",
+    "oilChange": "+2.25%",
+    "dxy": "100.36",
+    "dxyChange": "+0.49%",
+    "btc": "$63,676",
+    "btcChange": "-1.62%",
+    "gdpValue": "+1.5% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.61%",
-    "googlChange": "+0.90%",
-    "babaChange": "-0.14%",
-    "adbeChange": "+5.72%",
-    "sofiChange": "-8.90%",
-    "asmlChange": "-2.04%"
+    "treasury10Y": "4.67%",
+    "googlChange": "-0.91%",
+    "babaChange": "+1.12%",
+    "adbeChange": "-5.90%",
+    "sofiChange": "+8.14%",
+    "asmlChange": "+6.50%"
   },
   "fearGreed": {
-    "score": 34,
+    "score": 39,
     "classification": "Fear",
-    "change1d": "+2",
-    "change1w": "-4"
+    "change1d": "+0",
+    "change1w": "-2"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7316.15",
-      "change": "-1.52%"
+      "value": "7437.63",
+      "change": "+1.66%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "51594.14",
-      "change": "-2.19%"
+      "value": "52208.06",
+      "change": "+1.19%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "19.13",
-      "change": "-7.41%"
+      "value": "17.25",
+      "change": "+0.94%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4133.30",
-      "change": "+0.89%"
+      "value": "$4097.70",
+      "change": "-1.51%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$83.97",
-      "change": "-0.58%"
+      "value": "$85.47",
+      "change": "+2.25%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.68",
-      "change": "-0.20%"
+      "value": "100.36",
+      "change": "+0.49%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,840",
-      "change": "+1.47%"
+      "value": "$63,676",
+      "change": "-1.62%"
     }
   ],
   "economic": [
     {
       "label": "GDP Growth",
-      "period": "Jan 2026",
+      "period": "Apr 2026",
       "factKey": "gdpValue",
-      "value": "+2.1% (QoQ)"
+      "value": "+1.5% (QoQ)"
     },
     {
       "label": "Inflation/CPI",
@@ -143,7 +143,7 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.61%"
+      "value": "4.67%"
     },
     {
       "label": "2Y Treasury",
@@ -151,10 +151,10 @@
       "value": "N/A"
     }
   ],
-  "watchlist": "  GOOGL: $336.71 (+0.90%)\n  BABA: $115.03 (-0.14%)\n  ADBE: $263.43 (+5.72%)\n  SOFI: $15.25 (-8.90%)\n  ASML: $1550.69 (-2.04%)",
+  "watchlist": "  GOOGL: $333.66 (-0.91%)\n  BABA: $116.32 (+1.12%)\n  ADBE: $247.90 (-5.90%)\n  SOFI: $16.47 (+8.14%)\n  ASML: $1651.44 (+6.50%)",
   "trackRecord": {
-    "accuracy": "5/10 (50%)",
-    "last": "Cautiously Bearish (2026-07-29) → market moved -1.52% → Correct"
+    "accuracy": "5/11 (45%)",
+    "last": "Cautiously Bearish (2026-07-30) → market moved +1.66% → Miss"
   },
   "history": [
     {
@@ -273,18 +273,25 @@
       "date": "2026-07-30",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+1.66%"
+    },
+    {
+      "date": "2026-07-31",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "llama-3.3-70b-versatile",
-  "analysisProvider": "Groq",
+  "analysisModel": "gemini-3.6-flash",
+  "analysisProvider": "Google",
   "analysis": {
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Market valuation measures continue to indicate elevated price levels",
+        "text": "Overall market valuation gauges suggest equities remain significantly priced above historical norms.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -292,63 +299,65 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "A historic crash in highflying stocks may lead to a trap for a quick tech rebound",
+        "text": "Elevated energy prices and ongoing inflationary pressures prompt central bank officials to debate higher borrowing costs.",
         "basedOn": [
-          "headline_1"
+          "oilChange",
+          "cpiValue",
+          "headline_3"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "The economy shows growth but inflation remains a concern",
+        "text": "General investor sentiment leans toward fear even as major market averages trade above their moving average.",
         "basedOn": [
-          "gdpValue",
-          "cpiValue"
+          "fearGreedValue",
+          "sp500VsMa200"
         ],
         "direction": "neutral"
       },
       {
-        "text": "Some investors are achieving high returns with global equity funds that hold few US stocks",
+        "text": "Major domestic energy producers reported significant profit growth amidst geopolitical tensions.",
         "basedOn": [
-          "headline_5"
+          "headline_1"
         ],
-        "direction": "supports_bullish"
+        "direction": "neutral"
       }
     ],
-    "interpretation": "The market continues to show signs of overvaluation, and recent events, such as the crash in highflying stocks, may lead to a trap for investors seeking a quick rebound. However, the economy is growing, and some investors are finding success with global equity funds. As a value investor, it is essential to remain cautious and consider the potential risks and opportunities in the market.",
-    "wisdom": "It is essential to be patient and disciplined in investing, as the market can be unpredictable, and it is crucial to focus on the fundamentals of the companies and the overall economy, rather than following the crowd or trying to time the market."
+    "interpretation": "Market valuations remain extended, reinforcing our cautious outlook from previous assessments. While heightened market volatility creates selective entry points, persistent inflation keeps macro risks elevated. A disciplined investor should wait for business prices to offer an adequate margin of safety before allocating capital.",
+    "wisdom": "Price is what you pay, value is what you get, and safety comes from buying at a deep discount to intrinsic worth."
   },
   "news": [
     {
-      "title": "Wall Street just suffered a historic crash in highflying stocks. Why a quick tech rebound could be a trap.",
-      "url": "https://www.marketwatch.com/story/wall-street-just-suffered-a-historic-crash-in-high-flying-stocks-here-is-why-a-quick-tech-rebound-could-be-a-trap-c021318a?mod=mw_rss_topstories"
+      "title": "ExxonMobil, Chevron's combined profits quadrupled in three months as the Iran war raged",
+      "url": "https://www.marketwatch.com/story/exxonmobil-chevrons-combined-profits-quadrupled-in-three-months-as-the-iran-war-raged-a6e8da62?mod=mw_rss_topstories"
     },
     {
-      "title": "GDP shows the economy grew 1.5% in the second quarter  -  but it's even better than it looks",
-      "url": "https://www.marketwatch.com/story/gdp-shows-the-economy-grew-1-5-in-the-second-quarter-but-its-even-better-than-it-looks-11b7f4fe?mod=mw_rss_topstories"
+      "title": "The Big Mac Index turns 40. Here's why it's still relevant.",
+      "url": "https://www.marketwatch.com/story/the-big-mac-index-turns-forty-and-heres-the-beef-its-still-relevant-b56497dd?mod=mw_rss_topstories"
     },
     {
-      "title": "Fed-favored PCE inflation gauge falls for first time since pandemic, but danger far from over",
-      "url": "https://www.marketwatch.com/story/fed-favored-pce-inflation-gauge-falls-for-first-time-since-pandemic-but-danger-far-from-over-57e382bf?mod=mw_rss_topstories"
+      "title": "Fed dissenters speak: Why they backed higher interest rates",
+      "url": "https://www.marketwatch.com/story/fed-dissenters-speak-why-they-backed-higher-interest-rates-e0306129?mod=mw_rss_topstories"
     },
     {
-      "title": "Congrats, Gen Z, you're turning 30. Here are the most important money moves to make next.",
-      "url": "https://www.marketwatch.com/story/congrats-gen-z-youre-turning-30-here-are-the-most-important-money-moves-to-make-next-9e30bb0a?mod=mw_rss_topstories"
+      "title": "Why fresh volatility means a 'valuation opportunity' is opening up in U.S. stocks",
+      "url": "https://www.marketwatch.com/story/why-fresh-volatility-means-a-valuation-opportunity-is-opening-up-in-u-s-stocks-9dbef149?mod=mw_rss_topstories"
     },
     {
-      "title": "This global equity fund boasts a 150% five-year return for investors, despite holding few U.S. stocks",
-      "url": "https://www.marketwatch.com/story/this-global-equity-fund-boasts-a-150-five-year-return-for-investors-despite-being-well-underweight-u-s-stocks-624ff6b4?mod=mw_rss_topstories"
+      "title": "'It's like buying a lottery ticket': Fidelity asked for my former sister-in-law's death certificate. Does this mean I'm due a windfall?",
+      "url": "https://www.marketwatch.com/story/its-like-buying-a-lottery-ticket-fidelity-asked-for-my-former-sister-in-laws-death-certificate-does-this-mean-im-due-a-windfall-2ebdcd69?mod=mw_rss_topstories"
     },
     {
-      "title": "Nearly half of small-cap and midcap stocks are losing money",
-      "url": "https://www.marketwatch.com/story/nearly-half-of-small-cap-and-midcap-stocks-are-losing-money-ca851c98?mod=mw_rss_topstories"
+      "title": "The cyclospora outbreak is the biggest ever. Why this 'unusual' outbreak is so hard to manage.",
+      "url": "https://www.marketwatch.com/story/the-cyclospora-outbreak-is-the-biggest-ever-why-the-unusual-outbreak-is-so-hard-to-manage-4d1b4841?mod=mw_rss_topstories"
+    },
+    {
+      "title": "South Korea's chip giants just logged their biggest rally ever. What it means for the global AI trade.",
+      "url": "https://www.marketwatch.com/story/south-koreas-chip-giants-just-logged-their-biggest-rally-ever-what-it-means-for-the-global-ai-trade-94d7e914?mod=mw_rss_topstories"
     },
     {
       "title": "'Don't get suckered like I did': I paid $185 to the wrong passport website. Can I get my money back?",
       "url": "https://www.marketwatch.com/story/dont-get-suckered-like-i-did-i-paid-185-to-the-wrong-passport-website-can-i-get-my-money-back-3a781412?mod=mw_rss_topstories"
-    },
-    {
-      "title": "Why you shouldn't worry about the stock market's break below its 50-day moving average",
-      "url": "https://www.marketwatch.com/story/why-you-shouldnt-worry-about-the-stock-markets-break-below-its-50-day-moving-average-4dfab87a?mod=mw_rss_topstories"
     }
   ],
   "sources": [
