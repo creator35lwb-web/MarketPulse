@@ -1,12 +1,10 @@
 {
   "edition": "US",
-  "generatedAt": "2026-07-31T13:01:43.098Z",
-  "dateLabel": "Friday, July 31, 2026",
+  "generatedAt": "2026-08-01T13:01:28.012Z",
+  "dateLabel": "Saturday, August 1, 2026",
   "health": {
-    "status": "DEGRADED",
-    "missing": [
-      "2Y Treasury"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {
@@ -18,102 +16,104 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.6",
+      "value": "40.9",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "N/A",
-      "status": "",
-      "emoji": ""
+      "value": "+0.45%",
+      "status": "Flat (Caution)",
+      "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+6.0%",
+      "value": "+6.6%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "136%",
-    "shillerPE": "40.6",
-    "sp500VsMa200": "+6.0%",
+    "shillerPE": "40.9",
+    "yieldCurve": "+0.45%",
+    "sp500VsMa200": "+6.6%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 39,
-    "sp500": "7437.63",
-    "sp500Change": "+1.66%",
-    "dowJones": "52208.06",
-    "dowJonesChange": "+1.19%",
-    "vix": "17.25",
-    "vixChange": "+0.94%",
-    "gold": "$4097.70",
-    "goldChange": "-1.51%",
-    "oil": "$85.47",
-    "oilChange": "+2.25%",
-    "dxy": "100.36",
-    "dxyChange": "+0.49%",
-    "btc": "$63,676",
-    "btcChange": "-1.62%",
+    "fearGreedValue": 42,
+    "sp500": "7489.72",
+    "sp500Change": "+0.70%",
+    "dowJones": "52485.03",
+    "dowJonesChange": "+0.53%",
+    "vix": "15.99",
+    "vixChange": "-6.44%",
+    "gold": "$4107.00",
+    "goldChange": "-1.29%",
+    "oil": "$84.67",
+    "oilChange": "+1.29%",
+    "dxy": "99.80",
+    "dxyChange": "-0.11%",
+    "btc": "$63,035",
+    "btcChange": "+0.34%",
     "gdpValue": "+1.5% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.67%",
-    "googlChange": "-0.91%",
-    "babaChange": "+1.12%",
-    "adbeChange": "-5.90%",
-    "sofiChange": "+8.14%",
-    "asmlChange": "+6.50%"
+    "treasury10Y": "4.68%",
+    "treasury2Y": "4.23%",
+    "googlChange": "+6.73%",
+    "babaChange": "+5.10%",
+    "adbeChange": "+1.01%",
+    "sofiChange": "-0.97%",
+    "asmlChange": "-1.36%"
   },
   "fearGreed": {
-    "score": 39,
+    "score": 42,
     "classification": "Fear",
-    "change1d": "+0",
-    "change1w": "-2"
+    "change1d": "+4",
+    "change1w": "+1"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7437.63",
-      "change": "+1.66%"
+      "value": "7489.72",
+      "change": "+0.70%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52208.06",
-      "change": "+1.19%"
+      "value": "52485.03",
+      "change": "+0.53%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "17.25",
-      "change": "+0.94%"
+      "value": "15.99",
+      "change": "-6.44%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4097.70",
-      "change": "-1.51%"
+      "value": "$4107.00",
+      "change": "-1.29%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$85.47",
-      "change": "+2.25%"
+      "value": "$84.67",
+      "change": "+1.29%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "100.36",
-      "change": "+0.49%"
+      "value": "99.80",
+      "change": "-0.11%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,676",
-      "change": "-1.62%"
+      "value": "$63,035",
+      "change": "+0.34%"
     }
   ],
   "economic": [
@@ -143,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.67%"
+      "value": "4.68%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "N/A"
+      "value": "4.23%"
     }
   ],
-  "watchlist": "  GOOGL: $333.66 (-0.91%)\n  BABA: $116.32 (+1.12%)\n  ADBE: $247.90 (-5.90%)\n  SOFI: $16.47 (+8.14%)\n  ASML: $1651.44 (+6.50%)",
+  "watchlist": "  GOOGL: $356.13 (+6.73%)\n  BABA: $122.25 (+5.10%)\n  ADBE: $250.41 (+1.01%)\n  SOFI: $16.31 (-0.97%)\n  ASML: $1629.00 (-1.36%)",
   "trackRecord": {
-    "accuracy": "5/11 (45%)",
-    "last": "Cautiously Bearish (2026-07-30) → market moved +1.66% → Miss"
+    "accuracy": "5/12 (42%)",
+    "last": "Cautiously Bearish (2026-07-31) → market moved +0.70% → Miss"
   },
   "history": [
     {
@@ -280,6 +280,13 @@
       "date": "2026-07-31",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.70%"
+    },
+    {
+      "date": "2026-08-01",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -291,7 +298,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Overall market valuation gauges suggest equities remain significantly priced above historical norms.",
+        "text": "Broad equity market valuation indicators demonstrate that stock prices remain elevated compared to historical economic output and earnings norms.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -299,65 +306,57 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Elevated energy prices and ongoing inflationary pressures prompt central bank officials to debate higher borrowing costs.",
-        "basedOn": [
-          "oilChange",
-          "cpiValue",
-          "headline_3"
-        ],
-        "direction": "supports_bearish"
-      },
-      {
-        "text": "General investor sentiment leans toward fear even as major market averages trade above their moving average.",
+        "text": "Market sentiment reflects fear among participants even as broad stock benchmarks remain above their long-term trendline.",
         "basedOn": [
           "fearGreedValue",
           "sp500VsMa200"
         ],
-        "direction": "neutral"
+        "direction": "supports_bearish"
       },
       {
-        "text": "Major domestic energy producers reported significant profit growth amidst geopolitical tensions.",
+        "text": "Geopolitical conflicts surrounding regional wars have driven investor attention into agricultural asset stocks alongside rising crude energy prices.",
         "basedOn": [
-          "headline_1"
+          "headline_7",
+          "oilChange"
         ],
-        "direction": "neutral"
+        "direction": "supports_bearish"
       }
     ],
-    "interpretation": "Market valuations remain extended, reinforcing our cautious outlook from previous assessments. While heightened market volatility creates selective entry points, persistent inflation keeps macro risks elevated. A disciplined investor should wait for business prices to offer an adequate margin of safety before allocating capital.",
-    "wisdom": "Price is what you pay, value is what you get, and safety comes from buying at a deep discount to intrinsic worth."
+    "interpretation": "In comparison to the prior assessment, investor sentiment continues to display cautious fear despite technical equity strength, while energy costs climb higher. Equity valuations remain heavily stretched above historical fair value, offering limited margin of safety for disciplined capital allocation. Value investors should remain patient, preserving cash until market corrections yield truly mispriced compounders.",
+    "wisdom": "Price is what you pay, value is what you get, so focus on buying wonderful businesses only when market fear creates an adequate margin of safety."
   },
   "news": [
     {
-      "title": "ExxonMobil, Chevron's combined profits quadrupled in three months as the Iran war raged",
-      "url": "https://www.marketwatch.com/story/exxonmobil-chevrons-combined-profits-quadrupled-in-three-months-as-the-iran-war-raged-a6e8da62?mod=mw_rss_topstories"
+      "title": "How to plan for the high cost of having your first kid in your 40s",
+      "url": "https://www.marketwatch.com/story/how-to-plan-for-the-high-cost-of-having-your-first-kid-in-your-40s-bfe0c28a?mod=mw_rss_topstories"
     },
     {
-      "title": "The Big Mac Index turns 40. Here's why it's still relevant.",
-      "url": "https://www.marketwatch.com/story/the-big-mac-index-turns-forty-and-heres-the-beef-its-still-relevant-b56497dd?mod=mw_rss_topstories"
+      "title": "How much should an AI agent cost? No one can agree  -  and it's creating chaos.",
+      "url": "https://www.marketwatch.com/story/how-much-should-an-ai-agent-cost-no-one-can-agree-and-its-creating-chaos-288d741e?mod=mw_rss_topstories"
     },
     {
-      "title": "Fed dissenters speak: Why they backed higher interest rates",
-      "url": "https://www.marketwatch.com/story/fed-dissenters-speak-why-they-backed-higher-interest-rates-e0306129?mod=mw_rss_topstories"
+      "title": "My girlfriend is 62. Can she claim her late husband's full Social Security benefit  -  or does she have to wait?",
+      "url": "https://www.marketwatch.com/story/my-girlfriend-is-62-can-she-claim-her-late-husbands-full-social-security-benefit-or-does-she-have-to-wait-315c0fa1?mod=mw_rss_topstories"
     },
     {
-      "title": "Why fresh volatility means a 'valuation opportunity' is opening up in U.S. stocks",
-      "url": "https://www.marketwatch.com/story/why-fresh-volatility-means-a-valuation-opportunity-is-opening-up-in-u-s-stocks-9dbef149?mod=mw_rss_topstories"
+      "title": "Loyalists may miss the old Southwest. Wall Street loves the new one.",
+      "url": "https://www.marketwatch.com/story/loyalists-may-miss-the-old-southwest-wall-street-loves-the-new-one-fab88537?mod=mw_rss_topstories"
     },
     {
-      "title": "'It's like buying a lottery ticket': Fidelity asked for my former sister-in-law's death certificate. Does this mean I'm due a windfall?",
-      "url": "https://www.marketwatch.com/story/its-like-buying-a-lottery-ticket-fidelity-asked-for-my-former-sister-in-laws-death-certificate-does-this-mean-im-due-a-windfall-2ebdcd69?mod=mw_rss_topstories"
+      "title": "Many boomers are desperate to move but can't afford to",
+      "url": "https://www.marketwatch.com/story/many-boomers-are-desperate-to-move-but-cant-afford-to-6c9907ea?mod=mw_rss_topstories"
     },
     {
-      "title": "The cyclospora outbreak is the biggest ever. Why this 'unusual' outbreak is so hard to manage.",
-      "url": "https://www.marketwatch.com/story/the-cyclospora-outbreak-is-the-biggest-ever-why-the-unusual-outbreak-is-so-hard-to-manage-4d1b4841?mod=mw_rss_topstories"
+      "title": "3 Wall Street strategists on the question every investor is asking: Is the worst over for the stock market?",
+      "url": "https://www.marketwatch.com/story/3-wall-street-strategists-on-the-question-every-investor-is-asking-is-the-worst-over-for-the-stock-market-0c06aac4?mod=mw_rss_topstories"
     },
     {
-      "title": "South Korea's chip giants just logged their biggest rally ever. What it means for the global AI trade.",
-      "url": "https://www.marketwatch.com/story/south-koreas-chip-giants-just-logged-their-biggest-rally-ever-what-it-means-for-the-global-ai-trade-94d7e914?mod=mw_rss_topstories"
+      "title": "The Iran war sent investors into fertilizer stocks  -  but here's the China risk everyone's missing",
+      "url": "https://www.marketwatch.com/story/the-iran-war-sent-investors-into-fertilizer-stocks-but-heres-the-china-risk-everyones-missing-7be93b9d?mod=mw_rss_topstories"
     },
     {
-      "title": "'Don't get suckered like I did': I paid $185 to the wrong passport website. Can I get my money back?",
-      "url": "https://www.marketwatch.com/story/dont-get-suckered-like-i-did-i-paid-185-to-the-wrong-passport-website-can-i-get-my-money-back-3a781412?mod=mw_rss_topstories"
+      "title": "If Social Security's funding crisis is the elephant in the room, this is the mouse everyone has overlooked. You have been warned.",
+      "url": "https://www.marketwatch.com/story/if-social-securitys-funding-crisis-is-the-elephant-in-the-room-this-is-the-mouse-everyone-has-overlooked-you-have-been-warned-b95c450d?mod=mw_rss_topstories"
     }
   ],
   "sources": [
