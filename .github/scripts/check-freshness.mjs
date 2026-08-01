@@ -93,8 +93,15 @@ const editionsLabel = stale.map((r) => r.label).join(' + ');
 // whole point of running off-box. It is to CLOSE THE STORY: emit the fresh editions too, so
 // the workflow can retire any alert its earlier self opened and tell the channel the digest
 // landed. An alarm that never resolves is an alarm that gets ignored.
+// An alert is only retired by the arrival of the digest it was filed about, so the
+// EDITION ALONE IS NOT ENOUGH — the publish date has to match the date in the alert
+// title too. Without that, Monday's healthy CN digest would close Friday's alert and
+// announce that Friday's digest "arrived late", when in fact it was never published
+// at all (CN 2026-07-31: DNS failure on a late wake, lost permanently). Emitting
+// `label|date` pairs lets the workflow match on both.
 const freshResults = results.filter((r) => !r.stale);
 const freshLabel = freshResults.map((r) => r.label).join(' ');
+const freshPairs = freshResults.map((r) => `${r.label}|${r.publishedDate}`).join(' ');
 const freshSummary = freshResults
   .map((r) => `- **${r.label} edition**: published ${r.generatedAt} (${r.ageHours}h ago)`)
   .join('\n');
@@ -107,6 +114,7 @@ if (process.env.GITHUB_OUTPUT) {
   // Space-separated labels, safe to iterate in shell; empty when nothing is fresh.
   appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${freshResults.length > 0}\n`);
   appendFileSync(process.env.GITHUB_OUTPUT, `fresh_editions=${freshLabel}\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `fresh_pairs=${freshPairs}\n`);
   // Multi-line outputs via heredoc-style delimiters.
   appendFileSync(process.env.GITHUB_OUTPUT, `summary<<FRESHNESS_EOF\n${summary}\nFRESHNESS_EOF\n`);
   appendFileSync(process.env.GITHUB_OUTPUT, `fresh_summary<<FRESHNESS_EOF\n${freshSummary}\nFRESHNESS_EOF\n`);

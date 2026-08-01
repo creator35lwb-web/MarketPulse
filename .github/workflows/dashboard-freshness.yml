@@ -136,8 +136,14 @@ jobs:
       # it at 20:08. Detecting fast is correct; leaving the warning hanging is not. When an
       # edition is fresh and an alert this watchdog opened is still open, retire it here.
       #
-      # Only an alert whose title names EXACTLY this edition ("— CN —") is closed. A combined
-      # "US + CN" alert is deliberately left open: one edition recovering does not clear both.
+      # An alert is retired ONLY by the arrival of the digest it was actually filed about:
+      # the title must name this edition AND the date that just published ("— CN — 2026-08-03").
+      # Matching on edition alone was wrong — Monday's healthy CN digest would have closed
+      # Friday's alert and announced that Friday's digest "arrived late", when CN 2026-07-31
+      # was never published at all. A later day publishing does not make an earlier day late.
+      # A genuinely missed day therefore stays open for a human to close honestly.
+      #
+      # A combined "US + CN" alert is also left open: one edition recovering does not clear both.
       #
       # continue-on-error: this job's founding rule is that it NEVER goes red — a build that
       # is red on every offline day trains the operator to ignore CI. Retiring an alert is
@@ -149,33 +155,39 @@ jobs:
         if: steps.check.outputs.fresh == 'true' && github.event.inputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FRESH_EDITIONS: ${{ steps.check.outputs.fresh_editions }}
+          FRESH_PAIRS: ${{ steps.check.outputs.fresh_pairs }}
           FRESH_SUMMARY: ${{ steps.check.outputs.fresh_summary }}
         run: |
           CLOSED=""
-          for ED in ${FRESH_EDITIONS}; do
+          RESOLVED_EDS=""
+          for PAIR in ${FRESH_PAIRS}; do
+            ED="${PAIR%%|*}"
+            PUBDATE="${PAIR##*|}"
+            # Edition AND date must both match: only the alert filed for the day that just
+            # published is retired here. Any other open alert is a genuinely missed day.
             NUMS=$(gh issue list --state open --limit 30 --json title,number \
-              --jq ".[] | select(.title | contains(\"MarketPulse digest missing\") and contains(\" — ${ED} — \")) | .number")
+              --jq ".[] | select(.title | contains(\"MarketPulse digest missing\") and contains(\" — ${ED} — ${PUBDATE}\")) | .number")
             for N in ${NUMS}; do
-              gh issue close "${N}" --comment "✅ **Resolved automatically — the ${ED} digest has published.**
+              gh issue close "${N}" --comment "✅ **Resolved automatically — the ${ED} digest for ${PUBDATE} has published.**
 
           ${FRESH_SUMMARY}
 
-          This alert was filed when the digest had not yet appeared. It has now landed, so the
-          run was **late rather than missing** — the host was offline at the scheduled hour and
-          completed once it came back. No stale data was published in the interval: a run that
-          cannot verify fresh numbers publishes nothing.
+          This alert was filed when that day's digest had not yet appeared. It has now landed,
+          so the run was **late rather than missing** — the host was offline at the scheduled
+          hour and completed once it came back. No stale data was published in the interval: a
+          run that cannot verify fresh numbers publishes nothing.
 
           _Retired by the Dashboard Freshness Watchdog._"
-              echo "Closed alert issue #${N} (${ED} digest landed)."
+              echo "Closed alert issue #${N} (${ED} ${PUBDATE} digest landed)."
               CLOSED="${CLOSED} ${ED}#${N}"
+              RESOLVED_EDS="${RESOLVED_EDS} ${ED}"
             done
           done
           if [ -n "${CLOSED}" ]; then
             echo "resolved=true" >> "$GITHUB_OUTPUT"
-            echo "resolved_editions=$(echo ${FRESH_EDITIONS})" >> "$GITHUB_OUTPUT"
+            echo "resolved_editions=$(echo ${RESOLVED_EDS})" >> "$GITHUB_OUTPUT"
           else
-            echo "No open alert to retire — nothing was announced for these editions."
+            echo "No alert to retire for a same-day publish — any open alert is a genuinely missed day, left for a human to close."
           fi
 
       # Close the story in the channel too. Fires ONLY when an alert was actually retired,
