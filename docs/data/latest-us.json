@@ -1,7 +1,7 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-01T13:01:28.012Z",
-  "dateLabel": "Saturday, August 1, 2026",
+  "generatedAt": "2026-08-02T13:03:37.528Z",
+  "dateLabel": "Sunday, August 2, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -52,8 +52,8 @@
     "oilChange": "+1.29%",
     "dxy": "99.80",
     "dxyChange": "-0.11%",
-    "btc": "$63,035",
-    "btcChange": "+0.34%",
+    "btc": "$63,062",
+    "btcChange": "+0.48%",
     "gdpValue": "+1.5% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
@@ -112,8 +112,8 @@
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,035",
-      "change": "+0.34%"
+      "value": "$63,062",
+      "change": "+0.48%"
     }
   ],
   "economic": [
@@ -298,7 +298,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad equity market valuation indicators demonstrate that stock prices remain elevated compared to historical economic output and earnings norms.",
+        "text": "Market valuation metrics indicate equities remain priced well above historical norms relative to total economic output and long-term earnings.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -306,57 +306,65 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Market sentiment reflects fear among participants even as broad stock benchmarks remain above their long-term trendline.",
+        "text": "Investor sentiment reflects caution even as the broad market index trades above its long-term moving average.",
         "basedOn": [
           "fearGreedValue",
           "sp500VsMa200"
         ],
-        "direction": "supports_bearish"
+        "direction": "neutral"
       },
       {
-        "text": "Geopolitical conflicts surrounding regional wars have driven investor attention into agricultural asset stocks alongside rising crude energy prices.",
+        "text": "News coverage highlights market attention shifting toward financial stocks amid upcoming monetary policy decisions.",
         "basedOn": [
-          "headline_7",
-          "oilChange"
+          "headline_1",
+          "headline_2"
         ],
-        "direction": "supports_bearish"
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "Select global technology and internet equity holdings on the watchlist demonstrated notable price advances.",
+        "basedOn": [
+          "googlChange",
+          "babaChange"
+        ],
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "In comparison to the prior assessment, investor sentiment continues to display cautious fear despite technical equity strength, while energy costs climb higher. Equity valuations remain heavily stretched above historical fair value, offering limited margin of safety for disciplined capital allocation. Value investors should remain patient, preserving cash until market corrections yield truly mispriced compounders.",
-    "wisdom": "Price is what you pay, value is what you get, so focus on buying wonderful businesses only when market fear creates an adequate margin of safety."
+    "interpretation": "In comparison to the prior assessment, market participants have rotated into financial stocks alongside solid advances in key internet equities, yet structural overvaluation continues to constrain underlying market safety. Overall sentiment stays cautiously bearish because broad economic and earnings ratios remain at elevated levels. Intelligent value investors should remain patient and insist on a firm margin of safety before deploying capital.",
+    "wisdom": "Price is what you pay, value is what you get, so never confuse market momentum with a margin of safety when overall valuations remain elevated."
   },
   "news": [
     {
-      "title": "How to plan for the high cost of having your first kid in your 40s",
-      "url": "https://www.marketwatch.com/story/how-to-plan-for-the-high-cost-of-having-your-first-kid-in-your-40s-bfe0c28a?mod=mw_rss_topstories"
+      "title": "Investors are rotating into financial stocks. The Fed's next move could determine how far the rally runs.",
+      "url": "https://www.marketwatch.com/story/investors-are-rotating-into-financial-stocks-the-feds-next-move-could-determine-how-far-the-rally-runs-662c63df?mod=mw_rss_topstories"
     },
     {
-      "title": "How much should an AI agent cost? No one can agree  -  and it's creating chaos.",
-      "url": "https://www.marketwatch.com/story/how-much-should-an-ai-agent-cost-no-one-can-agree-and-its-creating-chaos-288d741e?mod=mw_rss_topstories"
+      "title": "Financial stocks are crushing it. These charts show why the 'breakout' rally may have just begun.",
+      "url": "https://www.marketwatch.com/story/financial-stocks-are-crushing-it-these-charts-show-why-the-breakout-rally-may-have-just-begun-6db3cc12?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Why every tech giant wants to look like a cybersecurity company in the AI era",
+      "url": "https://www.marketwatch.com/story/why-every-tech-giant-wants-to-look-like-a-cybersecurity-company-in-the-ai-era-00534525?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Tim Cook's lasting legacy: Keeping Apple's eye on the ball",
+      "url": "https://www.marketwatch.com/story/tim-cooks-lasting-legacy-keeping-apples-eye-on-the-ball-76521035?mod=mw_rss_topstories"
     },
     {
       "title": "My girlfriend is 62. Can she claim her late husband's full Social Security benefit  -  or does she have to wait?",
       "url": "https://www.marketwatch.com/story/my-girlfriend-is-62-can-she-claim-her-late-husbands-full-social-security-benefit-or-does-she-have-to-wait-315c0fa1?mod=mw_rss_topstories"
     },
     {
-      "title": "Loyalists may miss the old Southwest. Wall Street loves the new one.",
-      "url": "https://www.marketwatch.com/story/loyalists-may-miss-the-old-southwest-wall-street-loves-the-new-one-fab88537?mod=mw_rss_topstories"
-    },
-    {
-      "title": "Many boomers are desperate to move but can't afford to",
-      "url": "https://www.marketwatch.com/story/many-boomers-are-desperate-to-move-but-cant-afford-to-6c9907ea?mod=mw_rss_topstories"
-    },
-    {
-      "title": "3 Wall Street strategists on the question every investor is asking: Is the worst over for the stock market?",
-      "url": "https://www.marketwatch.com/story/3-wall-street-strategists-on-the-question-every-investor-is-asking-is-the-worst-over-for-the-stock-market-0c06aac4?mod=mw_rss_topstories"
-    },
-    {
-      "title": "The Iran war sent investors into fertilizer stocks  -  but here's the China risk everyone's missing",
-      "url": "https://www.marketwatch.com/story/the-iran-war-sent-investors-into-fertilizer-stocks-but-heres-the-china-risk-everyones-missing-7be93b9d?mod=mw_rss_topstories"
-    },
-    {
       "title": "If Social Security's funding crisis is the elephant in the room, this is the mouse everyone has overlooked. You have been warned.",
       "url": "https://www.marketwatch.com/story/if-social-securitys-funding-crisis-is-the-elephant-in-the-room-this-is-the-mouse-everyone-has-overlooked-you-have-been-warned-b95c450d?mod=mw_rss_topstories"
+    },
+    {
+      "title": "'We have always been civil': My sister refuses to replace me as executor. Can I step down before she dies?",
+      "url": "https://www.marketwatch.com/story/we-have-always-been-civil-my-sister-refuses-to-replace-me-as-executor-can-i-step-down-before-she-dies-84a835a9?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Let's elect candidates who will make the wealthy pay taxes",
+      "url": "https://www.marketwatch.com/story/lets-elect-candidates-who-will-make-the-wealthy-pay-taxes-15f53a4a?mod=mw_rss_topstories"
     }
   ],
   "sources": [
