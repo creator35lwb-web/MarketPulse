@@ -1,10 +1,12 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-02T13:03:37.528Z",
-  "dateLabel": "Sunday, August 2, 2026",
+  "generatedAt": "2026-08-03T13:01:37.014Z",
+  "dateLabel": "Monday, August 3, 2026",
   "health": {
-    "status": "OK",
-    "missing": [],
+    "status": "DEGRADED",
+    "missing": [
+      "CPI"
+    ],
     "suspect": []
   },
   "dashboard": {
@@ -39,23 +41,22 @@
     "yieldCurve": "+0.45%",
     "sp500VsMa200": "+6.6%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 42,
+    "fearGreedValue": 45,
     "sp500": "7489.72",
     "sp500Change": "+0.70%",
     "dowJones": "52485.03",
     "dowJonesChange": "+0.53%",
-    "vix": "15.99",
-    "vixChange": "-6.44%",
-    "gold": "$4107.00",
-    "goldChange": "-1.29%",
-    "oil": "$84.67",
-    "oilChange": "+1.29%",
-    "dxy": "99.80",
-    "dxyChange": "-0.11%",
-    "btc": "$63,062",
-    "btcChange": "+0.48%",
+    "vix": "15.95",
+    "vixChange": "-0.25%",
+    "gold": "$4100.10",
+    "goldChange": "-0.17%",
+    "oil": "$79.34",
+    "oilChange": "-6.30%",
+    "dxy": "99.82",
+    "dxyChange": "-0.09%",
+    "btc": "$62,617",
+    "btcChange": "-1.39%",
     "gdpValue": "+1.5% (QoQ)",
-    "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
     "treasury10Y": "4.68%",
@@ -67,10 +68,10 @@
     "asmlChange": "-1.36%"
   },
   "fearGreed": {
-    "score": 42,
-    "classification": "Fear",
-    "change1d": "+4",
-    "change1w": "+1"
+    "score": 45,
+    "classification": "Neutral",
+    "change1d": "+3",
+    "change1w": "+7"
   },
   "screener": [
     {
@@ -88,32 +89,32 @@
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "15.99",
-      "change": "-6.44%"
+      "value": "15.95",
+      "change": "-0.25%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4107.00",
-      "change": "-1.29%"
+      "value": "$4100.10",
+      "change": "-0.17%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$84.67",
-      "change": "+1.29%"
+      "value": "$79.34",
+      "change": "-6.30%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "99.80",
-      "change": "-0.11%"
+      "value": "99.82",
+      "change": "-0.09%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$63,062",
-      "change": "+0.48%"
+      "value": "$62,617",
+      "change": "-1.39%"
     }
   ],
   "economic": [
@@ -125,9 +126,9 @@
     },
     {
       "label": "Inflation/CPI",
-      "period": "Jun 2026",
+      "period": "N/A",
       "factKey": "cpiValue",
-      "value": "3.46%"
+      "value": "N/A"
     },
     {
       "label": "Unemployment",
@@ -298,7 +299,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Market valuation metrics indicate equities remain priced well above historical norms relative to total economic output and long-term earnings.",
+        "text": "Long-term valuation metrics indicate that broader market equity prices remain substantially elevated relative to historical earnings and economic output.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -306,65 +307,67 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment reflects caution even as the broad market index trades above its long-term moving average.",
+        "text": "Crude energy prices experienced a sharp drop while broad stock market indexes posted modest gains above their long-term moving averages.",
         "basedOn": [
-          "fearGreedValue",
-          "sp500VsMa200"
+          "oilChange",
+          "sp500VsMa200",
+          "sp500Change"
         ],
         "direction": "neutral"
       },
       {
-        "text": "News coverage highlights market attention shifting toward financial stocks amid upcoming monetary policy decisions.",
+        "text": "Major corporate communications highlight upcoming financial releases and potential sector consolidation discussions.",
         "basedOn": [
-          "headline_1",
-          "headline_2"
+          "headline_2",
+          "headline_6"
         ],
-        "direction": "supports_bullish"
+        "direction": "neutral"
       },
       {
-        "text": "Select global technology and internet equity holdings on the watchlist demonstrated notable price advances.",
+        "text": "Key technology holding positions on the watchlist posted strong gains while foreign equipment manufacturers traded lower.",
         "basedOn": [
           "googlChange",
-          "babaChange"
+          "babaChange",
+          "asmlChange"
         ],
         "direction": "supports_bullish"
       }
     ],
-    "interpretation": "In comparison to the prior assessment, market participants have rotated into financial stocks alongside solid advances in key internet equities, yet structural overvaluation continues to constrain underlying market safety. Overall sentiment stays cautiously bearish because broad economic and earnings ratios remain at elevated levels. Intelligent value investors should remain patient and insist on a firm margin of safety before deploying capital.",
-    "wisdom": "Price is what you pay, value is what you get, so never confuse market momentum with a margin of safety when overall valuations remain elevated."
+    "interpretation": "Compared to the prior assessment, crude energy costs have reversed sharply downward, easing commodity pressure while overall equity valuations remain historically high. Market sentiment reflects neutral investor emotion, reinforcing the need to avoid chasing high multiples without clear margin of safety. Value investors should maintain capital discipline until intrinsic value opportunities become clearly visible.",
+    "wisdom": "Value investing requires patient capital allocation, buying wonderful businesses only when Mr Market presents them at a substantial margin of safety."
   },
   "news": [
     {
-      "title": "Investors are rotating into financial stocks. The Fed's next move could determine how far the rally runs.",
-      "url": "https://www.marketwatch.com/story/investors-are-rotating-into-financial-stocks-the-feds-next-move-could-determine-how-far-the-rally-runs-662c63df?mod=mw_rss_topstories"
+      "title": "Gold is still in its 'explosive phase,' says Deutsche Bank, as it sticks to year-end target",
+      "url": "https://www.marketwatch.com/story/gold-is-still-in-its-explosive-phase-says-deutsche-bank-as-it-sticks-to-year-end-target-fc5bc13a?mod=mw_rss_topstories"
     },
     {
-      "title": "Financial stocks are crushing it. These charts show why the 'breakout' rally may have just begun.",
-      "url": "https://www.marketwatch.com/story/financial-stocks-are-crushing-it-these-charts-show-why-the-breakout-rally-may-have-just-begun-6db3cc12?mod=mw_rss_topstories"
+      "title": "An AstraZeneca, Bristol Myers Squibb merger could create a cancer-drug giant, but analysts call it 'odd'",
+      "url": "https://www.marketwatch.com/story/astrazeneca-tie-up-talks-with-bristol-myers-squibb-are-moving-stocks-analysts-are-puzzled-7ae60fef?mod=mw_rss_topstories"
     },
     {
-      "title": "Why every tech giant wants to look like a cybersecurity company in the AI era",
-      "url": "https://www.marketwatch.com/story/why-every-tech-giant-wants-to-look-like-a-cybersecurity-company-in-the-ai-era-00534525?mod=mw_rss_topstories"
+      "title": "The gap between big tech and the rest of the market just vanished. Here's what it means for investors.",
+      "url": "https://www.marketwatch.com/story/the-gap-between-big-tech-and-the-rest-of-the-market-just-vanished-heres-what-it-means-for-investors-e783d2dc?mod=mw_rss_topstories"
     },
     {
-      "title": "Tim Cook's lasting legacy: Keeping Apple's eye on the ball",
-      "url": "https://www.marketwatch.com/story/tim-cooks-lasting-legacy-keeping-apples-eye-on-the-ball-76521035?mod=mw_rss_topstories"
-    },
-    {
-      "title": "My girlfriend is 62. Can she claim her late husband's full Social Security benefit  -  or does she have to wait?",
-      "url": "https://www.marketwatch.com/story/my-girlfriend-is-62-can-she-claim-her-late-husbands-full-social-security-benefit-or-does-she-have-to-wait-315c0fa1?mod=mw_rss_topstories"
-    },
-    {
-      "title": "If Social Security's funding crisis is the elephant in the room, this is the mouse everyone has overlooked. You have been warned.",
-      "url": "https://www.marketwatch.com/story/if-social-securitys-funding-crisis-is-the-elephant-in-the-room-this-is-the-mouse-everyone-has-overlooked-you-have-been-warned-b95c450d?mod=mw_rss_topstories"
+      "title": "Warsh tightened more by pausing than by lifting rates, this bond-market veteran argues. Here's the math.",
+      "url": "https://www.marketwatch.com/story/warsh-tightened-more-by-pausing-than-by-lifting-rates-this-bond-market-veteran-argues-heres-the-math-31cb15a1?mod=mw_rss_topstories"
     },
     {
       "title": "'We have always been civil': My sister refuses to replace me as executor. Can I step down before she dies?",
       "url": "https://www.marketwatch.com/story/we-have-always-been-civil-my-sister-refuses-to-replace-me-as-executor-can-i-step-down-before-she-dies-84a835a9?mod=mw_rss_topstories"
     },
     {
-      "title": "Let's elect candidates who will make the wealthy pay taxes",
-      "url": "https://www.marketwatch.com/story/lets-elect-candidates-who-will-make-the-wealthy-pay-taxes-15f53a4a?mod=mw_rss_topstories"
+      "title": "SpaceX's first-ever earnings report is a big deal  -  but not because of the numbers",
+      "url": "https://www.marketwatch.com/story/spacexs-first-ever-earnings-report-is-a-big-deal-but-not-because-of-the-numbers-9e53bc43?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Private credit has dodged public scrutiny for too long  -  and regulators need to step in",
+      "url": "https://www.marketwatch.com/story/private-credit-has-dodged-public-scrutiny-for-too-long-and-regulators-need-to-step-in-9ebb1d8c?mod=mw_rss_topstories"
+    },
+    {
+      "title": "'I'm easing into retirement': I'm getting an $80,000 pension payout. Where can I invest it safely?",
+      "url": "https://www.marketwatch.com/story/im-easing-into-retirement-im-getting-an-80-000-pension-payout-where-can-i-invest-it-safely-6653d810?mod=mw_rss_topstories"
     }
   ],
   "sources": [
