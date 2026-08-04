@@ -1,12 +1,10 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-03T13:01:37.014Z",
-  "dateLabel": "Monday, August 3, 2026",
+  "generatedAt": "2026-08-04T13:01:45.759Z",
+  "dateLabel": "Tuesday, August 4, 2026",
   "health": {
-    "status": "DEGRADED",
-    "missing": [
-      "CPI"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {
@@ -18,103 +16,104 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "40.9",
+      "value": "41.5",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.45%",
+      "value": "+0.47%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+6.6%",
+      "value": "+8.1%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "136%",
-    "shillerPE": "40.9",
-    "yieldCurve": "+0.45%",
-    "sp500VsMa200": "+6.6%",
+    "shillerPE": "41.5",
+    "yieldCurve": "+0.47%",
+    "sp500VsMa200": "+8.1%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 45,
-    "sp500": "7489.72",
-    "sp500Change": "+0.70%",
-    "dowJones": "52485.03",
-    "dowJonesChange": "+0.53%",
-    "vix": "15.95",
-    "vixChange": "-0.25%",
-    "gold": "$4100.10",
-    "goldChange": "-0.17%",
-    "oil": "$79.34",
-    "oilChange": "-6.30%",
-    "dxy": "99.82",
-    "dxyChange": "-0.09%",
-    "btc": "$62,617",
-    "btcChange": "-1.39%",
+    "fearGreedValue": 51,
+    "sp500": "7600.50",
+    "sp500Change": "+1.48%",
+    "dowJones": "53178.41",
+    "dowJonesChange": "+1.32%",
+    "vix": "15.60",
+    "vixChange": "-1.64%",
+    "gold": "$4133.00",
+    "goldChange": "+1.04%",
+    "oil": "$77.77",
+    "oilChange": "-3.20%",
+    "dxy": "99.91",
+    "dxyChange": "+0.01%",
+    "btc": "$63,837",
+    "btcChange": "+0.59%",
     "gdpValue": "+1.5% (QoQ)",
+    "cpiValue": "3.46%",
     "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.68%",
-    "treasury2Y": "4.23%",
-    "googlChange": "+6.73%",
-    "babaChange": "+5.10%",
-    "adbeChange": "+1.01%",
-    "sofiChange": "-0.97%",
-    "asmlChange": "-1.36%"
+    "treasury10Y": "4.75%",
+    "treasury2Y": "4.28%",
+    "googlChange": "+4.88%",
+    "babaChange": "+4.13%",
+    "adbeChange": "+0.37%",
+    "sofiChange": "+10.55%",
+    "asmlChange": "+0.83%"
   },
   "fearGreed": {
-    "score": 45,
+    "score": 51,
     "classification": "Neutral",
-    "change1d": "+3",
-    "change1w": "+7"
+    "change1d": "+5",
+    "change1w": "+13"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7489.72",
-      "change": "+0.70%"
+      "value": "7600.50",
+      "change": "+1.48%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "52485.03",
-      "change": "+0.53%"
+      "value": "53178.41",
+      "change": "+1.32%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "15.95",
-      "change": "-0.25%"
+      "value": "15.60",
+      "change": "-1.64%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4100.10",
-      "change": "-0.17%"
+      "value": "$4133.00",
+      "change": "+1.04%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$79.34",
-      "change": "-6.30%"
+      "value": "$77.77",
+      "change": "-3.20%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "99.82",
-      "change": "-0.09%"
+      "value": "99.91",
+      "change": "+0.01%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$62,617",
-      "change": "-1.39%"
+      "value": "$63,837",
+      "change": "+0.59%"
     }
   ],
   "economic": [
@@ -126,9 +125,9 @@
     },
     {
       "label": "Inflation/CPI",
-      "period": "N/A",
+      "period": "Jun 2026",
       "factKey": "cpiValue",
-      "value": "N/A"
+      "value": "3.46%"
     },
     {
       "label": "Unemployment",
@@ -144,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.68%"
+      "value": "4.75%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.23%"
+      "value": "4.28%"
     }
   ],
-  "watchlist": "  GOOGL: $356.13 (+6.73%)\n  BABA: $122.25 (+5.10%)\n  ADBE: $250.41 (+1.01%)\n  SOFI: $16.31 (-0.97%)\n  ASML: $1629.00 (-1.36%)",
+  "watchlist": "  GOOGL: $373.51 (+4.88%)\n  BABA: $127.30 (+4.13%)\n  ADBE: $251.34 (+0.37%)\n  SOFI: $18.03 (+10.55%)\n  ASML: $1642.52 (+0.83%)",
   "trackRecord": {
-    "accuracy": "5/12 (42%)",
-    "last": "Cautiously Bearish (2026-07-31) → market moved +0.70% → Miss"
+    "accuracy": "5/13 (38%)",
+    "last": "Cautiously Bearish (2026-08-01) → market moved +1.48% → Miss"
   },
   "history": [
     {
@@ -288,6 +287,13 @@
       "date": "2026-08-01",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+1.48%"
+    },
+    {
+      "date": "2026-08-04",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -299,7 +305,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Long-term valuation metrics indicate that broader market equity prices remain substantially elevated relative to historical earnings and economic output.",
+        "text": "Long-term market valuation metrics continue to indicate that equity prices remain elevated relative to national economic output and corporate earnings.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -307,63 +313,54 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Crude energy prices experienced a sharp drop while broad stock market indexes posted modest gains above their long-term moving averages.",
+        "text": "Market sentiment has normalized from previous fear while major equity benchmarks remain above their long-term moving averages.",
         "basedOn": [
-          "oilChange",
-          "sp500VsMa200",
-          "sp500Change"
-        ],
-        "direction": "neutral"
-      },
-      {
-        "text": "Major corporate communications highlight upcoming financial releases and potential sector consolidation discussions.",
-        "basedOn": [
-          "headline_2",
-          "headline_6"
-        ],
-        "direction": "neutral"
-      },
-      {
-        "text": "Key technology holding positions on the watchlist posted strong gains while foreign equipment manufacturers traded lower.",
-        "basedOn": [
-          "googlChange",
-          "babaChange",
-          "asmlChange"
+          "fearGreedValue",
+          "sp500VsMa200"
         ],
         "direction": "supports_bullish"
+      },
+      {
+        "text": "Crude oil prices dropped on news of talks to reopen the Strait of Hormuz, while data center demand drove record revenue for heavy machinery producers.",
+        "basedOn": [
+          "oilChange",
+          "headline_2",
+          "headline_7"
+        ],
+        "direction": "neutral"
       }
     ],
-    "interpretation": "Compared to the prior assessment, crude energy costs have reversed sharply downward, easing commodity pressure while overall equity valuations remain historically high. Market sentiment reflects neutral investor emotion, reinforcing the need to avoid chasing high multiples without clear margin of safety. Value investors should maintain capital discipline until intrinsic value opportunities become clearly visible.",
-    "wisdom": "Value investing requires patient capital allocation, buying wonderful businesses only when Mr Market presents them at a substantial margin of safety."
+    "interpretation": "Short-term sentiment has normalized from prior fear while key stock benchmarks continue trading above long-term averages, but overall valuation metrics remain clearly inflated. Although selective industrial demand provides operational momentum, elevated aggregate market levels continue to restrict meaningful margins of safety. Value investors should maintain discipline and cash reserves until prices realign with intrinsic valuations.",
+    "wisdom": "Price is what you pay, value is what you get, which means intelligent investors must require an adequate margin of safety before allocating capital regardless of market momentum."
   },
   "news": [
-    {
-      "title": "Gold is still in its 'explosive phase,' says Deutsche Bank, as it sticks to year-end target",
-      "url": "https://www.marketwatch.com/story/gold-is-still-in-its-explosive-phase-says-deutsche-bank-as-it-sticks-to-year-end-target-fc5bc13a?mod=mw_rss_topstories"
-    },
-    {
-      "title": "An AstraZeneca, Bristol Myers Squibb merger could create a cancer-drug giant, but analysts call it 'odd'",
-      "url": "https://www.marketwatch.com/story/astrazeneca-tie-up-talks-with-bristol-myers-squibb-are-moving-stocks-analysts-are-puzzled-7ae60fef?mod=mw_rss_topstories"
-    },
-    {
-      "title": "The gap between big tech and the rest of the market just vanished. Here's what it means for investors.",
-      "url": "https://www.marketwatch.com/story/the-gap-between-big-tech-and-the-rest-of-the-market-just-vanished-heres-what-it-means-for-investors-e783d2dc?mod=mw_rss_topstories"
-    },
-    {
-      "title": "Warsh tightened more by pausing than by lifting rates, this bond-market veteran argues. Here's the math.",
-      "url": "https://www.marketwatch.com/story/warsh-tightened-more-by-pausing-than-by-lifting-rates-this-bond-market-veteran-argues-heres-the-math-31cb15a1?mod=mw_rss_topstories"
-    },
     {
       "title": "'We have always been civil': My sister refuses to replace me as executor. Can I step down before she dies?",
       "url": "https://www.marketwatch.com/story/we-have-always-been-civil-my-sister-refuses-to-replace-me-as-executor-can-i-step-down-before-she-dies-84a835a9?mod=mw_rss_topstories"
     },
     {
-      "title": "SpaceX's first-ever earnings report is a big deal  -  but not because of the numbers",
-      "url": "https://www.marketwatch.com/story/spacexs-first-ever-earnings-report-is-a-big-deal-but-not-because-of-the-numbers-9e53bc43?mod=mw_rss_topstories"
+      "title": "Oil prices slump as Qatar and Bessent note talks to reopen Strait of Hormuz",
+      "url": "https://www.marketwatch.com/story/oil-prices-rise-after-vessel-reports-being-hit-in-strait-of-hormuz-db6ce867?mod=mw_rss_topstories"
     },
     {
-      "title": "Private credit has dodged public scrutiny for too long  -  and regulators need to step in",
-      "url": "https://www.marketwatch.com/story/private-credit-has-dodged-public-scrutiny-for-too-long-and-regulators-need-to-step-in-9ebb1d8c?mod=mw_rss_topstories"
+      "title": "The stock market's brutal summer reset is finally over. Here is why Citadel Securities says it is time to buy again.",
+      "url": "https://www.marketwatch.com/story/the-stock-markets-brutal-summer-reset-is-finally-over-here-is-why-citadel-securities-says-it-is-time-to-buy-again-f6a8d101?mod=mw_rss_topstories"
+    },
+    {
+      "title": "If I buy a house for $1 million in cash at 70, will I run out of money by 90?",
+      "url": "https://www.marketwatch.com/story/if-i-buy-a-house-for-1-million-in-cash-at-70-will-i-run-out-of-money-by-90-54afb313?mod=mw_rss_topstories"
+    },
+    {
+      "title": "As 'Spider-Man' joins 'The Odyssey' in Imax, are premium movie screens worth the extra price?",
+      "url": "https://www.marketwatch.com/story/as-spider-man-joins-the-odyssey-in-imax-are-premium-movie-screens-worth-the-extra-price-74304e34?mod=mw_rss_topstories"
+    },
+    {
+      "title": "What was the world's hottest stock market is now hunting ground for short sellers",
+      "url": "https://www.marketwatch.com/story/what-was-the-worlds-hottest-stock-market-is-now-hunting-ground-for-short-sellers-f8f25dd0?mod=mw_rss_topstories"
+    },
+    {
+      "title": "Caterpillar is killing it, and data-center demand is driving record revenue",
+      "url": "https://www.marketwatch.com/story/caterpillar-is-killing-it-and-data-center-demand-is-driving-record-revenue-161b84d1?mod=mw_rss_topstories"
     },
     {
       "title": "'I'm easing into retirement': I'm getting an $80,000 pension payout. Where can I invest it safely?",
