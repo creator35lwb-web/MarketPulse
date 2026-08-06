@@ -1,12 +1,10 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-05T13:01:37.374Z",
-  "dateLabel": "Wednesday, August 5, 2026",
+  "generatedAt": "2026-08-06T16:02:56.121Z",
+  "dateLabel": "Friday, August 7, 2026",
   "health": {
-    "status": "DEGRADED",
-    "missing": [
-      "Unemployment"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {
@@ -18,103 +16,104 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "42.3",
+      "value": "42.2",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.45%",
+      "value": "+0.43%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+10.0%",
+      "value": "+9.3%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "136%",
-    "shillerPE": "42.3",
-    "yieldCurve": "+0.45%",
-    "sp500VsMa200": "+10.0%",
+    "shillerPE": "42.2",
+    "yieldCurve": "+0.43%",
+    "sp500VsMa200": "+9.3%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 59,
-    "sp500": "7736.52",
-    "sp500Change": "+1.79%",
-    "dowJones": "54085.88",
-    "dowJonesChange": "+1.71%",
-    "vix": "16.84",
-    "vixChange": "+2.06%",
-    "gold": "$4253.40",
-    "goldChange": "+2.43%",
-    "oil": "$76.08",
-    "oilChange": "+0.41%",
-    "dxy": "99.72",
-    "dxyChange": "-0.14%",
-    "btc": "$64,277",
-    "btcChange": "+0.35%",
+    "fearGreedValue": 61,
+    "sp500": "7703.39",
+    "sp500Change": "-0.26%",
+    "dowJones": "53984.08",
+    "dowJonesChange": "-0.67%",
+    "vix": "15.47",
+    "vixChange": "-2.15%",
+    "gold": "$4304.60",
+    "goldChange": "-0.01%",
+    "oil": "$76.97",
+    "oilChange": "+2.33%",
+    "dxy": "99.96",
+    "dxyChange": "+0.28%",
+    "btc": "$64,581",
+    "btcChange": "-0.03%",
     "gdpValue": "+1.5% (QoQ)",
     "cpiValue": "3.46%",
+    "unemploymentValue": "4.2%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.70%",
-    "treasury2Y": "4.25%",
-    "googlChange": "+1.11%",
-    "babaChange": "+1.33%",
-    "adbeChange": "+2.45%",
-    "sofiChange": "+3.72%",
-    "asmlChange": "+4.22%"
+    "treasury10Y": "4.63%",
+    "treasury2Y": "4.20%",
+    "googlChange": "-0.92%",
+    "babaChange": "-1.74%",
+    "adbeChange": "-0.76%",
+    "sofiChange": "+0.47%",
+    "asmlChange": "+2.38%"
   },
   "fearGreed": {
-    "score": 59,
+    "score": 61,
     "classification": "Greed",
     "change1d": "+1",
-    "change1w": "+25"
+    "change1w": "+20"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7736.52",
-      "change": "+1.79%"
+      "value": "7703.39",
+      "change": "-0.26%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "54085.88",
-      "change": "+1.71%"
+      "value": "53984.08",
+      "change": "-0.67%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "16.84",
-      "change": "+2.06%"
+      "value": "15.47",
+      "change": "-2.15%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4253.40",
-      "change": "+2.43%"
+      "value": "$4304.60",
+      "change": "-0.01%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$76.08",
-      "change": "+0.41%"
+      "value": "$76.97",
+      "change": "+2.33%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "99.72",
-      "change": "-0.14%"
+      "value": "99.96",
+      "change": "+0.28%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,277",
-      "change": "+0.35%"
+      "value": "$64,581",
+      "change": "-0.03%"
     }
   ],
   "economic": [
@@ -132,9 +131,9 @@
     },
     {
       "label": "Unemployment",
-      "period": "N/A",
+      "period": "Jun 2026",
       "factKey": "unemploymentValue",
-      "value": "N/A"
+      "value": "4.2%"
     },
     {
       "label": "Fed Funds Rate",
@@ -144,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.70%"
+      "value": "4.63%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.25%"
+      "value": "4.20%"
     }
   ],
-  "watchlist": "  GOOGL: $377.65 (+1.11%)\n  BABA: $128.99 (+1.33%)\n  ADBE: $257.49 (+2.45%)\n  SOFI: $18.70 (+3.72%)\n  ASML: $1711.89 (+4.22%)",
+  "watchlist": "  GOOGL: $359.09 (-0.92%)\n  BABA: $126.29 (-1.74%)\n  ADBE: $257.36 (-0.76%)\n  SOFI: $18.34 (+0.47%)\n  ASML: $1718.10 (+2.38%)",
   "trackRecord": {
-    "accuracy": "5/14 (36%)",
-    "last": "Cautiously Bearish (2026-08-04) → market moved +1.79% → Miss"
+    "accuracy": "6/15 (40%)",
+    "last": "Cautiously Bearish (2026-08-05) → market moved -0.26% → Correct"
   },
   "history": [
     {
@@ -302,6 +301,13 @@
       "date": "2026-08-05",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.26%"
+    },
+    {
+      "date": "2026-08-06",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
@@ -313,7 +319,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Long-term valuation metrics, including the Buffett Indicator and the Shiller earnings ratio, signal that equity markets remain significantly overvalued relative to historical norms.",
+        "text": "Broad market valuation metrics indicate equities remain richly valued relative to economic output and historical earnings.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -321,65 +327,57 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Market sentiment leans toward greed while major equity indices continue to trade well above their long-term moving average.",
+        "text": "Investor sentiment remains tilted toward greed while major equity benchmarks trade well above long-term moving averages.",
         "basedOn": [
           "fearGreedValue",
           "sp500VsMa200"
         ],
-        "direction": "neutral"
-      },
-      {
-        "text": "Prominent investors raise concerns regarding potential severe market drops as key index benchmarks touch record levels.",
-        "basedOn": [
-          "headline_1",
-          "sp500"
-        ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Labor market data indicates slowing job growth across private businesses even as selective pharmaceutical firms report robust revenue.",
+        "text": "Labor market conditions show strong stability with minimal job losses while state tax policy proposals face voter rejection.",
         "basedOn": [
-          "headline_3",
+          "headline_6",
           "headline_5"
         ],
-        "direction": "supports_bearish"
+        "direction": "neutral"
       }
     ],
-    "interpretation": "Valuation ratios remain historically elevated, reinforcing a cautious stance despite ongoing technical momentum and pervasive market greed. While corporate earnings reports from select enterprise leaders show revenue growth, broader labor market softening and prominent warnings of severe market corrections warrant discipline. Value investors should prioritize margin of safety over chasing broad market highs, waiting patiently for cash-generative businesses to trade at intrinsic discounts.",
-    "wisdom": "Price is what you pay, value is what you get; when market valuations reach extreme heights, true value investors build cash reserves and wait for clear opportunities with a comfortable margin of safety."
+    "interpretation": "Labor market signals show unexpected strength in retention, yet macro valuation metrics continue to signal severe market overpricing. Compared to the prior assessment, broad equity valuations remain stretched while investor sentiment stays greedy. Disciplined value investors should maintain patience and hold cash reserves until price discounts return.",
+    "wisdom": "Price is what you pay, value is what you get, so true bargain hunters must remain patient when broader markets offer little margin of safety."
   },
   "news": [
     {
-      "title": "The S&P 500 just hit a new high. 'Big Short' investor Michael Burry thinks it could bring a 1987-style fall.",
-      "url": "https://www.marketwatch.com/story/the-s-p-500-just-hit-a-new-high-big-short-investor-michael-burry-thinks-it-could-bring-a-1987-style-fall-775c3b95?mod=mw_rss_topstories"
+      "title": "Don't worry about what other people have saved for retirement. Here's how to find your perfect number.",
+      "url": "https://www.marketwatch.com/story/dont-worry-about-what-other-people-have-saved-for-retirement-heres-how-to-find-your-perfect-number-73fc460e?mod=mw_rss_topstories"
     },
     {
-      "title": "The government owns some of the same stocks you do. Here's why that is risky.",
-      "url": "https://www.marketwatch.com/story/the-government-owns-some-of-the-same-stocks-you-do-heres-why-that-is-risky-6ad6462d?mod=mw_rss_topstories"
+      "title": "'Her bank accounts were stripped bare by Medicaid': My late friend had $20,000 in credit-card debt. Will her life insurance pay for it?",
+      "url": "https://www.marketwatch.com/story/her-bank-accounts-were-stripped-bare-by-medicaid-my-late-friend-had-20-000-in-credit-card-debt-will-her-life-insurance-pay-for-it-17ee9792?mod=mw_rss_topstories"
     },
     {
-      "title": "ADP says businesses add the fewest new jobs in six months. Labor market is still sluggish.",
-      "url": "https://www.marketwatch.com/story/adp-says-businesses-add-the-fewer-new-jobs-in-six-months-0923d6b4?mod=mw_rss_topstories"
+      "title": "SpaceX insiders get their first chance to cash out  -  but the stock's slide will limit their opportunity",
+      "url": "https://www.marketwatch.com/story/spacex-insiders-get-their-first-chance-to-cash-out-but-the-stocks-slide-will-limit-their-opportunity-5c94b0f5?mod=mw_rss_topstories"
     },
     {
-      "title": "Uber profit narrowly beat forecasts as trips across its platform surge",
-      "url": "https://www.marketwatch.com/story/uber-profit-narrowly-beat-forecasts-as-trips-across-its-platform-surge-4a22ce2d?mod=mw_rss_topstories"
+      "title": "As a woman of color who travels alone, is it a waste of money to visit places with zero diversity?",
+      "url": "https://www.marketwatch.com/story/as-a-woman-of-color-who-travels-alone-is-it-a-waste-of-money-to-visit-places-with-zero-diversity-6de89785?mod=mw_rss_topstories"
     },
     {
-      "title": "Lilly's revenue soars 48%, driven by demand for its GLP-1s",
-      "url": "https://www.marketwatch.com/story/lillys-revenue-soars-48-driven-by-demand-of-its-glp-1s-7361c223?mod=mw_rss_topstories"
+      "title": "Missouri voters just rejected a bid to ditch income tax, while other tax votes loom in Florida and California this fall",
+      "url": "https://www.marketwatch.com/story/taxes-are-on-the-ballot-this-fall-as-republicans-and-democrats-grow-further-apart-on-whether-to-raise-them-c7990380?mod=mw_rss_topstories"
     },
     {
-      "title": "'I'm easing into retirement': I'm getting an $80,000 pension payout. Where can I invest it safely?",
-      "url": "https://www.marketwatch.com/story/im-easing-into-retirement-im-getting-an-80-000-pension-payout-where-can-i-invest-it-safely-6653d810?mod=mw_rss_topstories"
+      "title": "Layoffs fall to the lowest level since the U.S. put men on the moon. Here's what that says about the economy.",
+      "url": "https://www.marketwatch.com/story/layoffs-fall-to-the-lowest-level-since-the-u-s-put-men-on-the-moon-heres-what-that-says-about-the-economy-71f7bd23?mod=mw_rss_topstories"
     },
     {
-      "title": "Walt Disney's stock climbs as company cites 'Toy Story 5' for earnings growth",
-      "url": "https://www.marketwatch.com/story/walt-disneys-stock-climbs-as-company-cites-toy-story-5-for-earnings-growth-fe0c86c1?mod=mw_rss_topstories"
+      "title": "'I don't wish to be cold-hearted': My elderly relative can no longer care for himself. Am I wrong to leave his care to the state?",
+      "url": "https://www.marketwatch.com/story/i-dont-wish-to-be-cold-hearted-my-elderly-relative-can-no-longer-care-for-himself-am-i-wrong-to-leave-his-care-to-the-state-8d546b32?mod=mw_rss_topstories"
     },
     {
-      "title": "Reports of the 60/40 portfolio's demise are proving to be premature",
-      "url": "https://www.marketwatch.com/story/reports-of-the-60-40-portfolios-demise-are-proving-to-be-premature-e339679f?mod=mw_rss_topstories"
+      "title": "'He's never been good with money': If I set up an annuity for my brother, 65, would it jeopardize his Supplemental Security Income?",
+      "url": "https://www.marketwatch.com/story/hes-never-been-good-with-money-if-i-set-up-an-annuity-for-my-brother-65-would-it-jeopardize-his-supplemental-security-income-d2e9f5a0?mod=mw_rss_topstories"
     }
   ],
   "sources": [
