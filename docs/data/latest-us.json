@@ -1,6 +1,6 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-09T01:25:35.302Z",
+  "generatedAt": "2026-08-09T14:47:53.803Z",
   "dateLabel": "Sunday, August 9, 2026",
   "health": {
     "status": "OK",
@@ -52,8 +52,8 @@
     "oilChange": "+1.15%",
     "dxy": "99.60",
     "dxyChange": "+0.07%",
-    "btc": "$64,890",
-    "btcChange": "-0.03%",
+    "btc": "$65,123",
+    "btcChange": "+0.33%",
     "gdpValue": "+1.5% (QoQ)",
     "cpiValue": "3.46%",
     "unemploymentValue": "4.1%",
@@ -112,8 +112,8 @@
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$64,890",
-      "change": "-0.03%"
+      "value": "$65,123",
+      "change": "+0.33%"
     }
   ],
   "economic": [
@@ -333,7 +333,7 @@
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Broad market valuation metrics remain elevated well above historical fair value standards.",
+        "text": "Broad market valuation metrics remain significantly elevated above historical fair value norms.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -341,7 +341,7 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment continues to show greed while equity indices trade well above their long-term moving averages.",
+        "text": "Investor sentiment reflects greed as benchmark equity indices trade well above their long-term moving averages.",
         "basedOn": [
           "fearGreedValue",
           "sp500VsMa200"
@@ -349,49 +349,49 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Individual financial inquiries focus heavily on managing retirement funds and paying down mortgage debt.",
+        "text": "Media coverage highlights strong sales growth for benchmark companies alongside an increase in stocks outperforming the main market index.",
         "basedOn": [
-          "headline_3",
-          "headline_7"
+          "headline_1",
+          "headline_4"
         ],
-        "direction": "neutral"
+        "direction": "supports_bullish"
       }
     ],
-    "interpretation": "Compared to the previous assessment, equity market valuations have stretched further into elevated territory alongside persistent investor optimism. With broader valuation multiples remaining demanding and market sentiment leaning greedy, margin of safety remains scarce across core indices. Value investors should maintain patience and keep cash reserves ready for clear opportunities.",
-    "wisdom": "Price is what you pay and value is what you get, so maintain discipline when market optimism drives valuations beyond intrinsic worth."
+    "interpretation": "While market participation and top-line revenues display short-term strength, core structural valuation metrics continue to signal severe overvaluation across equities. Compared to our previous outlook, market breadth and corporate revenue momentum have shown temporary improvement, yet a margin of safety remains sparse for disciplined capital allocation. Value investors should prioritize cash preservation and maintain extreme selectivity until asset prices better reflect intrinsic value.",
+    "wisdom": "Be fearful when others are greedy, and remember that price is what you pay while value is what you get."
   },
   "news": [
     {
-      "title": "'This has been an emotionally difficult time': My brother has cancer and my father is 94. How do I shoulder this responsibility?",
-      "url": "https://www.marketwatch.com/story/this-has-been-an-emotionally-difficult-time-my-brother-has-cancer-and-my-father-is-94-how-do-i-shoulder-this-responsibility-9da09dc4?mod=mw_rss_topstories"
-    },
-    {
-      "title": "'I'm in my peak earning years': I'm working beyond 70. Will that help increase my Social Security?",
-      "url": "https://www.marketwatch.com/story/im-in-my-peak-earning-years-im-working-beyond-70-will-that-help-increase-my-social-security-b0fd84da?mod=mw_rss_topstories"
-    },
-    {
-      "title": "How can we minimize taxes in retirement with a $2.3 million nest egg  -  while buying homes in Florida and New England?",
-      "url": "https://www.marketwatch.com/story/how-can-we-minimize-taxes-in-retirement-with-a-2-3-million-nest-egg-while-buying-homes-in-florida-and-new-england-9e2449aa?mod=mw_rss_topstories"
-    },
-    {
-      "title": "Don't worry about what other people have saved for retirement. Here's how to find your perfect number.",
-      "url": "https://www.marketwatch.com/story/dont-worry-about-what-other-people-have-saved-for-retirement-heres-how-to-find-your-perfect-number-73fc460e?mod=mw_rss_topstories"
+      "title": "S&P 500 sales growth is at a nearly 5-year high. Here's what's behind the surge.",
+      "url": "https://www.marketwatch.com/story/s-p-500-sales-growth-is-at-a-nearly-5-year-high-heres-whats-behind-the-surge-a4ccf06d?mod=mw_rss_topstories"
     },
     {
       "title": "'I don't wish to be cold-hearted': My elderly relative can no longer care for himself. Am I wrong to leave his care to the state?",
       "url": "https://www.marketwatch.com/story/i-dont-wish-to-be-cold-hearted-my-elderly-relative-can-no-longer-care-for-himself-am-i-wrong-to-leave-his-care-to-the-state-8d546b32?mod=mw_rss_topstories"
     },
     {
-      "title": "I'm an unemployed software developer who is skeptical of AI. Can I still find a job in tech?",
-      "url": "https://www.marketwatch.com/story/im-an-unemployed-software-developer-who-is-skeptical-of-ai-can-i-still-find-a-job-in-tech-4413875e?mod=mw_rss_topstories"
+      "title": "'This has been an emotionally difficult time': My brother has cancer and my father is 94. How do I shoulder this responsibility?",
+      "url": "https://www.marketwatch.com/story/this-has-been-an-emotionally-difficult-time-my-brother-has-cancer-and-my-father-is-94-how-do-i-shoulder-this-responsibility-9da09dc4?mod=mw_rss_topstories"
+    },
+    {
+      "title": "The number of stocks beating the S&P 500 is the highest in 4 years. Why that number should rise.",
+      "url": "https://www.marketwatch.com/story/the-number-of-stocks-beating-the-s-p-500-is-the-highest-in-4-years-why-that-number-should-rise-b9bd05b3?mod=mw_rss_topstories"
+    },
+    {
+      "title": "I got two email invitations from friends. Is this a phishing scam  -  or am I suddenly popular?",
+      "url": "https://www.marketwatch.com/story/i-got-two-email-invitations-from-friends-is-this-a-phishing-scam-or-am-i-suddenly-popular-d9680aa8?mod=mw_rss_topstories"
+    },
+    {
+      "title": "'Her bank accounts were stripped bare by Medicaid': My late friend had $20,000 in credit-card debt. Will her life insurance pay for it?",
+      "url": "https://www.marketwatch.com/story/her-bank-accounts-were-stripped-bare-by-medicaid-my-late-friend-had-20-000-in-credit-card-debt-will-her-life-insurance-pay-for-it-17ee9792?mod=mw_rss_topstories"
     },
     {
       "title": "'My wife and I are both retired': Do we dip into our $2.3 million fund to pay off our $300,000 mortgage at 2.9%?",
       "url": "https://www.marketwatch.com/story/my-wife-and-i-are-both-retired-do-we-dip-into-our-2-3-million-fund-to-pay-off-our-300-000-mortgage-at-2-9-2d23d1df?mod=mw_rss_topstories"
     },
     {
-      "title": "Are target date funds aggressive enough to give Americans retirement savings that last their lifetimes?",
-      "url": "https://www.marketwatch.com/story/are-target-date-funds-hurting-americans-as-they-live-longer-929f4f92?mod=mw_rss_topstories"
+      "title": "'I'm in my peak earning years': I'm working beyond 70. Will that help increase my Social Security?",
+      "url": "https://www.marketwatch.com/story/im-in-my-peak-earning-years-im-working-beyond-70-will-that-help-increase-my-social-security-b0fd84da?mod=mw_rss_topstories"
     }
   ],
   "sources": [
