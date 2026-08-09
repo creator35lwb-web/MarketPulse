@@ -1,12 +1,10 @@
 {
   "edition": "US",
-  "generatedAt": "2026-08-07T13:01:34.005Z",
-  "dateLabel": "Friday, August 7, 2026",
+  "generatedAt": "2026-08-09T01:25:35.302Z",
+  "dateLabel": "Sunday, August 9, 2026",
   "health": {
-    "status": "DEGRADED",
-    "missing": [
-      "CPI"
-    ],
+    "status": "OK",
+    "missing": [],
     "suspect": []
   },
   "dashboard": {
@@ -18,103 +16,104 @@
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "42.1",
+      "value": "42.4",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.45%",
+      "value": "+0.44%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+9.4%",
+      "value": "+10.0%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
     "buffettIndicator": "136%",
-    "shillerPE": "42.1",
-    "yieldCurve": "+0.45%",
-    "sp500VsMa200": "+9.4%",
+    "shillerPE": "42.4",
+    "yieldCurve": "+0.44%",
+    "sp500VsMa200": "+10.0%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 60,
-    "sp500": "7709.96",
-    "sp500Change": "-0.18%",
-    "dowJones": "53885.10",
-    "dowJonesChange": "-0.85%",
-    "vix": "15.25",
-    "vixChange": "+0.66%",
-    "gold": "$4429.20",
-    "goldChange": "+3.01%",
-    "oil": "$76.79",
-    "oilChange": "-0.65%",
-    "dxy": "99.42",
-    "dxyChange": "-0.51%",
-    "btc": "$65,254",
-    "btcChange": "+1.55%",
+    "fearGreedValue": 64,
+    "sp500": "7757.64",
+    "sp500Change": "+0.62%",
+    "dowJones": "54036.93",
+    "dowJonesChange": "+0.28%",
+    "vix": "14.90",
+    "vixChange": "-1.65%",
+    "gold": "$4399.70",
+    "goldChange": "+2.33%",
+    "oil": "$78.18",
+    "oilChange": "+1.15%",
+    "dxy": "99.60",
+    "dxyChange": "+0.07%",
+    "btc": "$64,890",
+    "btcChange": "-0.03%",
     "gdpValue": "+1.5% (QoQ)",
-    "unemploymentValue": "4.2%",
+    "cpiValue": "3.46%",
+    "unemploymentValue": "4.1%",
     "fedRateValue": "3.75%",
-    "treasury10Y": "4.63%",
-    "treasury2Y": "4.18%",
-    "googlChange": "-1.29%",
-    "babaChange": "-1.34%",
-    "adbeChange": "+0.35%",
-    "sofiChange": "-0.82%",
-    "asmlChange": "+1.56%"
+    "treasury10Y": "4.69%",
+    "treasury2Y": "4.25%",
+    "googlChange": "-0.96%",
+    "babaChange": "+1.26%",
+    "adbeChange": "+1.91%",
+    "sofiChange": "+1.55%",
+    "asmlChange": "+2.15%"
   },
   "fearGreed": {
-    "score": 60,
+    "score": 64,
     "classification": "Greed",
-    "change1d": "+0",
-    "change1w": "+14"
+    "change1d": "+4",
+    "change1w": "+18"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7709.96",
-      "change": "-0.18%"
+      "value": "7757.64",
+      "change": "+0.62%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "53885.10",
-      "change": "-0.85%"
+      "value": "54036.93",
+      "change": "+0.28%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "15.25",
-      "change": "+0.66%"
+      "value": "14.90",
+      "change": "-1.65%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4429.20",
-      "change": "+3.01%"
+      "value": "$4399.70",
+      "change": "+2.33%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$76.79",
-      "change": "-0.65%"
+      "value": "$78.18",
+      "change": "+1.15%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "99.42",
-      "change": "-0.51%"
+      "value": "99.60",
+      "change": "+0.07%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$65,254",
-      "change": "+1.55%"
+      "value": "$64,890",
+      "change": "-0.03%"
     }
   ],
   "economic": [
@@ -126,15 +125,15 @@
     },
     {
       "label": "Inflation/CPI",
-      "period": "N/A",
+      "period": "Jun 2026",
       "factKey": "cpiValue",
-      "value": "N/A"
+      "value": "3.46%"
     },
     {
       "label": "Unemployment",
-      "period": "Jun 2026",
+      "period": "Jul 2026",
       "factKey": "unemploymentValue",
-      "value": "4.2%"
+      "value": "4.1%"
     },
     {
       "label": "Fed Funds Rate",
@@ -144,18 +143,18 @@
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.63%"
+      "value": "4.69%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.18%"
+      "value": "4.25%"
     }
   ],
-  "watchlist": "  GOOGL: $357.75 (-1.29%)\n  BABA: $126.81 (-1.34%)\n  ADBE: $260.24 (+0.35%)\n  SOFI: $18.10 (-0.82%)\n  ASML: $1704.37 (+1.56%)",
+  "watchlist": "  GOOGL: $354.30 (-0.96%)\n  BABA: $128.41 (+1.26%)\n  ADBE: $265.21 (+1.91%)\n  SOFI: $18.38 (+1.55%)\n  ASML: $1740.99 (+2.15%)",
   "trackRecord": {
-    "accuracy": "6/15 (40%) · 1 too flat to judge",
-    "last": "Cautiously Bearish (2026-08-06) → market moved -0.18% → Too flat to judge"
+    "accuracy": "6/16 (38%) · 1 too flat to judge",
+    "last": "Cautiously Bearish (2026-08-07) → market moved +0.62% → Miss"
   },
   "history": [
     {
@@ -316,18 +315,25 @@
       "date": "2026-08-07",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.62%"
+    },
+    {
+      "date": "2026-08-09",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "llama-3.3-70b-versatile",
-  "analysisProvider": "Groq",
+  "analysisModel": "gemini-3.6-flash",
+  "analysisProvider": "Google",
   "analysis": {
     "sentiment": "Cautiously Bearish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "The broad market valuation remains high relative to economic output",
+        "text": "Broad market valuation metrics remain elevated well above historical fair value standards.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -335,63 +341,57 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment is still leaning toward greed despite some caution in the market",
+        "text": "Investor sentiment continues to show greed while equity indices trade well above their long-term moving averages.",
         "basedOn": [
           "fearGreedValue",
-          "vixChange"
+          "sp500VsMa200"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Some strategists believe higher bond yields are here to stay",
+        "text": "Individual financial inquiries focus heavily on managing retirement funds and paying down mortgage debt.",
         "basedOn": [
-          "headline_4"
+          "headline_3",
+          "headline_7"
         ],
         "direction": "neutral"
-      },
-      {
-        "text": "Memory stocks are experiencing rising volatility",
-        "basedOn": [
-          "headline_1"
-        ],
-        "direction": "supports_bearish"
       }
     ],
-    "interpretation": "The overall market environment remains cautious due to high valuations and greedy investor sentiment, with some sectors experiencing volatility and strategists warning of sustained higher bond yields. This situation suggests that investors should be prepared for potential downturns. The market's current state is complex, with various factors at play, indicating a need for careful consideration and a long-term perspective.",
-    "wisdom": "It is essential to be cautious when the market is overvalued and investor sentiment is greedy, as this can lead to a sharp correction, reminding us of the importance of a margin of safety in our investments."
+    "interpretation": "Compared to the previous assessment, equity market valuations have stretched further into elevated territory alongside persistent investor optimism. With broader valuation multiples remaining demanding and market sentiment leaning greedy, margin of safety remains scarce across core indices. Value investors should maintain patience and keep cash reserves ready for clear opportunities.",
+    "wisdom": "Price is what you pay and value is what you get, so maintain discipline when market optimism drives valuations beyond intrinsic worth."
   },
   "news": [
     {
-      "title": "How S&P 500 options action may help explain the rising volatility in memory stocks",
-      "url": "https://www.marketwatch.com/story/how-s-p-500-options-action-may-help-explain-volatility-in-memory-stocks-58d95beb?mod=mw_rss_topstories"
+      "title": "'This has been an emotionally difficult time': My brother has cancer and my father is 94. How do I shoulder this responsibility?",
+      "url": "https://www.marketwatch.com/story/this-has-been-an-emotionally-difficult-time-my-brother-has-cancer-and-my-father-is-94-how-do-i-shoulder-this-responsibility-9da09dc4?mod=mw_rss_topstories"
     },
     {
-      "title": "Kevin O'Leary, aka 'Mr. Wonderful,' on crypto, winning in AI and 3 things all business owners must know",
-      "url": "https://www.marketwatch.com/story/kevin-oleary-aka-mr-wonderful-on-crypto-winning-in-ai-and-3-things-all-business-owners-must-know-5339ff6c?mod=mw_rss_topstories"
+      "title": "'I'm in my peak earning years': I'm working beyond 70. Will that help increase my Social Security?",
+      "url": "https://www.marketwatch.com/story/im-in-my-peak-earning-years-im-working-beyond-70-will-that-help-increase-my-social-security-b0fd84da?mod=mw_rss_topstories"
     },
     {
-      "title": "Optical stocks have a China problem that most investors are missing",
-      "url": "https://www.marketwatch.com/story/optical-stocks-have-a-china-problem-that-most-investors-are-missing-45523981?mod=mw_rss_topstories"
+      "title": "How can we minimize taxes in retirement with a $2.3 million nest egg  -  while buying homes in Florida and New England?",
+      "url": "https://www.marketwatch.com/story/how-can-we-minimize-taxes-in-retirement-with-a-2-3-million-nest-egg-while-buying-homes-in-florida-and-new-england-9e2449aa?mod=mw_rss_topstories"
     },
     {
-      "title": "There are good reasons higher bond yields are here to stay, this strategist says",
-      "url": "https://www.marketwatch.com/story/there-are-good-reasons-why-higher-bond-yields-are-here-to-stay-this-strategist-says-2a89d5ae?mod=mw_rss_topstories"
+      "title": "Don't worry about what other people have saved for retirement. Here's how to find your perfect number.",
+      "url": "https://www.marketwatch.com/story/dont-worry-about-what-other-people-have-saved-for-retirement-heres-how-to-find-your-perfect-number-73fc460e?mod=mw_rss_topstories"
     },
     {
-      "title": "My brother asked me to sign as his executor, but wouldn't let me read the document. Should I have refused?",
-      "url": "https://www.marketwatch.com/story/my-brother-asked-me-to-sign-as-his-executor-but-wouldnt-let-me-read-the-document-should-i-have-refused-1b53d9bc?mod=mw_rss_topstories"
+      "title": "'I don't wish to be cold-hearted': My elderly relative can no longer care for himself. Am I wrong to leave his care to the state?",
+      "url": "https://www.marketwatch.com/story/i-dont-wish-to-be-cold-hearted-my-elderly-relative-can-no-longer-care-for-himself-am-i-wrong-to-leave-his-care-to-the-state-8d546b32?mod=mw_rss_topstories"
     },
     {
-      "title": "Micron's stock falls but is spared the worst of the memory-chip selloff",
-      "url": "https://www.marketwatch.com/story/microns-stock-claws-back-to-buck-the-memory-chip-selloff-58af0155?mod=mw_rss_topstories"
+      "title": "I'm an unemployed software developer who is skeptical of AI. Can I still find a job in tech?",
+      "url": "https://www.marketwatch.com/story/im-an-unemployed-software-developer-who-is-skeptical-of-ai-can-i-still-find-a-job-in-tech-4413875e?mod=mw_rss_topstories"
     },
     {
-      "title": "'He's never been good with money': If I set up an annuity for my brother, 65, would it jeopardize his Supplemental Security Income?",
-      "url": "https://www.marketwatch.com/story/hes-never-been-good-with-money-if-i-set-up-an-annuity-for-my-brother-65-would-it-jeopardize-his-supplemental-security-income-d2e9f5a0?mod=mw_rss_topstories"
+      "title": "'My wife and I are both retired': Do we dip into our $2.3 million fund to pay off our $300,000 mortgage at 2.9%?",
+      "url": "https://www.marketwatch.com/story/my-wife-and-i-are-both-retired-do-we-dip-into-our-2-3-million-fund-to-pay-off-our-300-000-mortgage-at-2-9-2d23d1df?mod=mw_rss_topstories"
     },
     {
-      "title": "'Her bank accounts were stripped bare by Medicaid': My late friend had $20,000 in credit-card debt. Will her life insurance pay for it?",
-      "url": "https://www.marketwatch.com/story/her-bank-accounts-were-stripped-bare-by-medicaid-my-late-friend-had-20-000-in-credit-card-debt-will-her-life-insurance-pay-for-it-17ee9792?mod=mw_rss_topstories"
+      "title": "Are target date funds aggressive enough to give Americans retirement savings that last their lifetimes?",
+      "url": "https://www.marketwatch.com/story/are-target-date-funds-hurting-americans-as-they-live-longer-929f4f92?mod=mw_rss_topstories"
     }
   ],
   "sources": [
