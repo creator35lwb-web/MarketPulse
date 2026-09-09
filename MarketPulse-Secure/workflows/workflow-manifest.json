@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "a9f77570f973a9961f12fe54bff11e863120d9cdf4a98e98e7274a3a9c37ae1f",
+  "workflowSha256": "4af5e4982aebe23a814f3f35658a7fa34141c07de5a9061c8a484f5d29e0e140",
   "sources": {
     "scripts/analysis-contract.txt": "4d33c42038b38af92861179d7afc1e8716876adf07ceb5f0dfeb8d9d61cd8a4a",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -11,7 +11,7 @@
     "fetch-all-market-data.js": "c69764807aadd61b004caa33ca11eb342b0d6d77906ee237b4b43de4f16e9811",
     "fetch-stock-helpers.js": "2976809959d00f8964941313bff1f896033fdc1f2c35f76624c6bc96580707ca",
     "fetch-stock-prices.js": "dc1587e00425323dccdcf5e12b8f49c9a0ff7259c18b291b6199293213877f79",
-    "combine-data-runtime.js": "82466526f7a1e2d32bebfee97616ab97c24c686805960a0e19b4961465eb2773",
+    "combine-data-runtime.js": "dbc69a9dacf373529fd6a991134cfd88235c8d896dec4652868998063e753bf4",
     "combine-all-data.js": "9fed2dc86a164f346847a6e733daacb3e6a42c35fecdbb0ca69b8b45688392e6",
     "analysis-policy.js": "f78f0c86b3ce5c4ca344a74d8714d6a6201487c07b3daf85bfc75a19e4aadbb1",
     "compose-telegram-runtime.js": "87bea264a286ffe671bd110e559f3499e3d0dc244dd4bed15d401b7349ce71c1",
