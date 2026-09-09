@@ -1,85 +1,43 @@
-# Claude Code Instructions - MarketPulse
+# Repository instructions for coding assistants
 
-**Project:** MarketPulse (Telegram Bot + n8n Workflows)
-**Repository:** creator35lwb-web/MarketPulse (PRIVATE)
-**Command Central Hub:** creator35lwb-web/verifimind-genesis-mcp
+MarketPulse is a **public** repository containing an n8n market-digest workflow, a static dashboard, and publication automation. This document concerns work in this repository; it does not require access to another project or a coordination service.
 
----
+## Start from the source
 
-## MACP Integration
+Read [README.md](README.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [CONTRIBUTING.md](CONTRIBUTING.md). Check the worktree before editing and preserve unrelated changes.
 
-This project is coordinated via Command Central Hub (verifimind-genesis-mcp).
+The supported workflow export is `MarketPulse-Secure/workflows/marketpulse-workflow-CURRENT.json` with 46 nodes. Its editable inputs are `src/n8n/`, `scripts/node-sources.json`, `scripts/workflow-template.json`, and `scripts/analysis-contract.txt`. Build with `scripts/build-workflow.mjs`; do not edit only the generated export or manifest.
 
-### Session Start: Check MACP Inbox
+Keep shared behavior in common runtime/helper files and declare dependencies in the node-source map. The builder and tests use the same `scripts/node-source.mjs` resolver; the manifest hashes every included source.
 
-At the start of every session, check for pending tasks:
+## Verify changes
 
-Use the `macp_read_messages` MCP tool with:
-- repository: `creator35lwb-web/verifimind-genesis-mcp`
-- filters.to: `RNA`
-- limit: 5
+Use Node.js 22 from the repository root:
 
-Or run `/macp-inbox`.
-
-### Session End: Create Handoff
-
-Use the `macp_create_handoff` MCP tool with:
-- repository: `creator35lwb-web/verifimind-genesis-mcp`
-- agent: `RNA`
-- session_type: `development`
-- All required fields (completed, decisions, artifacts, pending, blockers, next_agent)
-
----
-
-## Session Start Checklist
-
-When starting a new session, ALWAYS:
-
-1. [ ] Read this CLAUDE.md file
-2. [ ] **Check MACP inbox** for pending tasks
-3. [ ] Check README.md for project overview
-4. [ ] Review recent git log for latest changes
-
----
-
-## Project Overview
-
-MarketPulse is an automated market intelligence system using:
-- **Telegram Bot** for delivery
-- **n8n Workflows** for automation
-- **VerifiMind-PEAS** for AI validation
-
-### Key Directories
-
-| Directory | Purpose |
-|-----------|---------|
-| `peas/` | PEAS integration code |
-| `workflows/` | n8n workflow definitions |
-| `MarketPulse-Secure/` | Security-related configs |
-| `docs/` | Documentation |
-
----
-
-## Development Workflow
-
-```
-1. Check MACP inbox for tasks
-2. Implement changes locally
-3. Test thoroughly
-4. Commit with descriptive message
-5. Push to origin/main
-6. Create handoff record via macp_create_handoff
+```sh
+node scripts/build-workflow.mjs
+node --test tests/*.mjs
+node scripts/build-workflow.mjs --check
+node .github/scripts/validate-dashboard-data.mjs --allow-historical
+git diff --check
 ```
 
----
+For a local freshness observation without external writes:
 
-## Important Notes
+```sh
+node .github/scripts/check-freshness.mjs
+```
 
-- This repo had secrets scrubbed via BFG (2026-02-10)
-- Always check `.gitignore` before committing
-- Never commit API keys, tokens, or credentials
-- Coordinate with VerifiMind-PEAS for validation features
+## Preserve the product contract
 
----
+New dashboard publications use schema v2. Approval establishes schema and citation availability, not semantic truth or investment performance. Withhold failed commentary without forwarding raw model output. Preserve stable headline identifiers, valid zero values, and the distinction between approved, withheld, stale, and unverified legacy data.
 
-**Protocol:** MACP v2.0 | FLYWHEEL Level 2
+Only the hash-pinned original snapshots may use the historical exception. Do not rewrite historical ledger results or expand the exception to conceal invalid new payloads.
+
+## Keep operational state separate
+
+Never commit API keys, populated credential exports, runtime ledger state, or deployment-specific destinations. Maintain `YOUR_*` placeholders in the public template. The FRED key is currently configured in the imported workflow's Code node, not through the repository's infrastructure `.env`.
+
+Repository edits do not deploy a running workflow. Do not automatically push to `main`, activate workflows, publish to channels, change credentials, or alter Pages settings unless those actions are authorized in the current task. Report local validation and production verification separately.
+
+Deploying this code and importing the workflow are separate operator steps. Inspect actual deployed versions and publication timestamps before making a deployment claim.

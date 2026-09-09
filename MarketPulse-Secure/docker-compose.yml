@@ -1,9 +1,5 @@
-version: "3.8"
-
-# MarketPulse Security-Hardened Docker Compose
-# Version: 2.1 (Enhanced Security)
-# Last Updated: 2026-01-18
-# Addresses: All 5 remaining vulnerabilities from VerifiMind Trinity
+# MarketPulse HTTPS deployment template. Validate configuration before deployment.
+# Container startup, certificates and n8n 2.38.5 migrations require operator testing.
 
 services:
   # ============================================
@@ -11,33 +7,50 @@ services:
   # Handles SSL termination, rate limiting, security headers
   # ============================================
   traefik:
-    image: traefik:v3.0.4
+    image: traefik:v3.7.12  # Pinned template target; requires runtime verification.
     container_name: marketpulse-traefik
     restart: unless-stopped
+    # Use one static configuration method. Compose expands ACME_EMAIL here;
+    # Traefik does not expand ${...} placeholders in a mounted static YAML file.
+    command:
+      - --api.dashboard=false
+      - --api.insecure=false
+      - --ping=true
+      - --log.level=WARN
+      - --log.format=json
+      - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.filters.statuscodes=400-599
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --entrypoints.websecure.transport.respondingtimeouts.readtimeout=30s
+      - --entrypoints.websecure.transport.respondingtimeouts.writetimeout=30s
+      - --entrypoints.websecure.transport.respondingtimeouts.idletimeout=180s
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=marketpulse-network
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env}
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     security_opt:
       - no-new-privileges:true
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/acme.json:/acme.json
-      - ./traefik/traefik.yml:/traefik.yml:ro
       - ./traefik/dynamic:/etc/traefik/dynamic:ro
     networks:
       - marketpulse-network
-    labels:
-      - "traefik.enable=true"
-      # Dashboard (disabled in production)
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.usersfile=/etc/traefik/.htpasswd"
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck"]
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -47,7 +60,7 @@ services:
   # Security-hardened configuration
   # ============================================
   n8n:
-    image: n8nio/n8n:2.3.6  # PINNED VERSION - Do not use :latest
+    image: n8nio/n8n:2.38.5  # Pinned target; validate migrations and runtime before upgrading.
     container_name: marketpulse-n8n
     restart: unless-stopped
     user: "1000:1000"
@@ -58,16 +71,17 @@ services:
       - ALL
     environment:
       # Basic Configuration
-      - N8N_HOST=${DOMAIN}
+      - N8N_HOST=${DOMAIN:?Set DOMAIN in .env}
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://${DOMAIN}/
-      - GENERIC_TIMEZONE=${TIMEZONE:-UTC}
+      - N8N_WEBHOOK_URL=https://${DOMAIN}/
+      - N8N_EDITOR_BASE_URL=https://${DOMAIN}/
+      - N8N_PROXY_HOPS=1
+      - GENERIC_TIMEZONE=${TIMEZONE:-Asia/Kuala_Lumpur}
+      - TZ=${TIMEZONE:-Asia/Kuala_Lumpur}
 
-      # Authentication (REQUIRED)
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_USER}
-      - N8N_BASIC_AUTH_PASSWORD_FILE=/run/secrets/n8n_password
+      # Initialize the owner account through n8n before opening public access.
+      # N8N_BASIC_AUTH_* was removed in n8n 1.0 and must not be used here.
 
       # Encryption (REQUIRED)
       - N8N_ENCRYPTION_KEY_FILE=/run/secrets/n8n_encryption_key
@@ -82,7 +96,7 @@ services:
       - EXECUTIONS_TIMEOUT=300
       - EXECUTIONS_TIMEOUT_MAX=600
       - EXECUTIONS_DATA_SAVE_ON_ERROR=all
-      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
       - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
       - EXECUTIONS_DATA_PRUNE=true
       - EXECUTIONS_DATA_MAX_AGE=168  # 7 days
@@ -98,7 +112,6 @@ services:
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
     secrets:
-      - n8n_password
       - n8n_encryption_key
       - n8n_jwt_secret
     volumes:
@@ -126,27 +139,9 @@ services:
       - "traefik.http.routers.n8n.tls=true"
       - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
       - "traefik.http.routers.n8n.service=n8n"
-      - "traefik.http.routers.n8n.middlewares=n8n-security,n8n-ratelimit"
+      - "traefik.http.routers.n8n.middlewares=secure-chain@file"
       # Service
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
-      # Security Headers Middleware
-      - "traefik.http.middlewares.n8n-security.headers.browserXssFilter=true"
-      - "traefik.http.middlewares.n8n-security.headers.contentTypeNosniff=true"
-      - "traefik.http.middlewares.n8n-security.headers.frameDeny=true"
-      - "traefik.http.middlewares.n8n-security.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.n8n-security.headers.stsPreload=true"
-      - "traefik.http.middlewares.n8n-security.headers.stsSeconds=31536000"
-      - "traefik.http.middlewares.n8n-security.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow"
-      # Rate Limiting Middleware
-      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.average=100"
-      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.period=1m"
-      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.burst=50"
-      # HTTP to HTTPS Redirect
-      - "traefik.http.routers.n8n-http.entrypoints=web"
-      - "traefik.http.routers.n8n-http.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.n8n-http.middlewares=https-redirect"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
       interval: 30s
@@ -159,10 +154,8 @@ services:
 # ============================================
 networks:
   marketpulse-network:
+    name: marketpulse-network
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/16
 
 # ============================================
 # VOLUMES
@@ -175,8 +168,6 @@ volumes:
 # SECRETS
 # ============================================
 secrets:
-  n8n_password:
-    file: ./secrets/n8n_password
   n8n_encryption_key:
     file: ./secrets/n8n_encryption_key
   n8n_jwt_secret:

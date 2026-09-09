@@ -1,67 +1,80 @@
-# MarketPulse Workflows
+# MarketPulse workflow setup
 
-## Import this one
+Import [marketpulse-workflow-CURRENT.json](marketpulse-workflow-CURRENT.json). It is a generated, sanitized **46-node** workflow containing both daily editions, fallback analysts, notifications, and the weekly ledger summary.
 
-**`marketpulse-workflow-CURRENT.json`** — the actual production workflow, exported from the
-live instance. 37 nodes, US + China editions. This is what really runs and sends
-[@MarketPulse7am](https://t.me/MarketPulse7am) every day.
+This checkout contains the schema-v2 implementation. Deploying this code and importing the workflow are separate operator steps; inspect actual deployed versions and publication timestamps. The export is an inactive installation template. Files under [archive](archive/) are historical examples and are not the supported import target.
 
-Everything in `archive/` is **historical** (v2.1 → v7.0, 11–28 nodes). Those are kept so the
-evolution is readable, not because you should run them. They predate the verification
-architecture entirely — importing one would give you a plain LLM summarizer, which is the
-opposite of the point.
+## Build the import artifact
 
-## What's actually in the current workflow
+From the repository root, use Node.js 22:
 
-The thing that makes this different from "an LLM that reads market data" is that **the LLM is
-never allowed to state a number.** Code fetches and verifies; the model only narrates.
+```sh
+node scripts/build-workflow.mjs
+node --test tests/*.mjs
+node scripts/build-workflow.mjs --check
+node .github/scripts/validate-dashboard-data.mjs --allow-historical
+```
 
-| Layer | What it does |
+The export is assembled from `src/n8n/`, `scripts/node-sources.json`, `scripts/workflow-template.json`, and `scripts/analysis-contract.txt`. The shared resolver in `scripts/node-source.mjs` embeds dependencies in declared order before each edition wrapper. The adjacent [workflow-manifest.json](workflow-manifest.json) records hashes for every included source and the workflow. It establishes reproducibility, not production installation.
+
+## Configure your inactive import
+
+Create an n8n owner account and import into a separate, inactive workflow. Keep schedules inactive while binding credentials and configuring destinations.
+
+| Placeholder or node | Required configuration |
 |---|---|
-| **Structured generation** | The prompt demands strict JSON — `{sentiment, confidence, claims[{claim, basedOn, direction}], interpretation, wisdom}` — and **forbids digits anywhere in the model's text**. |
-| **Deterministic verify + enforce** | Every claim must cite a `basedOn` factKey. Code checks each citation against the fetched ground truth: unknown key, cites-an-N/A-source, digits-in-text, sentiment contradicting its own cited evidence. **Any violation and the AI commentary is withheld** — the verified data still ships. |
-| **Evidence injection** | Numbers in the digest are injected from source data under each claim, never written by the model. Numeric hallucination is structurally impossible, not merely discouraged. |
-| **Sanity bounds** | Each `*Change` value is checked against a plausible daily move. Out-of-bounds → a 🔍 DATA QUALITY FLAG for a human. *(This is not theoretical: it caught a real bug — see below.)* |
-| **Verdict ledger** | Each day's sentiment + attributions persist, giving the next day a challengeable prior. |
-| **Track record** | Yesterday's stated sentiment is scored against what the market actually did. Retrospective only — the system never predicts. Published, hit or miss. |
-| **Headline citation tier** | The model may cite `headline_N`, verified for **existence** in that day's real fetch — explicitly *not* fact-checked, and the prompt says so, so the guarantee is never overclaimed. |
-| **Graceful degradation** | If the model provider is down, the digest **still ships the verified ledger** with an honest "AI commentary unavailable" note. The analysis layer is advisory; the data is the product. |
+| `YOUR_FRED_API_KEY_HERE` | Set the FRED key in the imported **Fetch All Market Data** Code node. This template currently uses a code constant; keep the populated copy out of Git and public exports. |
+| `YOUR_GOOGLE_PALM_API_CREDENTIAL_ID` | Bind your Google credential to both Gemini model nodes. |
+| `YOUR_GROQ_API_CREDENTIAL_ID` | Bind your Groq credential to both fallback model nodes. |
+| `YOUR_TELEGRAM_API_CREDENTIAL_ID` | Bind your Telegram bot credential to every Telegram delivery/error/status/weekly node. |
+| `YOUR_TELEGRAM_CHAT_ID` | Set your own digest/status/weekly destination. Use a test destination during setup. |
+| `YOUR_TELEGRAM_ADMIN_DM_ID` | Set your error-notification destination. |
+| `YOUR_PUBLIC_GITHUB_CREDENTIAL_ID` | Bind publication credentials to both **Publish Dashboard Data** nodes. Grant access to the target repository's contents. |
+| `YOUR_PRIVATE_GITHUB_CREDENTIAL_ID` | Bind issue-creation credentials for the operator's incident repository, if that branch is enabled. |
+| `YOUR_GITHUB_USERNAME`, `YOUR_PUBLIC_REPOSITORY`, `YOUR_PRIVATE_OPS_REPOSITORY` | Replace repository owners and destinations in the relevant GitHub nodes. |
+| Watchlist configuration nodes | Set your US and China watchlist symbols. |
+| Model nodes | Confirm the template's selected model identifiers are available to your account. |
 
-## Setup
+Credential names in an export are placeholders. Selecting a new credential object requires rebinding every affected node; a working credential elsewhere does not repair a stale node reference.
 
-Import into n8n, then replace every `YOUR_*` placeholder:
+The Docker `.env` file configures infrastructure. It does not populate the workflow's API credentials or replace the FRED code constant. Follow the [deployment template instructions](../README.md) for owner-account, secret-file, and runtime configuration.
 
-| Placeholder | What it is |
-|---|---|
-| `YOUR_FRED_API_KEY_HERE` | Free key from [FRED](https://fred.stlouisfed.org/docs/api/api_key.html) |
-| `YOUR_TELEGRAM_CHAT_ID` | The channel the digest posts to |
-| `YOUR_TELEGRAM_ADMIN_DM_ID` | Your own DM — error alerts go here, not to subscribers |
-| `YOUR_GITHUB_USERNAME` | Owner of the repo the dashboard publishes to |
-| `YOUR_*_CREDENTIAL_ID` | n8n will bind these when you attach your own credentials |
+The template includes an operator status form that can send notifications. Configure access to that form before exposing the workflow publicly. Adapt hardcoded dashboard/repository links in message code and the optional watchdog channel destination for your fork.
 
-**A note on credentials, learned the hard way:** if you *rotate* a credential by creating a
-**new** one in n8n rather than editing the existing one in place, every node still points at
-the **old credential ID** — which no longer exists. The credential list looks healthy, the
-workflow still reports `active: true`, and the next run silently ships nothing. Re-point the
-nodes, and then *prove* the new credential works rather than assuming it does.
+## Check schedules and destinations
 
-## An honest note on the sanity-bound check
+The workflow timezone is `Asia/Kuala_Lumpur` (UTC+8):
 
-It earns its place. On 2026-07-13 it flagged the S&P 500 "daily change" as implausible at
-**+20.62%**. That turned out to be real: the S&P is fetched with `range=1y` (the 200-day
-moving average needs a year of closes), and Yahoo's `chartPreviousClose` means *"the close
-before the chart range starts"* — so for that one symbol it meant **a year ago**. We had been
-publishing the S&P's **annual return as its daily change**.
+| Branch | Cron expression | Scheduled time |
+|---|---|---|
+| US | `0 21 * * *` | Daily, 21:00 MYT / 13:00 UTC |
+| China | `30 16 * * 1-5` | Weekdays, 16:30 MYT / 08:30 UTC |
+| Weekly summary | `0 8 * * 0` | Sunday, 08:00 MYT / 00:00 UTC |
 
-Worse, the track record scores sentiment against that number — so with it pinned near +20%,
-"Bearish" was an automatic Miss and "Bullish" an automatic Hit. The credibility metric was
-measuring nothing.
+Changing these schedules also requires updating the freshness monitor's deadline configuration and the dashboard's freshness rules.
 
-The detector worked. We ignored it for several sessions, filed as "anomalous, not yet
-root-caused," and built features on top of it. That is the real lesson, and it is not a
-flattering one: **a detector that fires into a void is worse than no detector — it
-manufactures the appearance of coverage.**
+Set both GitHub publication nodes to your repository. Their file-edit operation expects the edition files to exist; a fork already includes them. The publication workflow targets `main`, so align the repository's default branch and automation configuration.
 
-Fixed (derive the prior close from the timeseries, not the range boundary), and the track
-record was **reset to zero** rather than publish a score derived from a broken measurement.
-A track record you don't reset when it's proven wrong isn't a track record; it's marketing.
+For Pages, select **GitHub Actions** as the deployment source. The included workflow validates and uploads one artifact, then deploys only after that validation job succeeds. Configure the `github-pages` environment if your repository uses deployment protection.
+
+The freshness workflow uses the repository's automatic GitHub token for issue reconciliation. Its optional `TELEGRAM_BOT_TOKEN` Actions secret is separate from n8n's credential store. The observation command below needs neither token:
+
+```sh
+node .github/scripts/check-freshness.mjs
+```
+
+## Verify before activation
+
+Use your own test destinations to check each edition. Inspect source health, the verifier result, Telegram content, the committed JSON, and the Pages deployment separately. A successful node test is not an end-to-end delivery result.
+
+Commentary must either carry explicit approval under the current schema or be withheld. New dashboard data must use schema v2 with matching facts, claim counts, and stable headline identifiers. If source health is an outage or no usable market row remains, the producer preserves the previous dashboard file.
+
+The original August 2026 dashboard files are hash-pinned legacy snapshots. The `--allow-historical` flag retains those exact files as unverified history; it does not exempt new publications from schema v2.
+
+Activate only after checking schedules, destinations, credentials, and persistence on your installation. Importing this export into an existing installation does not migrate its stored ledger automatically. Back up the workflow and its state before replacing an existing active workflow.
+
+## What “approved” means
+
+Approval checks JSON structure, allowed labels, bounded numeric-text rules, and whether cited values or titles are available. It does not prove a claim follows from its evidence, that a source is correct, or that a trading decision will succeed. A missing source URL does not invalidate an actual fetched title; readers see when the link is unavailable.
+
+The retrospective ledger and outcome ratio are not investment returns or a guarantee of future performance. See [Architecture](../../docs/ARCHITECTURE.md) for the full contract and its limits.

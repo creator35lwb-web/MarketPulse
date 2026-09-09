@@ -1,0 +1,1400 @@
+{
+  "name": "MarketPulse - Attributed Market Intelligence (US + CN)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "214eebcf-2d75-4fa1-945d-2056cb0d2258",
+      "name": "Daily US Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        576
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "553abb38-397d-4ebc-9989-488c719f69fd",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "81edcb5f-d7a7-4886-b250-4e72ba215cd6",
+      "name": "Fetch All Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        464
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "GOOGL,BABA,ADBE,SOFI,ASML",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b22880d-a83b-4459-93f8-369f2ae93a0a",
+      "name": "Set Dynamic Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "e759a64d-9544-4090-857c-717f625f5e17",
+      "name": "Fetch Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        672
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "59d8bc02-e319-47dd-9b2c-56504682ab9d",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        544,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "97f927f2-ea3f-45c1-8fb2-ac6b922bb04a",
+      "name": "Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Valu-Analyst, a professional value investing analyst inspired by Warren Buffett's investment philosophy. Analyze the following market data and provide a structured briefing for a value investor.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== VALUE INVESTOR DASHBOARD ==\nBuffett Indicator (Market Cap/GDP): {{ $json.buffettIndicator }} - {{ $json.buffettStatus }}\nShiller PE (CAPE): {{ $json.shillerPE }} - {{ $json.shillerStatus }}\nYield Curve (10Y-2Y): {{ $json.yieldCurve }} - {{ $json.yieldCurveStatus }}\nS&P 500 vs 200-Day MA: {{ $json.sp500VsMa200 }} - {{ $json.sp500VsMa200Status }} ({{ $json.maSignal }})\n\n== MARKET DATA ==\nFear & Greed Index: {{ $json.fearGreedValue }}/100 ({{ $json.fearGreedClassification }})\n\nMarket Indices:\n- S&P 500: {{ $json.sp500 }} ({{ $json.sp500Change }})\n- Dow Jones: {{ $json.dowJones }} ({{ $json.dowJonesChange }})\n- VIX: {{ $json.vix }} ({{ $json.vixChange }})\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- Oil (WTI): {{ $json.oil }} ({{ $json.oilChange }})\n- US Dollar (DXY): {{ $json.dxy }} ({{ $json.dxyChange }})\n- Bitcoin: {{ $json.btc }} ({{ $json.btcChange }})\n\nEconomic Indicators (USA):\n- GDP ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n- Fed Funds Rate: {{ $json.fedRateValue }}\n- 10Y Treasury: {{ $json.treasury10Y }}\n- 2Y Treasury: {{ $json.treasury2Y }}\n\nToday's Headlines - cite as headline_1 through headline_{{ $json.headlinesCount }}, one per line below:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for a value investor. NO numbers.\",\n  \"wisdom\": \"one Buffett or Graham principle applied to today's conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\nbuffettIndicator, shillerPE, yieldCurve, sp500VsMa200, maSignal, fearGreedValue, sp500, sp500Change, dowJones, dowJonesChange, vix, vixChange, gold, goldChange, oil, oilChange, dxy, dxyChange, btc, btcChange, gdpValue, cpiValue, unemploymentValue, fedRateValue, treasury10Y, treasury2Y, headline_1 through headline_{{ $json.headlinesCount }} (there are {{ $json.headlinesCount }} headlines listed above today), plus today's watchlist stock keys: {{ $json.watchlistFactKeys }}\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "36982457-6815-4068-a1b7-0ac4871ed3b2",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        960,
+        576
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "id": "553d0855-2872-468d-b571-c9e30fdf10d4",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        784
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_PALM_API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_PALM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "91a3df66-e300-41bb-8f6c-340ce6ea4225",
+      "name": "Merge LLM Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "a508999d-f303-48d2-9ed2-e1f769e231c0",
+      "name": "Compose Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "=HTML"
+        }
+      },
+      "id": "9c286417-7396-4c34-b6ed-3d1b76d5c357",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        576
+      ],
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "425d8d13-c18b-46e8-a2d0-36ec97b29162",
+      "name": "Sanitize Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_ADMIN_DM_ID",
+        "text": "={{ $json.alertMessage }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "7fd1deb0-003f-4a80-b3ec-ee30890dfb86",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        1376
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "MarketPulse Service Status",
+        "formDescription": "Select the status type and click Submit to send a professional notification to the MarketPulse Telegram channel.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Status Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "restored"
+                  },
+                  {
+                    "option": "maintenance"
+                  },
+                  {
+                    "option": "degraded"
+                  },
+                  {
+                    "option": "scheduled_downtime"
+                  },
+                  {
+                    "option": "unavailable"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Custom Note (Optional)",
+              "fieldType": "textarea",
+              "placeholder": "Add any additional context for subscribers..."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e89285d9-b2dd-4188-9e9f-e4fedf4c74e9",
+      "name": "Status Selection Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "map-status",
+              "name": "statusType",
+              "value": "={{ $json['Status Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "map-note",
+              "name": "customNote",
+              "value": "={{ $json['Custom Note (Optional)'] || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "46f8137d-9c6e-4b2e-bc86-bec82f90a821",
+      "name": "Map Form Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "5c63c49d-7e61-4e5e-bd7b-eb3047c6e81a",
+      "name": "Compose Status Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "97192353-7590-4a36-b4e8-03e34f053ff9",
+      "name": "Send Status to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1216
+      ],
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "a1ba7d1c-7994-4326-ba10-9549117ea786",
+      "name": "Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "4096eb56-2ba0-4e0a-bb41-e665eb783836",
+      "name": "Fetch All China Market Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "watchlist-id",
+              "name": "watchlist",
+              "value": "600519.SS,300750.SZ,002594.SZ,9988.HK,0700.HK",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9f3930a-54a7-49b6-9a22-e411f25acdb5",
+      "name": "Set CN Watchlist",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "160bcdb0-bfac-458c-a2d7-0f04fabc929b",
+      "name": "Fetch CN Stock Prices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        192
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are China-Analyst, a professional analyst specializing in the Chinese stock market and economy. Analyze the following China market data and provide a structured briefing.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== CHINA MARKET DATA ==\n\nChina Market Indices:\n- CSI 300: {{ $json.csi300 }} ({{ $json.csi300Change }})\n- SSE Composite: {{ $json.sseComposite }} ({{ $json.sseCompositeChange }})\n- SZSE Component: {{ $json.szseComponent }} ({{ $json.szseComponentChange }})\n- Hang Seng: {{ $json.hangSeng }} ({{ $json.hangSengChange }})\n\nCommodities & Forex:\n- Gold: {{ $json.gold }} ({{ $json.goldChange }})\n- USD/CNY: {{ $json.usdCny }} ({{ $json.usdCnyChange }})\n\nEconomic Indicators (China):\n- GDP Growth ({{ $json.gdpYear }}): {{ $json.gdpValue }}\n- Inflation/CPI ({{ $json.cpiYear }}): {{ $json.cpiValue }}\n- Unemployment ({{ $json.unemploymentYear }}): {{ $json.unemploymentValue }}\n\nToday's China-Related Headlines - cite as headline_1 through headline_{{ $json.headlinesCount }}, one per line below:\n{{ $json.headlines }}\n\nWatchlist Performance:\n{{ $json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for an investor in China markets. NO numbers.\",\n  \"wisdom\": \"one value-investing principle applied to today's China market conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\ncsi300, csi300Change, sseComposite, sseCompositeChange, szseComponent, szseComponentChange, hangSeng, hangSengChange, gold, goldChange, usdCny, usdCnyChange, gdpValue, cpiValue, unemploymentValue, headline_1 through headline_{{ $json.headlinesCount }} (there are {{ $json.headlinesCount }} headlines listed above today), plus today's watchlist stock keys: {{ $json.watchlistFactKeys }}\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "b50eaed0-7b30-404d-945b-dcd5d00e5032",
+      "name": "China Market LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        912,
+        96
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "9464cae8-196f-4074-8691-ec879a283ea7",
+      "name": "Merge All1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        496,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "47af269d-c90b-494e-b1dc-2d96cb3ba80b",
+      "name": "Combine All Data1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "id": "c095ee1a-991a-458a-ad86-3b7bc074e9c1",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        928,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_PALM_API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_PALM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "54d61340-f7cd-4478-b009-372d1fac05f8",
+      "name": "Merge LLM Result1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "862f325c-7d8c-4fe1-85dc-1d0a83606921",
+      "name": "Compose Telegram Message1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "4ddcc14b-9a27-410d-8896-eedde986c747",
+      "name": "Send to Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1568,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 16 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "14f144ce-7062-4623-9799-eaf3e4f18650",
+      "name": "Daily CN Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "eff7dd8e-1740-42b8-8bab-252c84ae0978",
+      "name": "Verify AI Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        752
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "2f3ac0ea-e84f-4330-ad37-6a3115937ffe",
+      "name": "Verify AI Analysis1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        272
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "YOUR_GITHUB_USERNAME",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "YOUR_PRIVATE_OPS_REPOSITORY",
+          "mode": "name"
+        },
+        "title": "={{ $json.githubTitle }}",
+        "body": "={{ $json.githubBody }}",
+        "labels": [],
+        "assignees": []
+      },
+      "id": "a1b2c3d4-e5f6-4890-9abc-def012345678",
+      "name": "Create GitHub Issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        1488
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_PRIVATE_GITHUB_CREDENTIAL_ID",
+          "name": "YOUR_PRIVATE_GITHUB_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345001",
+      "name": "Prepare Dashboard Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "YOUR_GITHUB_USERNAME",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "YOUR_PUBLIC_REPOSITORY",
+          "mode": "name"
+        },
+        "filePath": "docs/data/latest-us.json",
+        "fileContent": "={{ $json.dashboardJson }}",
+        "commitMessage": "={{ $json.commitMessage }}"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345002",
+      "name": "Publish Dashboard Data",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        928
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_PUBLIC_GITHUB_CREDENTIAL_ID",
+          "name": "YOUR_PUBLIC_GITHUB_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345003",
+      "name": "Prepare Dashboard Data1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "YOUR_GITHUB_USERNAME",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "YOUR_PUBLIC_REPOSITORY",
+          "mode": "name"
+        },
+        "filePath": "docs/data/latest-cn.json",
+        "fileContent": "={{ $json.dashboardJson }}",
+        "commitMessage": "={{ $json.commitMessage }}"
+      },
+      "id": "f1a2b3c4-1111-4890-9abc-def012345004",
+      "name": "Publish Dashboard Data1",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        448
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "githubApi": {
+          "id": "YOUR_PUBLIC_GITHUB_CREDENTIAL_ID",
+          "name": "YOUR_PUBLIC_GITHUB_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "primary-produced-analysis",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "fb00000-0000-4890-9abc-def00000000a",
+      "name": "Primary Analyst OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Valu-Analyst, a professional value investing analyst inspired by Warren Buffett's investment philosophy. Analyze the following market data and provide a structured briefing for a value investor.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== VALUE INVESTOR DASHBOARD ==\nBuffett Indicator (Market Cap/GDP): {{ $('Combine All Data').first().json.buffettIndicator }} - {{ $('Combine All Data').first().json.buffettStatus }}\nShiller PE (CAPE): {{ $('Combine All Data').first().json.shillerPE }} - {{ $('Combine All Data').first().json.shillerStatus }}\nYield Curve (10Y-2Y): {{ $('Combine All Data').first().json.yieldCurve }} - {{ $('Combine All Data').first().json.yieldCurveStatus }}\nS&P 500 vs 200-Day MA: {{ $('Combine All Data').first().json.sp500VsMa200 }} - {{ $('Combine All Data').first().json.sp500VsMa200Status }} ({{ $('Combine All Data').first().json.maSignal }})\n\n== MARKET DATA ==\nFear & Greed Index: {{ $('Combine All Data').first().json.fearGreedValue }}/100 ({{ $('Combine All Data').first().json.fearGreedClassification }})\n\nMarket Indices:\n- S&P 500: {{ $('Combine All Data').first().json.sp500 }} ({{ $('Combine All Data').first().json.sp500Change }})\n- Dow Jones: {{ $('Combine All Data').first().json.dowJones }} ({{ $('Combine All Data').first().json.dowJonesChange }})\n- VIX: {{ $('Combine All Data').first().json.vix }} ({{ $('Combine All Data').first().json.vixChange }})\n- Gold: {{ $('Combine All Data').first().json.gold }} ({{ $('Combine All Data').first().json.goldChange }})\n- Oil (WTI): {{ $('Combine All Data').first().json.oil }} ({{ $('Combine All Data').first().json.oilChange }})\n- US Dollar (DXY): {{ $('Combine All Data').first().json.dxy }} ({{ $('Combine All Data').first().json.dxyChange }})\n- Bitcoin: {{ $('Combine All Data').first().json.btc }} ({{ $('Combine All Data').first().json.btcChange }})\n\nEconomic Indicators (USA):\n- GDP ({{ $('Combine All Data').first().json.gdpYear }}): {{ $('Combine All Data').first().json.gdpValue }}\n- Inflation/CPI ({{ $('Combine All Data').first().json.cpiYear }}): {{ $('Combine All Data').first().json.cpiValue }}\n- Unemployment ({{ $('Combine All Data').first().json.unemploymentYear }}): {{ $('Combine All Data').first().json.unemploymentValue }}\n- Fed Funds Rate: {{ $('Combine All Data').first().json.fedRateValue }}\n- 10Y Treasury: {{ $('Combine All Data').first().json.treasury10Y }}\n- 2Y Treasury: {{ $('Combine All Data').first().json.treasury2Y }}\n\nToday's Headlines - cite as headline_1 through headline_{{ $('Combine All Data').first().json.headlinesCount }}, one per line below:\n{{ $('Combine All Data').first().json.headlines }}\n\nWatchlist Performance:\n{{ $('Combine All Data').first().json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $('Combine All Data').first().json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for a value investor. NO numbers.\",\n  \"wisdom\": \"one Buffett or Graham principle applied to today's conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\nbuffettIndicator, shillerPE, yieldCurve, sp500VsMa200, maSignal, fearGreedValue, sp500, sp500Change, dowJones, dowJonesChange, vix, vixChange, gold, goldChange, oil, oilChange, dxy, dxyChange, btc, btcChange, gdpValue, cpiValue, unemploymentValue, fedRateValue, treasury10Y, treasury2Y, headline_1 through headline_{{ $('Combine All Data').first().json.headlinesCount }} (there are {{ $('Combine All Data').first().json.headlinesCount }} headlines listed above today), plus today's watchlist stock keys: {{ $('Combine All Data').first().json.watchlistFactKeys }}\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "fb00000-0000-4890-9abc-def00000000b",
+      "name": "Groq Analyst",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1392,
+        1024
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "fb00000-0000-4890-9abc-def00000000c",
+      "name": "Groq Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        1184
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "YOUR_GROQ_API_CREDENTIAL_ID",
+          "name": "YOUR_GROQ_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "primary-produced-analysis",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "fb000001-0000-4890-9abc-def00000000a",
+      "name": "Primary Analyst OK?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are China-Analyst, a professional analyst specializing in the Chinese stock market and economy. Analyze the following China market data and provide a structured briefing.\n\nIMPORTANT: Do NOT use any Markdown formatting like ** or * or # in your response. Use plain text only.\n\n== CHINA MARKET DATA ==\n\nChina Market Indices:\n- CSI 300: {{ $('Combine All Data1').first().json.csi300 }} ({{ $('Combine All Data1').first().json.csi300Change }})\n- SSE Composite: {{ $('Combine All Data1').first().json.sseComposite }} ({{ $('Combine All Data1').first().json.sseCompositeChange }})\n- SZSE Component: {{ $('Combine All Data1').first().json.szseComponent }} ({{ $('Combine All Data1').first().json.szseComponentChange }})\n- Hang Seng: {{ $('Combine All Data1').first().json.hangSeng }} ({{ $('Combine All Data1').first().json.hangSengChange }})\n\nCommodities & Forex:\n- Gold: {{ $('Combine All Data1').first().json.gold }} ({{ $('Combine All Data1').first().json.goldChange }})\n- USD/CNY: {{ $('Combine All Data1').first().json.usdCny }} ({{ $('Combine All Data1').first().json.usdCnyChange }})\n\nEconomic Indicators (China):\n- GDP Growth ({{ $('Combine All Data1').first().json.gdpYear }}): {{ $('Combine All Data1').first().json.gdpValue }}\n- Inflation/CPI ({{ $('Combine All Data1').first().json.cpiYear }}): {{ $('Combine All Data1').first().json.cpiValue }}\n- Unemployment ({{ $('Combine All Data1').first().json.unemploymentYear }}): {{ $('Combine All Data1').first().json.unemploymentValue }}\n\nToday's China-Related Headlines - cite as headline_1 through headline_{{ $('Combine All Data1').first().json.headlinesCount }}, one per line below:\n{{ $('Combine All Data1').first().json.headlines }}\n\nWatchlist Performance:\n{{ $('Combine All Data1').first().json.watchlistSummary }}\n\n== YOUR PREVIOUS ANALYSIS (continuity prior) ==\n{{ $('Combine All Data1').first().json.previousAnalysis }}\n\nIn your interpretation, briefly address what changed versus your previous analysis (still NO numbers). If your sentiment shifted, one claim should explain why.\n\n== REQUIRED OUTPUT: STRICT JSON ONLY ==\nReturn ONLY one valid JSON object. No markdown, no code fences, no text before or after it.\n\nSchema (single braces, exactly these fields):\n{\n  \"sentiment\": \"Bullish\" or \"Cautiously Bullish\" or \"Neutral\" or \"Cautiously Bearish\" or \"Bearish\",\n  \"confidence\": \"High\" or \"Medium\" or \"Low\",\n  \"claims\": [\n    { \"claim\": \"one factual market observation in plain words with NO numbers\",\n      \"basedOn\": [\"factKey\", \"factKey\"],\n      \"direction\": \"supports_bullish\" or \"supports_bearish\" or \"neutral\" }\n  ],\n  \"interpretation\": \"2-3 sentences of qualitative synthesis for an investor in China markets. NO numbers.\",\n  \"wisdom\": \"one value-investing principle applied to today's China market conditions. NO numbers.\"\n}\n\nAllowed factKey values (use ONLY these, exactly as written):\ncsi300, csi300Change, sseComposite, sseCompositeChange, szseComponent, szseComponentChange, hangSeng, hangSengChange, gold, goldChange, usdCny, usdCnyChange, gdpValue, cpiValue, unemploymentValue, headline_1 through headline_{{ $('Combine All Data1').first().json.headlinesCount }} (there are {{ $('Combine All Data1').first().json.headlinesCount }} headlines listed above today), plus today's watchlist stock keys: {{ $('Combine All Data1').first().json.watchlistFactKeys }}\n\nHARD RULES:\n1. NEVER write digits or numeric values anywhere in claim, interpretation, or wisdom text. The delivery system injects the exact numbers from source data using your basedOn keys. Any digit you write is a rule violation and your analysis will be withheld.\n2. Every claim MUST cite at least one factKey in basedOn - this is your evidence attribution, and it will be verified.\n3. Never cite a factKey whose value shows N/A in the data above.\n4. Provide 2 to 4 claims.\n5. Your reasoning must follow from the cited evidence - readers will see your claims next to the actual source values and can challenge them.\n6. A headline_N citation is verified only for EXISTENCE (that headline N was genuinely in today's fetch) - not for whether your claim accurately reflects its content. So when citing a headline, describe only what its title plainly states, never infer or embellish beyond it."
+      },
+      "id": "fb000001-0000-4890-9abc-def00000000b",
+      "name": "Groq Analyst1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1392,
+        544
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "fb000001-0000-4890-9abc-def00000000c",
+      "name": "Groq Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        704
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "YOUR_GROQ_API_CREDENTIAL_ID",
+          "name": "YOUR_GROQ_API_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "weekly-trigger-2026-07-22",
+      "name": "Weekly Report Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": ""
+      },
+      "id": "weekly-compose-2026-07-22",
+      "name": "Compose Weekly Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "=HTML"
+        }
+      },
+      "id": "weekly-send-2026-07-22",
+      "name": "Send Weekly to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        1200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_API_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_API_CREDENTIAL_ID"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dynamic Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Primary Analyst OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result": {
+      "main": [
+        [
+          {
+            "node": "Verify AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create GitHub Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Selection Form": {
+      "main": [
+        [
+          {
+            "node": "Map Form Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Form Fields": {
+      "main": [
+        [
+          {
+            "node": "Compose Status Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Status Message": {
+      "main": [
+        [
+          {
+            "node": "Send Status to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Status to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All China Market Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set CN Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Fetch CN Stock Prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CN Stock Prices": {
+      "main": [
+        [
+          {
+            "node": "Merge All1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "China Market LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Primary Analyst OK?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All1": {
+      "main": [
+        [
+          {
+            "node": "Combine All Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Data1": {
+      "main": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge LLM Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "China Market LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge LLM Result1": {
+      "main": [
+        [
+          {
+            "node": "Verify AI Analysis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Telegram Message1": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Dashboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify AI Analysis1": {
+      "main": [
+        [
+          {
+            "node": "Compose Telegram Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Dashboard Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Dashboard Data": {
+      "main": [
+        [
+          {
+            "node": "Publish Dashboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Dashboard Data1": {
+      "main": [
+        [
+          {
+            "node": "Publish Dashboard Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily US Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Dynamic Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily CN Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All China Market Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set CN Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Primary Analyst OK?": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Groq Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Analyst": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Groq Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Primary Analyst OK?1": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Groq Analyst1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Analyst1": {
+      "main": [
+        [
+          {
+            "node": "Merge LLM Result1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Groq Analyst1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Report Trigger": {
+      "main": [
+        [
+          {
+            "node": "Compose Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kuala_Lumpur",
+    "executionTimeout": 600
+  },
+  "active": false
+}

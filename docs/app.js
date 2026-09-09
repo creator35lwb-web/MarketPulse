@@ -1,3 +1,5 @@
+import {additionalEvidence, citationEvidence, headlineKey, presentationState, verificationPresentation} from './dashboard-state.mjs';
+
 (function () {
   'use strict';
 
@@ -5,6 +7,7 @@
   var tpl = document.getElementById('tpl-report');
   var toggle = document.querySelector('.edition-toggle');
   var currentEdition = 'US';
+  var loadSequence = 0;
 
   function fmtDirection(dir) {
     return dir === 'supports_bullish' ? 'supports_bullish'
@@ -66,15 +69,33 @@
   function render(data) {
     app.innerHTML = '';
     var node = tpl.content.cloneNode(true);
+    var state = presentationState(data);
+    var analysis = state.legacy || state.approved ? (data.analysis || {}) : {};
+    var verification = verificationPresentation(data, state);
+    node.querySelector('.read-label').textContent = state.stale || state.legacy ? 'Archived read' : 'Latest read';
+    var publication = node.querySelector('.publication-banner');
+    var statusParts = [];
+    if (state.stale) statusParts.push('A current dashboard update could not be confirmed. Latest expected publication date: ' + state.expectedDate + ' (UTC).');
+    if (state.validTime && state.publicationDate < state.expectedDate) statusParts.push('This briefing was published earlier and is overdue for an update.');
+    if (!state.validTime) statusParts.push('The publication timestamp is missing, invalid, or in the future.');
+    if (state.offSchedule) statusParts.push('This publication falls outside the China weekday schedule.');
+    if (state.legacy) statusParts.push('Historical briefing: its commentary predates the current verification checks.');
+    if (state.stale || state.legacy) {
+      publication.textContent = statusParts.join(' ');
+      publication.hidden = false;
+    }
+    node.querySelector('.publication-time').textContent = state.validTime
+      ? 'Published ' + new Date(data.generatedAt).toLocaleString('en-GB', {timeZone:'Asia/Kuala_Lumpur'}) + ' MYT. Source reference periods may differ.'
+      : 'Publication time unavailable.';
 
     node.querySelector('.date').textContent = data.dateLabel || '';
     node.querySelector('.edition-name').textContent = data.edition === 'CN' ? 'China Market' : 'US Market';
     var sentimentWord = node.querySelector('.sentiment-word');
-    sentimentWord.textContent = (data.analysis && data.analysis.sentiment) || 'Unavailable';
+    sentimentWord.textContent = analysis.sentiment || 'Unavailable';
 
     // data quality banner - built via DOM methods, not innerHTML, so no dynamic
     // value (even from our own trusted pipeline) is ever interpreted as markup
-    var banner = node.querySelector('.flag-banner');
+    var banner = node.querySelector('.data-health-banner');
     var suspect = data.health && data.health.suspect;
     function setBanner(boldText, restText) {
       banner.textContent = '';
@@ -104,12 +125,14 @@
     }
 
     // fear & greed (US-only - hide the whole section when absent)
-    if (data.fearGreed) {
-      var score = Math.max(0, Math.min(100, Number(data.fearGreed.score) || 0));
+    if (data.fearGreed && typeof data.fearGreed.score === 'number' && Number.isFinite(data.fearGreed.score)
+        && data.fearGreed.score >= 0 && data.fearGreed.score <= 100) {
+      node.querySelector('.gauge-card').dataset.factkey = 'fearGreedValue';
+      var score = data.fearGreed.score;
       node.querySelector('.gauge-dot').style.left = score + '%';
       node.querySelector('.gauge-readout .score').textContent = data.fearGreed.score + '/100';
       node.querySelector('.gauge-readout .label').textContent =
-        data.fearGreed.classification + ' · ' + data.fearGreed.change1d + ' (1d)';
+        data.fearGreed.classification + (data.fearGreed.change1d ? ' · ' + data.fearGreed.change1d + ' (1d)' : '');
     } else {
       node.querySelector('.feargreed-section').hidden = true;
     }
@@ -169,25 +192,34 @@
 
     // claims + interpretation + wisdom (the signature interaction lives here)
     var claimsEl = node.querySelector('.claims');
-    var claims = (data.analysis && data.analysis.claims) || [];
+    var claims = analysis.claims || [];
+    node.querySelector('.hint').hidden = claims.length === 0;
+    if (!claims.length) {
+      node.querySelector('.analysis-notice').textContent = verification.message;
+      node.querySelector('.analysis-notice').hidden = false;
+    }
     claims.forEach(function (c) {
       var claim = el('div', 'claim');
       claim.tabIndex = 0;
       claim.setAttribute('role', 'button');
+      claim.setAttribute('aria-pressed', 'false');
       claim.dataset.basedon = JSON.stringify(c.basedOn || []);
       claim.appendChild(el('div', 'dir ' + fmtDirection(c.direction)));
       var body = el('div');
       body.appendChild(el('div', 'text', c.text));
-      var tag = el('div', 'evidence-tag', (c.basedOn || []).join(', '));
+      var tag = el('div', 'evidence-tag', (c.basedOn || []).map(function (key) {
+        var evidence = citationEvidence(data, key);
+        return evidence ? evidence.label : key + ' (evidence unavailable)';
+      }).join(', '));
       body.appendChild(tag);
       claim.appendChild(body);
       claimsEl.appendChild(claim);
     });
 
-    node.querySelector('.interpretation').textContent = (data.analysis && data.analysis.interpretation) || '';
+    node.querySelector('.interpretation').textContent = analysis.interpretation || '';
     var wisdomEl = node.querySelector('.wisdom');
-    if (data.analysis && data.analysis.wisdom) {
-      wisdomEl.textContent = '“' + data.analysis.wisdom + '”';
+    if (analysis.wisdom) {
+      wisdomEl.textContent = '“' + analysis.wisdom + '”';
     } else {
       wisdomEl.hidden = true;
     }
@@ -196,9 +228,14 @@
     var news = data.news || [];
     if (news.length) {
       var newsList = node.querySelector('.news-list');
-      news.forEach(function (n) {
+      news.forEach(function (n, index) {
         var li = el('li', 'news-item');
-        if (n.url) {
+        var key = headlineKey(n, index, state.legacy);
+        if (key) {
+          li.dataset.factkey = key;
+          li.value = Number(key.slice(9));
+        }
+        if (typeof n.url === 'string' && /^https?:\/\//i.test(n.url)) {
           var a = document.createElement('a');
           a.href = n.url;
           a.textContent = n.title;
@@ -207,6 +244,7 @@
           li.appendChild(a);
         } else {
           li.textContent = n.title;
+          li.appendChild(el('span', 'source-link-unavailable', ' — source link unavailable'));
         }
         newsList.appendChild(li);
       });
@@ -214,12 +252,19 @@
       node.querySelector('.news-section').hidden = true;
     }
 
-    // verified strip
-    var vCount = (data.analysis && data.analysis.claims && data.analysis.claims.length) || 0;
-    node.querySelector('.verified-strip').textContent =
-      vCount > 0
-        ? vCount + ' claim' + (vCount === 1 ? '' : 's') + ' attributed to source data. All numbers injected from sources, never AI-generated.'
-        : 'AI analysis withheld today — its reasoning failed attribution verification. The data above stands on its own.';
+    // Register cited facts that are not separate screener rows, such as watchlist changes.
+    var visibleKeys = Array.from(node.querySelectorAll('[data-factkey]')).map(function (r) { return r.dataset.factkey; });
+    var extraLedger = node.querySelector('.extra-evidence-ledger');
+    additionalEvidence(data, claims, visibleKeys).forEach(function (evidence) {
+      var row = ledgerRow(evidence.label, evidence.value, {factKey: evidence.key});
+      if (!evidence.available) row.classList.add('evidence-unavailable');
+      extraLedger.appendChild(row);
+      node.querySelector('.extra-evidence-section').hidden = false;
+    });
+
+    var verifiedStrip = node.querySelector('.verified-strip');
+    verifiedStrip.textContent = verification.message;
+    verifiedStrip.dataset.status = verification.tone;
 
     node.querySelector('.sources').textContent = 'Sources: ' + (data.sources || []).join(', ');
 
@@ -228,13 +273,20 @@
   }
 
   function wireInteraction() {
-    var ledgerRows = app.querySelectorAll('.ledger-row[data-factkey]');
-    var byKey = {};
-    ledgerRows.forEach(function (r) { byKey[r.dataset.factkey] = byKey[r.dataset.factkey] || []; byKey[r.dataset.factkey].push(r); });
+    var ledgerRows = app.querySelectorAll('[data-factkey]');
+    var byKey = new Map();
+    ledgerRows.forEach(function (r) {
+      var rows = byKey.get(r.dataset.factkey) || [];
+      rows.push(r);
+      byKey.set(r.dataset.factkey, rows);
+    });
 
     function clearActive() {
       app.querySelectorAll('.is-cited').forEach(function (r) { r.classList.remove('is-cited'); });
-      app.querySelectorAll('.claim.is-active').forEach(function (c) { c.classList.remove('is-active'); });
+      app.querySelectorAll('.claim.is-active').forEach(function (c) {
+        c.classList.remove('is-active');
+        c.setAttribute('aria-pressed', 'false');
+      });
     }
 
     function activateClaim(claim) {
@@ -242,15 +294,16 @@
       clearActive();
       if (wasActive) return; // toggle off
       claim.classList.add('is-active');
+      claim.setAttribute('aria-pressed', 'true');
       var keys = JSON.parse(claim.dataset.basedon || '[]');
       var firstRow = null;
       keys.forEach(function (k) {
-        (byKey[k] || []).forEach(function (row) {
+        (byKey.get(k) || []).forEach(function (row) {
           row.classList.add('is-cited');
           if (!firstRow) firstRow = row;
         });
       });
-      if (firstRow) firstRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (firstRow) firstRow.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
     }
 
     app.querySelectorAll('.claim').forEach(function (claim) {
@@ -303,15 +356,22 @@
 
   function load(edition) {
     currentEdition = edition;
+    var requestSequence = ++loadSequence;
     app.innerHTML = '';
-    app.appendChild(el('p', 'state-msg', "Loading today's ledger…"));
+    app.appendChild(el('p', 'state-msg', 'Loading the latest briefing…'));
     fetch('data/latest-' + edition.toLowerCase() + '.json', { cache: 'no-store' })
       .then(function (res) {
         if (!res.ok) throw new Error('No digest published yet for this edition.');
         return res.json();
       })
-      .then(render)
-      .catch(function (err) { showError(err.message || 'Could not load today’s ledger.'); });
+      .then(function (data) {
+        if (requestSequence !== loadSequence) return;
+        if (data.edition !== edition) throw new Error('The published briefing does not match the selected edition.');
+        render(data);
+      })
+      .catch(function (err) {
+        if (requestSequence === loadSequence) showError(err.message || 'Could not load the latest briefing.');
+      });
   }
 
   if (toggle) {
