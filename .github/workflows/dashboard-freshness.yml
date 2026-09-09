@@ -1,265 +1,63 @@
 name: Dashboard Freshness Watchdog
 
-# Why this exists:
-# The digest runs on a self-hosted n8n on the operator's personal laptop, which is often
-# offline. A watchdog on that laptop cannot report the laptop being offline — a thing cannot
-# monitor its own absence. This job runs on GitHub Actions (always on, OFF the laptop) and
-# checks the one artifact a successful run leaves behind: the `generatedAt` timestamp in the
-# published dashboard JSON. If today's run did not land, it opens a GitHub Issue — which
-# notifies the operator on any device (incl. iPad) via the GitHub app / email.
-#
-# Deliberate design (matches this repo's existing alarm philosophy):
-#   • The job NEVER goes red on a missing digest. A build that is red on every offline day
-#     trains the operator to ignore CI. The alarm is an Issue, not a red build.
-#   • Each edition is checked right after ITS OWN publish window, so "did today's run land?"
-#     is exactly the right question. The CN check runs Mon–Fri only, so weekends (when CN
-#     legitimately does not publish) cannot raise a false alarm.
-#   • No secrets, no webhook URLs in the issue body — this repo is public. Manual recovery is
-#     the operator's saved private trigger shortcut, referenced but never printed here.
-#
-# Third-party actions are pinned to an immutable commit SHA, never a floating tag.
-
+# Repository publication is distinct from Telegram delivery and Pages availability.
+# A publication push reconciles late updates immediately; hourly checks also
+# recover when a scheduled job or publication event is delayed. The script uses
+# elapsed UTC deadlines, including CN weekdays, rather than the runner's date.
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/data/latest-us.json'
+      - 'docs/data/latest-cn.json'
   schedule:
-    - cron: '0 14 * * *'      # US edition: ~1h after the 13:00 UTC publish window
-    - cron: '30 9 * * 1-5'    # CN edition: ~1h after the 08:30 UTC weekday publish window
-  workflow_dispatch:          # manual run — checks both editions
+    - cron: '47 * * * *'
+  workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Check freshness and log the result, but do NOT open an issue'
+        description: 'Observe only: no issue changes or Telegram messages'
         type: boolean
-        default: false
+        default: true
       validate_telegram:
-        description: 'Validate the TELEGRAM_BOT_TOKEN secret (getMe + getChat only — sends NO message)'
+        description: 'Check Telegram token/channel read access only; no issue changes or messages'
         type: boolean
         default: false
 
 permissions:
   contents: read
-  issues: write
+
+# Serialize push and scheduled reconciliation so overlapping checks cannot create
+# duplicate alerts. Always check the current trusted branch, even for queued jobs.
+concurrency:
+  group: dashboard-freshness-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
   freshness:
-    name: is today's digest published?
+    if: github.ref == 'refs/heads/main'
+    name: Check dashboard repository publication
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: main
+          persist-credentials: false
 
-      - id: check
-        name: Check published dashboard freshness
-        run: node .github/scripts/check-freshness.mjs
-        env:
-          SCHEDULE: ${{ github.event.schedule }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
 
-      - name: Open an alert issue if a digest is missing
-        id: issue
-        if: steps.check.outputs.alert == 'true' && github.event.inputs.dry_run != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EDITIONS: ${{ steps.check.outputs.editions }}
-          TODAY: ${{ steps.check.outputs.today }}
-          SUMMARY: ${{ steps.check.outputs.summary }}
-        run: |
-          TITLE="⚠️ MarketPulse digest missing — ${EDITIONS} — ${TODAY}"
-          EXISTING=$(gh issue list --state open --json title,number \
-            --jq ".[] | select(.title==\"${TITLE}\") | .number")
-          if [ -n "${EXISTING}" ]; then
-            echo "An alert issue is already open (#${EXISTING}) — not duplicating."
-            exit 0
-          fi
-          BODY=$(cat <<EOF
-          Today's MarketPulse digest did not publish for: **${EDITIONS}**.
+      - name: Test freshness dates and issue reconciliation offline
+        run: node --test tests/dashboard-freshness.test.mjs
 
-          ${SUMMARY}
-
-          **Most likely cause:** the laptop hosting n8n was offline (asleep or powered off) at
-          the scheduled trigger time, so the run never fired. The digest has no automatic
-          catch-up by design — recovery is one manual trigger.
-
-          **What to do:** trigger the digest from your saved private shortcut (the manual
-          webhook). Once it publishes, this alert can be closed — it will not reopen until a
-          future run is missed.
-
-          _Filed automatically by the Dashboard Freshness Watchdog. This check runs off the
-          laptop, so it can see an outage the laptop itself cannot report._
-          EOF
-          )
-          gh issue create --title "${TITLE}" --body "${BODY}"
-          echo "Opened alert issue: ${TITLE}"
-          echo "created=true" >> "$GITHUB_OUTPUT"
-
-      # Presence when absent: subscribers hear "no digest today" even with the host fully off.
-      # Runs only when a NEW alert issue was just opened (same dedupe as the issue itself), and
-      # never fails the build — the Issue above stays the primary alert if Telegram is down.
-      # Requires the TELEGRAM_BOT_TOKEN repo secret; silently skips until it is configured.
-      - name: Announce the missed digest on Telegram
-        if: steps.issue.outputs.created == 'true'
-        env:
-          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          EDITIONS: ${{ steps.check.outputs.editions }}
-          TODAY: ${{ steps.check.outputs.today }}
-        run: |
-          if [ -z "${TG_TOKEN}" ]; then
-            echo "TELEGRAM_BOT_TOKEN secret not set — skipping the Telegram announcement."
-            exit 0
-          fi
-          # Paste-proof the secret: stray spaces/newlines in the stored value would
-          # otherwise malform the request URL (curl exit 3), and a pasted-in leading
-          # "bot" prefix would double up (the URL below adds its own).
-          TG_TOKEN=$(printf '%s' "${TG_TOKEN}" | tr -d '[:space:]')
-          case "${TG_TOKEN}" in
-            [Bb][Oo][Tt][0-9]*:*) TG_TOKEN="${TG_TOKEN#[Bb][Oo][Tt]}" ;;
-          esac
-          TEXT="📡 <b>MarketPulse status — ${TODAY}</b>
-
-          Today's ${EDITIONS} digest did not publish — the host machine is offline (or the market is closed and the operator is away).
-
-          No stale data was sent: when a run can't verify fresh numbers, it publishes nothing. The last verified digest remains on the dashboard:
-          https://creator35lwb-web.github.io/MarketPulse/
-
-          Service resumes with the next scheduled run."
-          HTTP=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
-            "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=@n8nMarketPulse" \
-            --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true")
-          if [ "${HTTP}" = "200" ]; then
-            echo "Telegram status announcement sent."
-          else
-            echo "Telegram send failed (HTTP ${HTTP}) — the GitHub Issue remains the primary alert."
-          fi
-
-      # ===== LATE-vs-MISSING RESOLUTION (2026-07-30) =====
-      # A digest that is merely LATE is indistinguishable from a MISSING one at check time, so
-      # on 2026-07-30 the channel was told the CN digest was missing at 19:29 MYT and received
-      # it at 20:08. Detecting fast is correct; leaving the warning hanging is not. When an
-      # edition is fresh and an alert this watchdog opened is still open, retire it here.
-      #
-      # An alert is retired ONLY by the arrival of the digest it was actually filed about:
-      # the title must name this edition AND the date that just published ("— CN — 2026-08-03").
-      # Matching on edition alone was wrong — Monday's healthy CN digest would have closed
-      # Friday's alert and announced that Friday's digest "arrived late", when CN 2026-07-31
-      # was never published at all. A later day publishing does not make an earlier day late.
-      # A genuinely missed day therefore stays open for a human to close honestly.
-      #
-      # A combined "US + CN" alert is also left open: one edition recovering does not clear both.
-      #
-      # continue-on-error: this job's founding rule is that it NEVER goes red — a build that
-      # is red on every offline day trains the operator to ignore CI. Retiring an alert is
-      # housekeeping, so a GitHub API hiccup here must not turn the run red and must not stop
-      # the freshness check that precedes it from having done its job.
-      - name: Retire any open alert once the digest lands
-        id: resolve
-        continue-on-error: true
-        if: steps.check.outputs.fresh == 'true' && github.event.inputs.dry_run != 'true'
+      - name: Observe publication and reconcile matching alerts
+        run: node .github/scripts/check-freshness.mjs --reconcile
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FRESH_PAIRS: ${{ steps.check.outputs.fresh_pairs }}
-          FRESH_SUMMARY: ${{ steps.check.outputs.fresh_summary }}
-        run: |
-          CLOSED=""
-          RESOLVED_EDS=""
-          for PAIR in ${FRESH_PAIRS}; do
-            ED="${PAIR%%|*}"
-            PUBDATE="${PAIR##*|}"
-            # Edition AND date must both match: only the alert filed for the day that just
-            # published is retired here. Any other open alert is a genuinely missed day.
-            NUMS=$(gh issue list --state open --limit 30 --json title,number \
-              --jq ".[] | select(.title | contains(\"MarketPulse digest missing\") and contains(\" — ${ED} — ${PUBDATE}\")) | .number")
-            for N in ${NUMS}; do
-              gh issue close "${N}" --comment "✅ **Resolved automatically — the ${ED} digest for ${PUBDATE} has published.**
-
-          ${FRESH_SUMMARY}
-
-          This alert was filed when that day's digest had not yet appeared. It has now landed,
-          so the run was **late rather than missing** — the host was offline at the scheduled
-          hour and completed once it came back. No stale data was published in the interval: a
-          run that cannot verify fresh numbers publishes nothing.
-
-          _Retired by the Dashboard Freshness Watchdog._"
-              echo "Closed alert issue #${N} (${ED} ${PUBDATE} digest landed)."
-              CLOSED="${CLOSED} ${ED}#${N}"
-              RESOLVED_EDS="${RESOLVED_EDS} ${ED}"
-            done
-          done
-          if [ -n "${CLOSED}" ]; then
-            echo "resolved=true" >> "$GITHUB_OUTPUT"
-            echo "resolved_editions=$(echo ${RESOLVED_EDS})" >> "$GITHUB_OUTPUT"
-          else
-            echo "No alert to retire for a same-day publish — any open alert is a genuinely missed day, left for a human to close."
-          fi
-
-      # Close the story in the channel too. Fires ONLY when an alert was actually retired,
-      # which means subscribers previously saw a missing-digest warning that now needs an
-      # ending. Never fails the build; the Issue comment above is the durable record.
-      - name: Announce the late arrival on Telegram
-        continue-on-error: true
-        if: steps.resolve.outputs.resolved == 'true'
-        env:
           TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          EDITIONS: ${{ steps.resolve.outputs.resolved_editions }}
-          TODAY: ${{ steps.check.outputs.today }}
-        run: |
-          if [ -z "${TG_TOKEN}" ]; then
-            echo "TELEGRAM_BOT_TOKEN secret not set — skipping the resolution announcement."
-            exit 0
-          fi
-          # Paste-proof the secret exactly as the announce step does.
-          TG_TOKEN=$(printf '%s' "${TG_TOKEN}" | tr -d '[:space:]')
-          case "${TG_TOKEN}" in
-            [Bb][Oo][Tt][0-9]*:*) TG_TOKEN="${TG_TOKEN#[Bb][Oo][Tt]}" ;;
-          esac
-          TEXT="✅ <b>MarketPulse status — resolved — ${TODAY}</b>
-
-          The ${EDITIONS} digest we reported as missing earlier today has now published — it was <b>late, not skipped</b>. The host machine was offline at the scheduled hour and the run completed once it came back.
-
-          Nothing stale was published in between: a run that cannot verify fresh numbers publishes nothing at all.
-
-          🔗 https://creator35lwb-web.github.io/MarketPulse/"
-          HTTP=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
-            "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=@n8nMarketPulse" \
-            --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true")
-          if [ "${HTTP}" = "200" ]; then
-            echo "Telegram resolution announcement sent."
-          else
-            echo "Telegram send failed (HTTP ${HTTP}) — the closed Issue remains the record."
-          fi
-
-      # Manual-only validation of the announcement path WITHOUT posting anything:
-      # getMe proves the token is valid; getChat proves the bot can see the channel.
-      # Responses are reduced to ok/username/title — the token itself is never echoed.
-      - name: Validate Telegram credentials (no message sent)
-        if: github.event.inputs.validate_telegram == 'true'
-        env:
-          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        run: |
-          if [ -z "${TG_TOKEN}" ]; then
-            echo "FAIL: TELEGRAM_BOT_TOKEN secret is not set."
-            exit 1
-          fi
-          # Paste-proof the secret (see announce step). Report shape only — never the value.
-          RAW_LEN=${#TG_TOKEN}
-          TG_TOKEN=$(printf '%s' "${TG_TOKEN}" | tr -d '[:space:]')
-          [ "${RAW_LEN}" -ne "${#TG_TOKEN}" ] && echo "note: stripped $((RAW_LEN - ${#TG_TOKEN})) whitespace char(s) from the stored secret — consider re-saving it clean."
-          case "${TG_TOKEN}" in
-            [Bb][Oo][Tt][0-9]*:*)
-              TG_TOKEN="${TG_TOKEN#[Bb][Oo][Tt]}"
-              echo "note: stripped a leading 'bot' prefix from the stored secret — the URL adds its own; consider re-saving just the token."
-              ;;
-          esac
-          case "${TG_TOKEN}" in
-            *:*) : ;;
-            *) echo "warn: secret does not look like a bot token (no ':' present)." ;;
-          esac
-          ME=$(curl -s "https://api.telegram.org/bot${TG_TOKEN}/getMe" || echo '{"ok":"curl-failed"}')
-          echo "getMe ok: $(echo "${ME}" | jq -r '.ok') — bot: $(echo "${ME}" | jq -r '.result.username // "n/a"')"
-          CHAT=$(curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/getChat" \
-            --data-urlencode "chat_id=@n8nMarketPulse")
-          echo "getChat ok: $(echo "${CHAT}" | jq -r '.ok') — channel: $(echo "${CHAT}" | jq -r '.result.title // "n/a"')"
-          [ "$(echo "${ME}" | jq -r '.ok')" = "true" ] && [ "$(echo "${CHAT}" | jq -r '.ok')" = "true" ] \
-            && echo "VALIDATED: the watchdog can announce to the channel." \
-            || { echo "FAIL: token or channel access is not working."; exit 1; }
+          FRESHNESS_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+          FRESHNESS_VALIDATE_TELEGRAM: ${{ github.event_name == 'workflow_dispatch' && inputs.validate_telegram || false }}

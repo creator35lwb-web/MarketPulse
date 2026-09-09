@@ -1,206 +1,108 @@
-# MarketPulse: Architecture & Implementation Guide
+# MarketPulse architecture
 
-This document provides a detailed technical architecture and step-by-step implementation guide for the MarketPulse project. It is designed for users who want to replicate this setup on their own free cloud infrastructure.
+This document describes the schema-v2 repository implementation. Deploying this code and importing the workflow are separate operator steps. Inspect actual deployed versions and publication timestamps; a source checkout or successful local test does not establish a live deployment.
 
----
+## Workflow and source ownership
 
-## 1. System Architecture
+The generated export contains 46 nodes spanning US and China digests, fallback analysts, error/status notifications, and a weekly ledger summary. The workflow timezone is `Asia/Kuala_Lumpur`; US runs daily at 21:00 MYT, China runs weekdays at 16:30 MYT, and the weekly summary runs Sunday at 08:00 MYT.
 
-MarketPulse is built on a simple yet powerful architecture that leverages free and open-source components.
+The graph and node configuration live in [workflow-template.json](../scripts/workflow-template.json). [node-sources.json](../scripts/node-sources.json) maps Code nodes to editable files under [src/n8n](../src/n8n/). The builder embeds the shared policy in each verifier and output producer, appends [analysis-contract.txt](../scripts/analysis-contract.txt) to the four analyst prompts, and writes the export and hash manifest.
 
-### 1.1. Infrastructure Layer
+Edit those sources and rebuild. Editing only the generated JSON creates drift that `--check` rejects. Public exports are inactive and contain credential/destination placeholders, without runtime ledger state.
 
--   **Host:** [ClawCloud](https://www.clawcloud.com/)
-    -   **Plan:** Free tier with $5/month credit (requires GitHub account >180 days old)
-    -   **Region:** Singapore or Japan (recommended for Asia-based users)
-    -   **Resources:** 1 vCPU, 1GB RAM
--   **Containerization:** Docker
-    -   **Image:** `n8nio/n8n:latest`
+## Daily data flow
 
-### 1.2. Application Layer
-
--   **Automation Engine:** [n8n](https://n8n.io/)
-    -   **Workflow:** `MarketPulse.json`
-    -   **Authentication:** Basic Auth (mandatory)
-    -   **Backup:** Git integration with a private GitHub repository
-
-### 1.3. Data & AI Layer
-
--   **Data Sources:**
-    -   Yahoo Finance RSS Feed
-    -   MarketWatch RSS Feed
-    -   CNN Fear & Greed Index (via HTTP Request)
--   **AI Model:**
-    -   [Groq API](https://groq.com/) (Llama-3-8b, free tier)
-    -   [Google Gemini API](https://ai.google.dev/) (Free tier)
-
-### 1.4. Delivery Layer
-
--   **Messaging:** [Telegram](https://telegram.org/)
-    -   Requires a custom Telegram bot and token.
-
----
-
-## 2. n8n Workflow Design
-
-The core of MarketPulse is a single n8n workflow. Below is a detailed breakdown of each node.
-
-<p align="center">
-  <img src="assets/diagrams/MarketPulse-Workflow.png" alt="MarketPulse Workflow" width="800"/>
-</p>
-
-### Node 1: Schedule Trigger
-
--   **Type:** Schedule
--   **Configuration:**
-    -   **Trigger Interval:** Every Day
-    -   **Hour:** 8 (for 8:00 AM)
-    -   **Timezone:** Your local timezone
-
-### Node 2: Get Fear & Greed Index
-
--   **Type:** HTTP Request
--   **Configuration:**
-    -   **URL:** `https://production.dataviz.cnn.io/index/fearandgreed/graphdata`
-    -   **Method:** GET
-    -   **Options:** Send to Frontend -> false
-
-### Node 3: Get Yahoo Finance News
-
--   **Type:** RSS Feed Read
--   **Configuration:**
-    -   **URL:** `https://finance.yahoo.com/rss/topstories`
-
-### Node 4: Get MarketWatch News
-
--   **Type:** RSS Feed Read
--   **Configuration:**
-    -   **URL:** `https://feeds.content.dowjones.io/public/rss/mw_topstories`
-
-### Node 5: Merge News
-
--   **Type:** Merge
--   **Configuration:**
-    -   **Mode:** Combine
-    -   **Join:** Append
-
-### Node 6: Filter Articles (Code Node)
-
--   **Type:** Code
--   **Language:** JavaScript
--   **Purpose:** Filters articles to only include those with relevant keywords, saving memory and AI processing time.
--   **Code:**
-
-```javascript
-const keywords = ["earnings", "fed", "inflation", "ai", "rate cut", "recession"];
-const items = $input.all();
-
-const filteredItems = items.filter(item => {
-  const title = item.json.title.toLowerCase();
-  const description = item.json.description ? item.json.description.toLowerCase() : '';
-  return keywords.some(keyword => title.includes(keyword) || description.includes(keyword));
-});
-
-return filteredItems;
+```mermaid
+flowchart TD
+    S[Edition schedule] --> F[Fetch market data and watchlist]
+    F --> C[Combine source data and read prior ledger]
+    C --> A[Primary analyst or fallback]
+    C --> M[Merge fetched fields and model response]
+    A --> M
+    M --> V[Verify schema and citation availability]
+    V --> T[Compose Telegram with approval recheck]
+    V --> D[Prepare dashboard with approval recheck]
+    T --> TG[Telegram delivery]
+    D --> G[Commit edition JSON to repository]
+    G --> Q[Tests, export check, and payload validation]
+    Q --> P[Upload and deploy the validated Pages artifact]
+    G --> W[Repository freshness monitor]
 ```
 
-### Node 7: Summarize with AI
+The two delivery branches have separate outcomes. A Telegram success does not establish GitHub publication or Pages deployment. Recover a failed publisher using its saved output where possible, instead of repeating an already-delivered digest.
 
--   **Type:** AI Agent
--   **Configuration:**
-    -   **LLM:** Groq (Llama-3-8b)
-    -   **System Prompt:**
+Channel failures are not fully isolated: under the configured n8n execution order, Telegram runs first. If its retries are exhausted, the node's stop-on-error behavior can prevent the dashboard branch from running. Producer unit tests do not establish channel failure isolation.
 
-```
-You are a financial analyst. Summarize these headlines into a 3-bullet point 'Market Sentiment' brief. Identify if the overall mood is Bullish, Bearish, or Neutral. For each point, cite the source (e.g., Yahoo Finance, MarketWatch).
-```
+## Verification boundary
 
-### Node 8: Format Message (Code Node)
+The model response must be one JSON object with exactly:
 
--   **Type:** Code
--   **Language:** JavaScript
--   **Purpose:** Formats the final message for Telegram delivery.
--   **Code:**
-
-```javascript
-const fearAndGreed = $input.item.json.fear_and_greed.score.toFixed(0);
-const sentimentSummary = $input.item.json.summary;
-const date = new Date().toDateString();
-
-let sentimentEmoji = '😐';
-if (sentimentSummary.toLowerCase().includes('bullish')) sentimentEmoji = '🐂';
-if (sentimentSummary.toLowerCase().includes('bearish')) sentimentEmoji = '🐻';
-
-const message = `
-📈 **Market Pulse** - ${date}
-
-**Sentiment:** ${sentimentEmoji} ${sentimentSummary.split('\n')[0]}
-**Fear & Greed:** ${fearAndGreed}
-
-**Key Movers:**
-${sentimentSummary.substring(sentimentSummary.indexOf('\n') + 1)}
-
-*Disclaimer: This is automated market sentiment analysis for informational purposes only. Not investment advice. Do your own research.*
-`;
-
-return { message };
+```text
+sentiment, confidence, claims, interpretation, wisdom
+claims[]: claim, basedOn, direction
 ```
 
-### Node 9: Send to Telegram
+Sentiment is one of `Bullish`, `Cautiously Bullish`, `Neutral`, `Cautiously Bearish`, or `Bearish`. Confidence is `High`, `Medium`, or `Low`. Direction is `supports_bullish`, `supports_bearish`, or `neutral`.
 
--   **Type:** Telegram
--   **Configuration:**
-    -   **Authentication:** Your Telegram Bot Token
-    -   **Chat ID:** Your personal Telegram Chat ID
-    -   **Text:** `{{ $json.message }}`
-    -   **Parse Mode:** Markdown
+The policy accepts one to six claims. It rejects missing fields, extra fields, malformed citations, unavailable evidence, unsupported enum values, excessive text, and numeric prose recognized by its conservative Unicode/English filter. Numeric fact strings must match the supported complete-value grammar; finding a numeric substring is insufficient. Known categorical facts such as the moving-average signal use explicit allowed values.
 
----
+The verifier constructs `approvedAnalysis` and versioned `_verification` metadata. Raw response fields and legacy approval fields are not forwarded as commentary. Exceptions and validation failures produce a withheld result. Compose and Prepare independently reread and revalidate the approved object against the source fields they receive.
 
-## 3. Step-by-Step Implementation Guide
+This is a **schema and attribution check**, not semantic fact checking. A claim can cite an available value while drawing an unsupported conclusion. Numerical wording outside the covered lexicon can escape its text filter, while benign text containing words such as “one” may be withheld. The product must disclose these limits.
 
-Follow these steps to deploy your own MarketPulse instance.
+Headline references retain their original `headline_N` identity when earlier items are missing. A reference must resolve to an actual bounded title. A source URL may be null; supplied links must use HTTP(S), and the dashboard labels unavailable links. Title existence does not validate the underlying story or the model's interpretation.
 
-### 3.1. Pre-Deployment Checklist
+## Dashboard contract
 
-1.  **Verify GitHub Account:** Ensure your GitHub account is older than 180 days.
-2.  **Register on ClawCloud:** Sign up at [clawcloud.com](https://www.clawcloud.com/) with your GitHub account.
-3.  **Create Telegram Bot:** Talk to the [BotFather](https://t.me/botfather) on Telegram to create a new bot and get your token.
-4.  **Get Groq API Key:** Register at [groq.com](https://groq.com/) to get your free API key.
-5.  **Create GitHub Repo:** Create a new private GitHub repository named `n8n-backups`.
+Each new edition file uses `schemaVersion: 2` and is stored at `docs/data/latest-us.json` or `docs/data/latest-cn.json`.
 
-### 3.2. Deployment on ClawCloud
+| Field | Contract |
+|---|---|
+| `edition`, `generatedAt` | Expected edition and real ISO UTC generation timestamp |
+| `health` | Typed source-health status, missing sources, and quality flags |
+| `facts` | Usable source values keyed by stable fact identifiers |
+| `dashboard`, `screener`, `economic` | Displayed values agree with their published facts |
+| `news` | Explicit stable headline keys, actual titles, and nullable source links |
+| `analysis` | Approved qualitative content or the exact empty withheld sentinel |
+| `verification` | Version, approval status, checked claim count, and reason codes |
+| `history`, `trackRecord` | Retained historical ledger information; not retroactively approved |
 
-1.  Log in to ClawCloud and go to the **App Store**.
-2.  Find **n8n** and click **Deploy App**.
-3.  Once deployed, go to **App Launchpad**, click on your n8n instance, and go to **Advanced Configuration -> Manage**.
-4.  **Update Image:** Change the image to `n8nio/n8n:latest`.
-5.  **Set Memory:** Set the memory to `1GB`.
-6.  **Enable Authentication (CRITICAL):** Add the following environment variables:
-    -   `N8N_BASIC_AUTH_ACTIVE=true`
-    -   `N8N_BASIC_AUTH_USER=your_username`
-    -   `N8N_BASIC_AUTH_PASSWORD=your_strong_password`
-7.  Click **Update**.
+For approved commentary, `checkedClaims` equals the complete published claim count and rejection reasons are empty. Withheld commentary uses sentiment `Unavailable`, empty confidence/interpretation/wisdom, no claims, and at least one reason code. Withheld output does not credit a model with published analysis.
 
-### 3.3. n8n Configuration
+Prepare skips dashboard publication for an outage or when no usable price-and-change market row exists. A degraded run with usable market rows can publish available data, with commentary independently approved or withheld. Missing watchlist prior closes produce `N/A`, rather than a fabricated flat return; genuine unchanged prices retain a zero return.
 
-1.  Log in to your new n8n instance.
-2.  **Import Workflow:** Go to **Workflows** and import the `workflows/MarketPulse.json` file from this repository.
-3.  **Configure Credentials:**
-    -   Go to **Credentials** and add your **Groq API Key** and **Telegram Bot Token**.
-    -   Update the **AI Agent** and **Telegram** nodes in the workflow to use these credentials.
-4.  **Set Up Git Backup:**
-    -   Go to **Settings -> Source Control**.
-    -   Connect to your `n8n-backups` GitHub repository.
+## Historical data and publication
 
-### 3.4. Testing and Activation
+The original US August 9 and China August 10, 2026 snapshots predate schema v2. A frozen raw-byte hash allowlist lets those exact files remain visible as historical, unverified data while repairs are prepared. It does not assign an approval verdict to their old commentary, and any changed legacy payload loses the exception.
 
-1.  **Manual Run:** Run the workflow manually to ensure all nodes execute correctly.
-2.  **Check Telegram:** Verify that you receive the formatted message in Telegram.
-3.  **Activate Workflow:** Once you are satisfied, activate the workflow.
+The Dashboard Contract and Pages workflow runs regression tests, verifies the generated workflow export, validates both dashboard files, and uploads the `docs` artifact from that same job. The deployment job depends on successful validation and uses that artifact. Repository Pages settings must use GitHub Actions; branch-based Pages publication would bypass this workflow's dependency.
 
----
+A failed validation prevents a new Pages deployment. It does not undo a Git commit or a Telegram message. A successful validation also does not prove that source data is fresh or correct.
 
-## 4. Conclusion
+## Freshness and recovery
 
-You now have a fully functional, automated daily stock market sentiment analyzer running on a free cloud infrastructure. This powerful tool will help you stay connected to market sentiment and make more informed investment decisions.
+The monitor checks repository payloads against the publication contract and their timestamps. The latest elapsed deadlines are 14:00 UTC daily for US and 09:30 UTC on weekdays for China, including one hour of grace after the configured runs. Checks occur hourly and after edition-file pushes to `main`.
+
+Alerts describe missing dashboard repository updates. They do not infer that the host is offline, that Telegram failed, or that the served website refreshed. Existing legacy alert titles remain recognizable.
+
+Only a matching edition and publication date resolves an alert. The original issue body and the recovery timestamp remain recorded together. Later publications do not erase earlier missing dates; repeated checks do not duplicate an existing open or acknowledged closed alert. The monitor tracks observed expected dates, rather than reconstructing every historical gap after a monitor outage.
+
+## Ledger limits
+
+The verifier records approved daily observations only with a finite positive benchmark session timestamp. Unknown-session runs cannot replace the latest timestamped prior. History is bounded, with same-day replacement and market-session guards.
+
+The existing scorer compares a prior sentiment with a later benchmark change, using market-time, date-gap, and duplicate guards. Small directional moves can be marked flat and excluded from its decided-outcome ratio. These are retrospective labels, not portfolio performance. Older records retain their original scoring semantics.
+
+## Local verification
+
+Run from the repository root with Node.js 22:
+
+```sh
+node scripts/build-workflow.mjs
+node --test tests/*.mjs
+node scripts/build-workflow.mjs --check
+node .github/scripts/validate-dashboard-data.mjs --allow-historical
+node .github/scripts/check-freshness.mjs
+```
+
+The tests use local fixtures and mocked dependencies. The final command is observation-only. These checks do not test provider credentials, n8n database migrations, real Telegram delivery, or production deployment. See the [workflow setup guide](../MarketPulse-Secure/workflows/README.md) for installation steps.

@@ -1,10 +1,9 @@
-name: Dashboard Data Contract
+name: Dashboard Contract and Pages
 
 # Why this exists:
 # The n8n workflow commits docs/data/latest-*.json to this PUBLIC repo every day,
 # automatically, with no human in the loop. That is an unattended write path into a
-# public artifact, and until now it had zero validation — malformed JSON or a dropped
-# key would silently break the dashboard for every reader.
+# public artifact. Validation and Pages deployment must share the exact same artifact.
 #
 # This gate enforces the product's actual promise: every claim must cite a factKey that
 # exists in the published data, so a reader can check it. If that contract breaks, we
@@ -14,23 +13,71 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/data/**'
-      - '.github/scripts/validate-dashboard-data.mjs'
+      - 'docs/**'
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'MarketPulse-Secure/workflows/marketpulse-workflow-CURRENT.json'
+      - 'MarketPulse-Secure/workflows/workflow-manifest.json'
+      - '.github/scripts/**'
       - '.github/workflows/dashboard-contract.yml'
   pull_request:
     paths:
-      - 'docs/data/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'MarketPulse-Secure/workflows/marketpulse-workflow-CURRENT.json'
+      - 'MarketPulse-Secure/workflows/workflow-manifest.json'
+      - '.github/scripts/**'
+      - '.github/workflows/dashboard-contract.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   validate:
     name: verify the verification contract
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Run regression tests
+        run: node --test tests/*.mjs
+      - name: Verify reproducible workflow export
+        run: node scripts/build-workflow.mjs --check
+      - name: Validate exact dashboard artifact
+        # Only hash-pinned original snapshots may use legacy format.
+        run: node .github/scripts/validate-dashboard-data.mjs --allow-historical
+      - name: Upload validated Pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: docs
 
-      - name: Validate published dashboard data
-        run: node .github/scripts/validate-dashboard-data.mjs
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Deploy validated artifact
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
