@@ -23,37 +23,15 @@ const TIME_BUDGET_MS = 235000;              // of n8n's 300s - leaves ~65s to fi
 const RETRY_RESERVE_MS = 20000;             // do not START a retry without this much left
 function msLeft() { return TIME_BUDGET_MS - (Date.now() - NODE_START); }
 
-async function safeFetch(options) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (msLeft() <= 0) throw new Error('TIME_BUDGET_EXCEEDED: skipped to protect the run');
-    try {
-      return await _self.helpers.httpRequest(options);
-    } catch (e) {
-      const msg = (e.message || '').toLowerCase();
-      const isNet = msg.includes('enetunreach') || msg.includes('econnrefused') ||
-        msg.includes('etimedout') || msg.includes('eai_again') || msg.includes('ehostunreach') ||
-        msg.includes('enotfound') || msg.includes('socket hang up') || msg.includes('network');
-      if (isNet && attempt < 2 && msLeft() > RETRY_RESERVE_MS) {
-        console.log('Retry ' + (attempt+1) + '/2 (' + Math.round(msLeft()/1000) + 's budget left): ' + (options.url || '').substring(0, 60));
-        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
-        continue;
-      }
-      throw e;
-    }
-  }
-}
-
+const safeFetch = retrySourceFetch(options => _self.helpers.httpRequest(options), {
+  msLeft, reserveMs: RETRY_RESERVE_MS, includeNetwork: true,
+  logRetry: (attempt, options) => console.log('Retry ' + attempt + '/2 (' + Math.round(msLeft()/1000) + 's budget left): ' + (options.url || '').substring(0, 60))
+});
 
 // ===== DATA-HEALTH INSTRUMENTATION (hardening) =====
 // LOUD failures so N/A can never masquerade as success.
 // Grep n8n logs:  [MarketPulse][FETCH-FAIL] / [MarketPulse][DATA-HEALTH]
-const health = { status: 'OK', failed: [], missing: [] };
-function fail(source, e) {
-  const code = (e && (e.code || (e.cause && e.cause.code))) || '';
-  const msg = ((e && e.message) || String(e)).slice(0, 180);
-  health.failed.push({ source, code, msg });
-  console.error('🔴 [MarketPulse][FETCH-FAIL] ' + source + ' :: ' + code + ' ' + msg);
-}
+const { health, fail } = createMarketHealth();
 
 const results = {
   fearGreedValue: 'N/A', fearGreedClassification: 'Unknown',
@@ -131,14 +109,9 @@ let sp500Closes = [];
 for (const idx of indices) {
   try {
     const range = (idx.symbol === '^GSPC') ? '1y' : '1d';
-    const data = await safeFetch({
-      method: 'GET',
-      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=' + range,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-      timeout: 15000
-    });
-    if (data && data.chart && data.chart.result && data.chart.result[0]) {
-      const result = data.chart.result[0];
+    const data = await safeFetch(yahooChartRequest(idx.symbol, range));
+    const result = yahooChartResult(data);
+    if (result) {
       const meta = result.meta;
       const price = meta.regularMarketPrice;
       // The exchange's OWN last-trade timestamp. This is the ground truth for
@@ -176,7 +149,7 @@ for (const idx of indices) {
         sp500Closes = closes.filter(c => c !== null && c !== undefined);
       }
     }
-    await new Promise(r => setTimeout(r, 500));
+    await fetchDelay(500);
   } catch (e) { fail(idx.label, e); }
 }
 
@@ -284,48 +257,7 @@ try {
 // ---- 13. MARKETWATCH RSS HEADLINES ----
 try {
   const rssResponse = await safeFetch({ method: 'GET', url: 'https://www.marketwatch.com/rss/topstories', timeout: 30000, json: false });
-  if (rssResponse && typeof rssResponse === 'string') {
-    // ===== NEWS LINKS (Phase A, 2026-07-20): parse <item> blocks so each headline
-    // keeps its source <link>. headlinesList stays a plain string array (Compose +
-    // Verify depend on its shape) - links ride in the parallel headlinesLinks array.
-    const cleanTitle = (t) => String(t || '')
-      .replace(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/, '$1')
-      .replace(/<\/?title>/g, '').trim()
-      .replace(/&#x201c;/g, '"').replace(/&#x201d;/g, '"')
-      .replace(/&#x2019;/g, "'").replace(/&#x2018;/g, "'")
-      .replace(/&#x2014;/g, ' - ').replace(/&#x2013;/g, '-')
-      .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#xa0;/g, ' ');
-    const cleaned = [];
-    const links = [];
-    const itemBlocks = rssResponse.match(/<item>[\s\S]*?<\/item>/g) || [];
-    for (const block of itemBlocks) {
-      if (cleaned.length >= 8) break;
-      const tm = /<title>([\s\S]*?)<\/title>/.exec(block);
-      const lm = /<link>([\s\S]*?)<\/link>/.exec(block);
-      const title = tm ? cleanTitle(tm[1]) : '';
-      if (title.length > 10) {
-        cleaned.push(title);
-        const href = lm ? lm[1].replace(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/, '$1').trim() : '';
-        links.push(/^https?:\/\//.test(href) ? href : null);
-      }
-    }
-    if (!cleaned.length) {
-      // FALLBACK: old title-only parse if the feed's <item> structure ever changes
-      const titleMatches = rssResponse.match(/<title>([^<]+)<\/title>/g);
-      if (titleMatches && titleMatches.length > 1) {
-        for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {
-          const title = cleanTitle(titleMatches[i]);
-          if (title.length > 10) { cleaned.push(title); links.push(null); }
-        }
-      }
-    }
-    if (cleaned.length > 0) {
-      results.headlinesList = cleaned;
-      results.headlinesLinks = links;
-      results.headlinesCount = cleaned.length;
-      results.headlines = cleaned.map((t, idx) => (idx + 1) + '. ' + t).join('\n');
-    }
-  }
+  populateMarketHeadlines(results, rssResponse);
 } catch (e) { fail('RSS', e); }
 
 // ===== HEALTH AUDIT: flag any critical field still N/A =====
@@ -341,38 +273,12 @@ const CRITICAL = {
   '2Y Treasury':'treasury2Y',
   'GDP':'gdpValue'
 };
-for (const [label, key] of Object.entries(CRITICAL)) {
-  const v = results[key];
-  if (v === undefined || v === null || v === '' || v === 'N/A') health.missing.push(label);
-}
-const totalCritical = Object.keys(CRITICAL).length;
-if (health.missing.length === 0) health.status = 'OK';
-else if (health.missing.length >= Math.ceil(totalCritical * 0.6)) health.status = 'OUTAGE';
-else health.status = 'DEGRADED';
-
-// ===== DATA QUALITY: flag implausible values for review (never withholds - a
-// human/downstream reader decides). Catches "poisoned"/corrupted upstream data or
-// our own parsing bugs that a pure availability check (missing/N-A) can never see,
-// since a bad number still looks present and non-N/A. =====
+// Flag implausible changes without removing the available source values.
 const CHANGE_BOUNDS = { sp500Change: 15, dowJonesChange: 15, goldChange: 10, oilChange: 15, dxyChange: 8, vixChange: 60, btcChange: 40 };
-for (const field of Object.keys(CHANGE_BOUNDS)) {
-  const raw = results[field];
-  if (raw === undefined || raw === null || raw === 'N/A') continue;
-  const num = parseFloat(String(raw).replace('%', ''));
-  if (!isNaN(num) && Math.abs(num) > CHANGE_BOUNDS[field]) {
-    health.suspect = health.suspect || [];
-    health.suspect.push({ field: field, value: raw, bound: CHANGE_BOUNDS[field] });
-    console.error('\u{1F7E0} [MarketPulse][DATA-QUALITY] ' + field + ' = ' + raw + ' exceeds plausible \u00b1' + CHANGE_BOUNDS[field] + '% - flagged for review, not withheld');
-  }
-}
+auditMarketHealth(results, health, CRITICAL, CHANGE_BOUNDS);
 
 health.elapsedMs = Date.now() - NODE_START;
 if (msLeft() <= 0) console.error('🟠 [MarketPulse][TIME-BUDGET] exhausted after ' + Math.round(health.elapsedMs/1000) + 's - some sources were skipped to protect the run');
-results._health = health;
-if (health.status !== 'OK') {
-  console.error('\u{1F534} [MarketPulse][DATA-HEALTH] ' + health.status + ' | missing: ' + (health.missing.join(', ') || 'none') + ' | fetch errors: ' + health.failed.length);
-} else {
-  console.log('✅ [MarketPulse][DATA-HEALTH] OK - all ' + totalCritical + ' critical sources populated');
-}
+publishMarketHealth(results, health, CRITICAL);
 
 return [{ json: results }];

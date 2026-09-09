@@ -91,7 +91,7 @@ export function verificationPresentation(data, state = presentationState(data)) 
     return {tone: 'withheld', message: 'AI commentary withheld: its evidence references failed attribution checks. The available source data is shown separately.'};
   }
   if (reasons.includes('NUMERIC_MODEL_TEXT')) {
-    return {tone: 'withheld', message: 'AI commentary withheld: the model supplied figures that did not meet the source attribution rules. The available source data is shown separately.'};
+    return {tone: 'withheld', message: 'AI commentary withheld: its text triggered the numerical-language filter. The available source data is shown separately.'};
   }
   return {tone: 'withheld', message: 'AI commentary withheld: the response failed the required format or consistency checks. The available source data is shown separately.'};
 }

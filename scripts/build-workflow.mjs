@@ -1,14 +1,14 @@
 import {readFileSync, writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import vm from 'node:vm';
+import {spawnSync} from 'node:child_process';
+import {resolveNodeSource} from './node-source.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = path => readFileSync(new URL(path, root), 'utf8').replace(/\r\n/g, '\n');
 const hash = text => createHash('sha256').update(text).digest('hex');
 const template = JSON.parse(read('scripts/workflow-template.json'));
 const sources = JSON.parse(read('scripts/node-sources.json'));
-const policy = read('src/n8n/analysis-policy.js').replace(/\r\n/g, '\n').trimEnd();
-const sourceHashes = {'analysis-policy.js': hash(policy)};
+const sourceHashes = {};
 const contract = read('scripts/analysis-contract.txt').replace(/\r\n/g, '\n').trimEnd();
 sourceHashes['scripts/analysis-contract.txt'] = hash(contract);
 const analystNames = ['Basic LLM Chain','China Market LLM Chain','Groq Analyst','Groq Analyst1'];
@@ -23,11 +23,16 @@ for (const node of template.nodes) {
   const source = sources[node.name];
   if (node.type === 'n8n-nodes-base.code' && !source) throw new Error('Missing editable source for ' + node.name);
   if (!source) continue;
-  if (!/^[a-z0-9-]+\.js$/.test(source.file)) throw new Error('Invalid source filename');
-  const body = read('src/n8n/' + source.file).replace(/\r\n/g, '\n').trimEnd();
-  sourceHashes[source.file] = hash(body);
-  node.parameters.jsCode = (source.policy ? policy + '\n\n' : '') + body + '\n';
-  new vm.Script('(async function(){\n' + node.parameters.jsCode + '\n})');
+  const resolved = resolveNodeSource(node.name, root);
+  for (const [file, content] of Object.entries(resolved.files)) sourceHashes[file] = hash(content);
+  node.parameters.jsCode = resolved.code;
+  // Node's syntax-only mode parses fixed stdin content without executing it.
+  // Never print parser stderr: it may quote source containing an operator secret.
+  const syntax = spawnSync(process.execPath, ['--check', '--input-type=commonjs'], {
+    input: '(async function(){\n' + resolved.code + '\n})', encoding: 'utf8', timeout: 10_000,
+    windowsHide: true,
+  });
+  if (syntax.error || syntax.status !== 0) throw new Error('Code-node syntax check failed: ' + node.name);
   seen.add(node.name);
 }
 for (const name of Object.keys(sources)) if (!seen.has(name)) throw new Error('Source refers to missing node ' + name);

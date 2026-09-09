@@ -15,7 +15,7 @@ node scripts/build-workflow.mjs --check
 node .github/scripts/validate-dashboard-data.mjs --allow-historical
 ```
 
-The export is assembled from `src/n8n/`, `scripts/node-sources.json`, `scripts/workflow-template.json`, and `scripts/analysis-contract.txt`. The adjacent [workflow-manifest.json](workflow-manifest.json) records source and workflow hashes. It establishes reproducibility, not production installation.
+The export is assembled from `src/n8n/`, `scripts/node-sources.json`, `scripts/workflow-template.json`, and `scripts/analysis-contract.txt`. The shared resolver in `scripts/node-source.mjs` embeds dependencies in declared order before each edition wrapper. The adjacent [workflow-manifest.json](workflow-manifest.json) records hashes for every included source and the workflow. It establishes reproducibility, not production installation.
 
 ## Configure your inactive import
 

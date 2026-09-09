@@ -29,46 +29,31 @@ const stockResults = [];
 
 for (const symbol of symbols) {
   try {
-    const data = await this.helpers.httpRequest({
-      method: 'GET',
-      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=1d',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-      timeout: 15000
-    });
+    const data = await this.helpers.httpRequest(yahooChartRequest(symbol));
 
-    if (data && data.chart && data.chart.result && data.chart.result[0]) {
-      const meta = data.chart.result[0].meta;
+    const result = yahooChartResult(data);
+    if (result) {
+      const meta = result.meta;
       const price = meta.regularMarketPrice;
-      const prevClose = [meta.chartPreviousClose, meta.previousClose]
-        .find(value => typeof value === 'number' && Number.isFinite(value) && value > 0);
       const currency = meta.currency || 'CNY';
       const currSymbol = currencySymbols[currency] || currency + ' ';
       const name = stockNames[symbol] || meta.shortName || symbol;
 
       if (price) {
-        let changePct = 'N/A';
-        let changeArrow = '';
-        if (prevClose !== undefined) {
-          const pct = ((price - prevClose) / prevClose) * 100;
-          if (Number.isFinite(pct)) {
-            const sign = pct >= 0 ? '+' : '';
-            changePct = sign + pct.toFixed(2) + '%';
-            changeArrow = pct >= 0 ? '▲' : '▼';
-          }
-        }
+        const daily = stockDailyChange(price, meta);
 
         stockResults.push({
           symbol: symbol,
           name: name,
           price: currSymbol + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          change: changePct,
-          arrow: changeArrow,
+          change: daily.change,
+          arrow: daily.arrow,
           currency: currency
         });
       }
     }
     // Rate limit
-    await new Promise(r => setTimeout(r, 500));
+    await fetchDelay(500);
   } catch (e) {
     console.log('Stock ' + symbol + ' error: ' + e.message);
     stockResults.push({

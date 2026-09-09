@@ -6,7 +6,9 @@ This document describes the schema-v2 repository implementation. Deploying this 
 
 The generated export contains 46 nodes spanning US and China digests, fallback analysts, error/status notifications, and a weekly ledger summary. The workflow timezone is `Asia/Kuala_Lumpur`; US runs daily at 21:00 MYT, China runs weekdays at 16:30 MYT, and the weekly summary runs Sunday at 08:00 MYT.
 
-The graph and node configuration live in [workflow-template.json](../scripts/workflow-template.json). [node-sources.json](../scripts/node-sources.json) maps Code nodes to editable files under [src/n8n](../src/n8n/). The builder embeds the shared policy in each verifier and output producer, appends [analysis-contract.txt](../scripts/analysis-contract.txt) to the four analyst prompts, and writes the export and hash manifest.
+The graph and node configuration live in [workflow-template.json](../scripts/workflow-template.json). [node-sources.json](../scripts/node-sources.json) maps Code nodes to editable files under [src/n8n](../src/n8n/) and declares ordered shared-source includes. [node-source.mjs](../scripts/node-source.mjs) resolves those bodies for both the builder and offline node tests. Shared runtimes hold combining, verification, and rendering behavior; shared fetching helpers handle common provider operations. Edition wrappers supply edition-specific configuration.
+
+The builder embeds the shared policy in each verifier and output producer, appends [analysis-contract.txt](../scripts/analysis-contract.txt) to the four analyst prompts, checks node syntax without execution, and writes the export and manifest. The manifest hashes every included source file.
 
 Edit those sources and rebuild. Editing only the generated JSON creates drift that `--check` rejects. Public exports are inactive and contain credential/destination placeholders, without runtime ledger state.
 

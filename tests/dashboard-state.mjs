@@ -83,7 +83,7 @@ test('unavailable model output, missing approval and failed checks have distinct
     assert.match(explain('FACT_UNAVAILABLE').message,/failed attribution checks/);
     assert.equal(explain('FACT_UNAVAILABLE').tone,'withheld');
     assert.match(explain('MODEL_JSON_INVALID').message,/format or consistency checks/);
-    assert.match(explain('NUMERIC_MODEL_TEXT').message,/model supplied figures/);
+    assert.match(explain('NUMERIC_MODEL_TEXT').message,/triggered the numerical-language filter/);
   }
 });
 

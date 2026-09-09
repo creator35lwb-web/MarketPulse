@@ -8,6 +8,8 @@ Read [README.md](README.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [
 
 The supported workflow export is `MarketPulse-Secure/workflows/marketpulse-workflow-CURRENT.json` with 46 nodes. Its editable inputs are `src/n8n/`, `scripts/node-sources.json`, `scripts/workflow-template.json`, and `scripts/analysis-contract.txt`. Build with `scripts/build-workflow.mjs`; do not edit only the generated export or manifest.
 
+Keep shared behavior in common runtime/helper files and declare dependencies in the node-source map. The builder and tests use the same `scripts/node-source.mjs` resolver; the manifest hashes every included source.
+
 ## Verify changes
 
 Use Node.js 22 from the repository root:

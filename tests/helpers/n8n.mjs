@@ -1,14 +1,14 @@
-import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-const policy = readFileSync(new URL('../../src/n8n/analysis-policy.js', import.meta.url), 'utf8');
+import {buildNodeSource,readNodeSources} from '../../scripts/node-source.mjs';
+const namesByFile = Object.fromEntries(Object.entries(readNodeSources()).map(([name, descriptor]) => [descriptor.file.replace(/\.js$/, ''), name]));
 export const FIXTURE_NOW = '2026-09-10T12:00:00.000Z';
 class FixtureDate extends Date {
   constructor(...args) { super(...(args.length ? args : [FIXTURE_NOW])); }
   static now() { return Date.parse(FIXTURE_NOW); }
 }
 export function runNode(name, items, {state = {}, context = {}} = {}) {
-  const source = readFileSync(new URL('../../src/n8n/' + name + '.js', import.meta.url), 'utf8');
-  return vm.runInNewContext('(function(){\n' + policy + '\n' + source + '\n})()', {
+  const source = buildNodeSource(namesByFile[name] || name);
+  return vm.runInNewContext('(function(){\n' + source + '\n})()', {
     $input:{all:()=>items,first:()=>items[0]},$getWorkflowStaticData:()=>state,
     $:()=>{throw new Error('Fallback was not executed');},
     console:{log(){},error(){},warn(){}},Date:FixtureDate,Buffer,...context,

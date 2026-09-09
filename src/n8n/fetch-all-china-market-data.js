@@ -8,13 +8,7 @@
 // ===== DATA-HEALTH INSTRUMENTATION (hardening) =====
 // LOUD failures so N/A can never masquerade as success.
 // Grep n8n logs:  [MarketPulse][FETCH-FAIL] / [MarketPulse][DATA-HEALTH]
-const health = { status: 'OK', failed: [], missing: [] };
-function fail(source, e) {
-  const code = (e && (e.code || (e.cause && e.cause.code))) || '';
-  const msg = ((e && e.message) || String(e)).slice(0, 180);
-  health.failed.push({ source, code, msg });
-  console.error('🔴 [MarketPulse][FETCH-FAIL] ' + source + ' :: ' + code + ' ' + msg);
-}
+const { health, fail } = createMarketHealth();
 
 const results = {
   // China Market Indices
@@ -60,73 +54,29 @@ const indices = [
   { symbol: '000300.SS', namePrice: 'csi300', nameChange: 'csi300Change', label: 'CSI 300' },
   { symbol: '000001.SS', namePrice: 'sseComposite', nameChange: 'sseCompositeChange', label: 'SSE Composite' },
   { symbol: '399001.SZ', namePrice: 'szseComponent', nameChange: 'szseComponentChange', label: 'SZSE Component' },
-  { symbol: '^HSI', namePrice: 'hangSeng', nameChange: 'hangSengChange', label: 'Hang Seng' }
+  { symbol: '^HSI', namePrice: 'hangSeng', nameChange: 'hangSengChange', label: 'Hang Seng' },
+  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },
+  { symbol: 'CNY=X', namePrice: 'usdCny', nameChange: 'usdCnyChange', label: 'USD/CNY' }
 ];
 
 for (const idx of indices) {
   try {
-    const data = await this.helpers.httpRequest({
-      method: 'GET',
-      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(idx.symbol) + '?interval=1d&range=1d',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-      timeout: 15000
-    });
-
-    if (data && data.chart && data.chart.result && data.chart.result[0]) {
-      const meta = data.chart.result[0].meta;
+    const result = yahooChartResult(await this.helpers.httpRequest(yahooChartRequest(idx.symbol)));
+    if (result) {
+      const meta = result.meta;
       const price = meta.regularMarketPrice;
-      // The exchange's OWN last-trade timestamp. This is the ground truth for
-      // "has the market actually traded since the previous call?" — it closes
-      // weekends, market holidays, and duplicate same-day runs in one signal.
-      if (idx.symbol === '000300.SS' && meta.regularMarketTime) { results.csi300MarketTime = meta.regularMarketTime; }
+      // The exchange timestamp distinguishes a new trading session from a rerun.
+      if (idx.symbol === '000300.SS' && meta.regularMarketTime) results.csi300MarketTime = meta.regularMarketTime;
       const prevClose = meta.chartPreviousClose || meta.previousClose;
-
       if (price) {
-        results[idx.namePrice] = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        if (prevClose && prevClose > 0) {
-          results[idx.nameChange] = formatPct(price, prevClose);
-        }
+        const formatted = idx.symbol === 'CNY=X' ? price.toFixed(4)
+          : price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        results[idx.namePrice] = (idx.prefix || '') + formatted;
+        if (prevClose && prevClose > 0) results[idx.nameChange] = formatPct(price, prevClose);
       }
     }
-    // Rate limit: small delay between requests
-    await new Promise(r => setTimeout(r, 500));
+    await fetchDelay(500);
   } catch (e) { fail(idx.label, e); }
-}
-
-// --- 2. FETCH GOLD & USD/CNY (Yahoo Finance) ---
-
-const fxCommodities = [
-  { symbol: 'GC=F', namePrice: 'gold', nameChange: 'goldChange', label: 'Gold', prefix: '$' },
-  { symbol: 'CNY=X', namePrice: 'usdCny', nameChange: 'usdCnyChange', label: 'USD/CNY', prefix: '' }
-];
-
-for (const item of fxCommodities) {
-  try {
-    const data = await this.helpers.httpRequest({
-      method: 'GET',
-      url: 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(item.symbol) + '?interval=1d&range=1d',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-      timeout: 15000
-    });
-
-    if (data && data.chart && data.chart.result && data.chart.result[0]) {
-      const meta = data.chart.result[0].meta;
-      const price = meta.regularMarketPrice;
-      const prevClose = meta.chartPreviousClose || meta.previousClose;
-
-      if (price) {
-        if (item.symbol === 'CNY=X') {
-          results[item.namePrice] = item.prefix + price.toFixed(4);
-        } else {
-          results[item.namePrice] = item.prefix + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-        if (prevClose && prevClose > 0) {
-          results[item.nameChange] = formatPct(price, prevClose);
-        }
-      }
-    }
-    await new Promise(r => setTimeout(r, 500));
-  } catch (e) { fail(item.label, e); }
 }
 
 // --- 3. FETCH CHINA ECONOMIC DATA (World Bank API) ---
@@ -194,49 +144,7 @@ try {
     json: false
   });
 
-  if (rssResponse && typeof rssResponse === 'string') {
-    // ===== NEWS LINKS (Phase A, 2026-07-20): parse <item> blocks so each headline
-    // keeps its source <link>. headlinesList stays a plain string array (Compose +
-    // Verify depend on its shape) - links ride in the parallel headlinesLinks array.
-    const cleanTitle = (t) => String(t || '')
-      .replace(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/, '$1')
-      .replace(/<\/?title>/g, '').trim()
-      .replace(/&#x201c;/g, '"').replace(/&#x201d;/g, '"')
-      .replace(/&#x2019;/g, "'").replace(/&#x2018;/g, "'")
-      .replace(/&#x2014;/g, ' - ').replace(/&#x2013;/g, '-')
-      .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#xa0;/g, ' ')
-      .replace(/ - .*$/, ''); // Remove source attribution
-    const cleaned = [];
-    const links = [];
-    const itemBlocks = rssResponse.match(/<item>[\s\S]*?<\/item>/g) || [];
-    for (const block of itemBlocks) {
-      if (cleaned.length >= 8) break;
-      const tm = /<title>([\s\S]*?)<\/title>/.exec(block);
-      const lm = /<link>([\s\S]*?)<\/link>/.exec(block);
-      const title = tm ? cleanTitle(tm[1]) : '';
-      if (title.length > 10) {
-        cleaned.push(title);
-        const href = lm ? lm[1].replace(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/, '$1').trim() : '';
-        links.push(/^https?:\/\//.test(href) ? href : null);
-      }
-    }
-    if (!cleaned.length) {
-      // FALLBACK: old title-only parse if the feed's <item> structure ever changes
-      const titleMatches = rssResponse.match(/<title>([^<]+)<\/title>/g);
-      if (titleMatches && titleMatches.length > 1) {
-        for (let i = 1; i < Math.min(titleMatches.length, 9); i++) {
-          const title = cleanTitle(titleMatches[i]);
-          if (title.length > 10) { cleaned.push(title); links.push(null); }
-        }
-      }
-    }
-    if (cleaned.length > 0) {
-      results.headlinesList = cleaned;
-      results.headlinesLinks = links;
-      results.headlinesCount = cleaned.length;
-      results.headlines = cleaned.map((t, idx) => (idx + 1) + '. ' + t).join('\n');
-    }
-  }
+  populateMarketHeadlines(results, rssResponse, true);
 } catch (e) { fail('RSS', e); }
 
 // ===== HEALTH AUDIT: flag any critical field still N/A =====
@@ -250,36 +158,10 @@ const CRITICAL = {
   'CPI':'cpiValue',
   'Unemployment':'unemploymentValue'
 };
-for (const [label, key] of Object.entries(CRITICAL)) {
-  const v = results[key];
-  if (v === undefined || v === null || v === '' || v === 'N/A') health.missing.push(label);
-}
-const totalCritical = Object.keys(CRITICAL).length;
-if (health.missing.length === 0) health.status = 'OK';
-else if (health.missing.length >= Math.ceil(totalCritical * 0.6)) health.status = 'OUTAGE';
-else health.status = 'DEGRADED';
-
-// ===== DATA QUALITY: flag implausible values for review (never withholds - a
-// human/downstream reader decides). Catches "poisoned"/corrupted upstream data or
-// our own parsing bugs that a pure availability check (missing/N-A) can never see,
-// since a bad number still looks present and non-N/A. =====
+// Flag implausible changes without removing the available source values.
 const CHANGE_BOUNDS = { csi300Change: 15, sseCompositeChange: 15, szseComponentChange: 15, hangSengChange: 15, goldChange: 10, usdCnyChange: 5 };
-for (const field of Object.keys(CHANGE_BOUNDS)) {
-  const raw = results[field];
-  if (raw === undefined || raw === null || raw === 'N/A') continue;
-  const num = parseFloat(String(raw).replace('%', ''));
-  if (!isNaN(num) && Math.abs(num) > CHANGE_BOUNDS[field]) {
-    health.suspect = health.suspect || [];
-    health.suspect.push({ field: field, value: raw, bound: CHANGE_BOUNDS[field] });
-    console.error('\u{1F7E0} [MarketPulse][DATA-QUALITY] ' + field + ' = ' + raw + ' exceeds plausible \u00b1' + CHANGE_BOUNDS[field] + '% - flagged for review, not withheld');
-  }
-}
+auditMarketHealth(results, health, CRITICAL, CHANGE_BOUNDS);
 
-results._health = health;
-if (health.status !== 'OK') {
-  console.error('\u{1F534} [MarketPulse][DATA-HEALTH] ' + health.status + ' | missing: ' + (health.missing.join(', ') || 'none') + ' | fetch errors: ' + health.failed.length);
-} else {
-  console.log('✅ [MarketPulse][DATA-HEALTH] OK - all ' + totalCritical + ' critical sources populated');
-}
+publishMarketHealth(results, health, CRITICAL);
 
 return [{ json: results }];

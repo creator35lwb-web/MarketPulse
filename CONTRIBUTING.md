@@ -17,12 +17,15 @@ Do not attach populated workflow exports, API keys, credential objects, subscrib
 | Code-node behavior | `src/n8n/` |
 | Shared schema and attribution policy | `src/n8n/analysis-policy.js` |
 | Workflow graph, configuration, schedules | `scripts/workflow-template.json` |
-| Code-node mapping | `scripts/node-sources.json` |
+| Code-node mapping and ordered shared-source includes | `scripts/node-sources.json` |
+| Shared source resolution for builds and tests | `scripts/node-source.mjs` |
 | Shared analyst output constraints | `scripts/analysis-contract.txt` |
 | Dashboard | `docs/` |
 | Publication validation and monitoring | `.github/scripts/` and `.github/workflows/` |
 
 Do not hand-edit only `marketpulse-workflow-CURRENT.json` or its manifest. Rebuild them from source and include the generated changes in your PR.
+
+Keep behavior shared between editions in the common runtime or fetching helpers. The resolver prepends declared dependencies once, then the edition wrapper. The builder checks syntax without executing node code and hashes every included source. Tests execute those same resolved bodies with mocked n8n dependencies.
 
 ## Run the checks
 

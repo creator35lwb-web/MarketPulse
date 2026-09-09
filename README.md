@@ -69,9 +69,10 @@ Importing a workflow does not configure credentials, deploy Pages, or prove deli
 
 | Path | Purpose |
 |---|---|
-| `src/n8n/` | Editable Code-node source and shared verification policy |
+| `src/n8n/` | Edition wrappers, shared Code-node runtimes, and verification policy |
 | `scripts/workflow-template.json` | Sanitized workflow graph, settings, and node configuration |
-| `scripts/node-sources.json` | Mapping from workflow nodes to source files |
+| `scripts/node-sources.json` | Workflow-node mapping and ordered shared-source includes |
+| `scripts/node-source.mjs` | Source resolver used by the builder and offline node tests |
 | `scripts/analysis-contract.txt` | Shared constraints appended to all four analyst prompts |
 | `scripts/build-workflow.mjs` | Reproducible export and source-hash manifest |
 | `docs/` | Static dashboard, data, and architecture documentation |
