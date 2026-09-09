@@ -1,5 +1,5 @@
 // Shared dashboard projection: edition selects source rows, never model behavior.
-function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date, console}) {
+function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate, console}) {
   const items = $input.all();
   const d = {};
   for (const item of items) {
@@ -14,7 +14,7 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date, console}) {
   const approval = MP_POLICY.readApproval(d, EDITION);
   const analysis = approval.ok ? approval.analysis : null;
   const health = d._health || null;
-  const now = new Date();
+  const now = new RuntimeDate();
   const dateLabel = now.toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
   const dashboard = {};

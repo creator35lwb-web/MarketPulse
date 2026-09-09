@@ -1,7 +1,7 @@
 // Shared Telegram renderer: facts, evidence, approval and truncation have one path.
-function MP_COMPOSE(EDITION, {$input, Date, console}) {
+function MP_COMPOSE(EDITION, {$input, Date: RuntimeDate, console}) {
 const items = $input.all();
-const now = new Date();
+const now = new RuntimeDate();
 const isUS = EDITION === 'US';
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function oneLine(s) { return String(s).replace(/\s*\n+\s*/g,' ').trim(); }

@@ -1,6 +1,6 @@
 // Shared US/CN source merge and historical scoring. The two node wrappers supply the edition.
 function MP_COMBINE(EDITION, runtime) {
-  const {$input, $getWorkflowStaticData, Date, console} = runtime;
+  const {$input, $getWorkflowStaticData, Date: RuntimeDate, console} = runtime;
   const benchmark = EDITION === 'CN' ? 'csi300' : 'sp500';
   const items = $input.all();
   const combined = {};
@@ -81,8 +81,8 @@ function MP_COMBINE(EDITION, runtime) {
     const priorMarketTime = (prev && prev.marketTime) || null;
     let gapDays = null;
     if (prev && prev.date) {
-      const todayUTC = new Date().toISOString().slice(0, 10);
-      gapDays = Math.round((Date.parse(todayUTC + 'T00:00:00Z') - Date.parse(prev.date + 'T00:00:00Z')) / 86400000);
+      const todayUTC = new RuntimeDate().toISOString().slice(0, 10);
+      gapDays = Math.round((RuntimeDate.parse(todayUTC + 'T00:00:00Z') - RuntimeDate.parse(prev.date + 'T00:00:00Z')) / 86400000);
     }
     const marketAdvanced = (todayMarketTime !== null && priorMarketTime !== null && todayMarketTime > priorMarketTime);
     // ===== GAP CEILING + SAME-DAY IDEMPOTENCY (2026-07-17) =====
@@ -90,7 +90,7 @@ function MP_COMBINE(EDITION, runtime) {
     // pre-gap call against an unrelated later single-day move (no upper bound on the gap);
     // (2) a manual/duplicate re-trigger on the same day would score the same prior call twice,
     // inflating the track record with a duplicate entry. Compose both guards with marketAdvanced.
-    const todayScoreUTC = new Date().toISOString().slice(0, 10);
+    const todayScoreUTC = new RuntimeDate().toISOString().slice(0, 10);
     const alreadyScoredToday = (tr.length > 0 && tr[tr.length - 1].scoredDate === todayScoreUTC);
     const gapInBounds = (gapDays === null || gapDays <= 4);
     const scoreable = marketAdvanced && gapInBounds && !alreadyScoredToday;
@@ -123,7 +123,7 @@ function MP_COMBINE(EDITION, runtime) {
       // Directional calls only. A Neutral call on a quiet day is a genuine hit, not a
       // non-event: being right that nothing would happen is the whole content of it.
       if ((bullish || bearish) && Math.abs(todayChange) < FLAT_BAND) result = 'flat';
-      tr.push({ priorDate: prev.date, scoredDate: new Date().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND });
+      tr.push({ priorDate: prev.date, scoredDate: new RuntimeDate().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND });
       if (tr.length > 30) tr.splice(0, tr.length - 30);
       // Accuracy counts only days the market actually decided. Flats are surfaced beside
       // the ratio rather than hidden, so the reader can see how many days were unjudgeable.

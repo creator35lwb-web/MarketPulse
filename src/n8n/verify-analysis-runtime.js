@@ -1,5 +1,5 @@
 // Shared verifier for both editions; n8n capabilities are supplied explicitly.
-function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date, console}) {
+function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDate, console}) {
   let data = {};
   let candidateText = '';
   let reasons = ['VERIFICATION_EXCEPTION'];
@@ -85,7 +85,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date, console}) 
       if (!state.mpLedger) state.mpLedger = {};
       if (!Array.isArray(state.mpLedger[EDITION])) state.mpLedger[EDITION] = [];
       const ledger = state.mpLedger[EDITION];
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new RuntimeDate().toISOString().slice(0, 10);
       const marketTime = EDITION === 'CN' ? data.csi300MarketTime : data.sp500MarketTime;
       const knownSession = value => typeof value === 'number' && Number.isFinite(value) && value > 0;
       let previous = null;
