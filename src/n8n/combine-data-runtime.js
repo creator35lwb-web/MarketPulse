@@ -93,10 +93,28 @@ function MP_COMBINE(EDITION, runtime) {
     const todayScoreUTC = new RuntimeDate().toISOString().slice(0, 10);
     const alreadyScoredToday = (tr.length > 0 && tr[tr.length - 1].scoredDate === todayScoreUTC);
     const gapInBounds = (gapDays === null || gapDays <= 4);
-    const scoreable = marketAdvanced && gapInBounds && !alreadyScoredToday;
+    // ===== ONE GRADE PER CALL AND PER SESSION, CLOSED SESSIONS ONLY (W3, 2026-10-08) =====
+    // The guards above assume the ledger advances on every run. When the AI layer fails for
+    // days, no new call is written, so every run graded the same stale call again: the US call
+    // of 2026-09-17 was graded four times, and on 2026-10-07 the Oct 3 call was graded a second
+    // time, against the first nine minutes of trading after a late wake. So: a call is graded
+    // at most once; a market session grades at most one call, and only a session that began
+    // after the one the call was formed on; and only a closed session grades, because a run
+    // that wakes during trading sees a partial move.
+    const sessionOf = t => MP_LTR.sessionDate(EDITION, t);
+    const todaySession = sessionOf(todayMarketTime);
+    const priorSession = sessionOf(priorMarketTime);
+    const laterSession = todaySession !== null && priorSession !== null && todaySession > priorSession;
+    const intraday = todayMarketTime !== null && MP_LTR.freshness(EDITION, todayMarketTime, new RuntimeDate()).intraday;
+    const callGraded = !!prev?.date && tr.some(x => x?.priorDate === prev.date);
+    const sessionGraded = todaySession !== null && tr.some(x => x && (x.session || sessionOf(x.marketTime)) === todaySession);
+    const scoreable = marketAdvanced && laterSession && !intraday && !callGraded && !sessionGraded && gapInBounds && !alreadyScoredToday;
     if (prev && prev.sentiment && !isNaN(todayChange) && !scoreable) {
       let why;
-      if (!marketAdvanced) why = 'the market has not traded since the prior call (prior=' + priorMarketTime + ' today=' + todayMarketTime + ') - weekend, holiday, or a repeat run; scoring would grade a call against the move it was formed on';
+      if (!marketAdvanced || !laterSession) why = 'no new session has traded since the prior call (prior=' + priorMarketTime + ' today=' + todayMarketTime + ') - weekend, holiday, or a repeat run; scoring would grade a call against the move it was formed on';
+      else if (intraday) why = 'the ' + todaySession + ' session is still trading - a partial move cannot grade a call';
+      else if (callGraded) why = 'the call of ' + prev.date + ' is already graded - a call is graded once';
+      else if (sessionGraded) why = 'the ' + todaySession + ' session already graded a call - a session grades one call';
       else if (!gapInBounds) why = 'the gap is ' + gapDays + ' days (a run was missed) - too stale to attribute today\'s single-day move to that call; the point stays in the history, unscored';
       else why = 'already scored today (' + todayScoreUTC + ') - a duplicate or manual re-trigger must not score the same prior call twice';
       console.error('[MarketPulse][TRACK-RECORD] not scored: ' + why + '.');
@@ -123,7 +141,8 @@ function MP_COMBINE(EDITION, runtime) {
       // Directional calls only. A Neutral call on a quiet day is a genuine hit, not a
       // non-event: being right that nothing would happen is the whole content of it.
       if ((bullish || bearish) && Math.abs(todayChange) < FLAT_BAND) result = 'flat';
-      tr.push({ priorDate: prev.date, scoredDate: new RuntimeDate().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND });
+      // session and priorSession record which session graded the call, and which one it was formed on.
+      tr.push({ priorDate: prev.date, scoredDate: new RuntimeDate().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND, session: todaySession, priorSession: priorSession });
       if (tr.length > 30) tr.splice(0, tr.length - 30);
       // Accuracy counts only days the market actually decided. Flats are surfaced beside
       // the ratio rather than hidden, so the reader can see how many days were unjudgeable.

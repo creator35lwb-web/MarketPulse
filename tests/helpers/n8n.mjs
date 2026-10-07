@@ -15,10 +15,12 @@ export function runNode(name, items, {state = {}, context = {}} = {}) {
   }, {timeout:2000});
 }
 export const suffixFor = edition => edition === 'CN' ? '1' : '';
+// Session times match the fixture clock (2026-09-10 12:00 UTC): the US run sees the Sep 9
+// close (16:00 New York); the CN run sees the Sep 10 session after the Shanghai close.
 export function groundTruth(edition) {
   return {
     _health:{status:'DEGRADED',missing:['unused sources'],suspect:[]},
-    ...(edition === 'CN' ? {csi300:'4702.03',csi300Change:'-2.00%',csi300MarketTime:1789036800} : {sp500:'5000',sp500Change:'-2.00%',sp500MarketTime:1789066800}),
+    ...(edition === 'CN' ? {csi300:'4702.03',csi300Change:'-2.00%',csi300MarketTime:1789036800} : {sp500:'5000',sp500Change:'-2.00%',sp500MarketTime:1788984000}),
     gold:'$2000',goldChange:'+0.30%',gdpValue:'+1.5% (QoQ annualized)',gdpYear:'2026',
     stockDetails:[{name:'Acme',symbol:'ACME',price:'$100',change:'+0.50%'}],acmeChange:'+0.50%',
     watchlistSummary:'Acme: $100 (+0.50%)',
