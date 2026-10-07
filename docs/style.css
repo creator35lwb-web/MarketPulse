@@ -464,6 +464,15 @@ section.card > .card-title { margin-bottom: 12px; }
 
 .accuracy { font-family: var(--mono); font-size: var(--fs-lg); color: var(--text); }
 .record-note, .last { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.baseline {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+  font-size: 14px;
+  color: var(--text);
+}
 .history-strip { display: flex; align-items: flex-end; gap: 4px; padding: 14px 2px 12px; overflow-x: auto; }
 .history-cell { flex: 0 0 auto; width: 14px; height: 32px; border-radius: 3px; background: var(--rule-strong); cursor: pointer; position: relative; }
 .history-cell.bullish { background: var(--pos); }

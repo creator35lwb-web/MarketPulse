@@ -177,6 +177,10 @@ export function validateDashboardData(data, { edition, now = Date.now() } = {}) 
   }
   if (data.trackRecord !== undefined && object(data.trackRecord, 'trackRecord')) {
     if (typeof data.trackRecord.accuracy !== 'string' || typeof data.trackRecord.last !== 'string') fail('trackRecord', 'accuracy and last must be strings');
+    // Optional since W4: the base rate on the same judged days, as plain text.
+    if (data.trackRecord.baseline !== undefined && (typeof data.trackRecord.baseline !== 'string' || data.trackRecord.baseline.length > 200)) {
+      fail('trackRecord.baseline', 'must be a string of at most 200 characters');
+    }
   }
   if (data.history !== undefined) {
     if (!Array.isArray(data.history)) fail('history', 'must be an array');

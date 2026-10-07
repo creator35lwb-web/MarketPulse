@@ -36,6 +36,7 @@ function MP_COMBINE(EDITION, runtime) {
   combined.previousAnalysis = 'No prior analysis available.';
   combined.trackRecordAccuracy = 'Building history';
   combined.trackRecordLast = '';
+  combined.trackRecordBaseline = '';
   try {
     const sd = $getWorkflowStaticData('global');
     const led = (sd.mpLedger && sd.mpLedger[EDITION]) || [];
@@ -170,6 +171,14 @@ function MP_COMBINE(EDITION, runtime) {
         : (flats ? '0 judged · ' + flats + ' too flat to judge' : 'Building history');
       const last = tr[tr.length - 1];
       combined.trackRecordLast = last.priorSentiment + ' (' + last.priorDate + ') → market moved ' + last.actualChange + ' → ' + (last.result === 'hit' ? 'Correct' : last.result === 'flat' ? 'Too flat to judge' : 'Miss');
+      // ===== BASE RATE BESIDE THE HIT RATE (W4, 2026-10-08) =====
+      // A call that rarely changes scores whatever share of days the market moved its way, so the
+      // hit rate alone flatters it: in October 2026 all 30 graded US calls in the window were bearish.
+      // Readers see how often the market fell on the same judged days, which is what "always down"
+      // would have scored.
+      const fell = decided.filter(function (x) { return parseFloat(x.actualChange) < 0; }).length;
+      if (decided.length === 1) combined.trackRecordBaseline = 'the market ' + (fell ? 'fell' : 'did not fall') + ' on that day';
+      else if (decided.length > 1) combined.trackRecordBaseline = 'the market fell on ' + fell + ' of those ' + decided.length + ' days';
     }
   } catch (e) { console.log('[MarketPulse][LEDGER] read/trackrecord skipped: ' + (e && e.message)); }
 

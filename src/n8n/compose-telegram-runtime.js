@@ -8,7 +8,7 @@ function oneLine(s) { return String(s).replace(/\s*\n+\s*/g,' ').trim(); }
 const d = {
   ...Object.fromEntries(MP_POLICY.factKeysFor(EDITION).map(key => [key,'N/A'])),
   gdpYear:'N/A',cpiYear:'N/A',unemploymentYear:'N/A',watchlistSummary:'N/A',
-  trackRecordAccuracy:'Building history',trackRecordLast:'',
+  trackRecordAccuracy:'Building history',trackRecordLast:'',trackRecordBaseline:'',
   headlinesList:[],headlinesLinks:[],
   ...(isUS ? {
     fearGreedClassification:'Unknown',fearGreedChange1d:'N/A',fearGreedChange1w:'N/A',
@@ -279,6 +279,7 @@ for (const item of items) {
 const watchlist = watchRows.length ? table(watchRows) : (isNA(d.watchlistSummary) ? '<i>Unavailable today</i>' : '<pre>' + d.watchlistSummary + '</pre>');
 
 const trackRecord = '🎯 <b>TRACK RECORD</b> <code>' + d.trackRecordAccuracy + '</code>' +
+  (d.trackRecordBaseline ? '\n<i>For comparison, ' + d.trackRecordBaseline + '.</i>' : '') +
   (d.trackRecordLast ? '\n<i>Last: ' + d.trackRecordLast + '</i>' : '') +
   '\n<i>Short-term reads are graded automatically against what the market did next, never predicted.</i>';
 

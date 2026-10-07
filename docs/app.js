@@ -364,6 +364,12 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     if (data.trackRecord) {
       node.querySelector('.accuracy').textContent = data.trackRecord.accuracy || 'Building history';
       node.querySelector('.last').textContent = data.trackRecord.last ? 'Last: ' + data.trackRecord.last : '';
+      // The base rate on the same judged days (W4): what "always down" would have scored.
+      if (data.trackRecord.baseline) {
+        var baseline = node.querySelector('.baseline');
+        baseline.textContent = 'For comparison, ' + data.trackRecord.baseline + '.';
+        baseline.hidden = false;
+      }
     }
     var history = data.history || [];
     if (history.length < 2) {
