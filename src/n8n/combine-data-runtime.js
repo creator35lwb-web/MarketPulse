@@ -176,7 +176,7 @@ function MP_COMBINE(EDITION, runtime) {
       // hit rate alone flatters it: in October 2026 all 30 graded US calls in the window were bearish.
       // Readers see how often the market fell on the same judged days, which is what "always down"
       // would have scored.
-      const fell = decided.filter(function (x) { return parseFloat(x.actualChange) < 0; }).length;
+      const fell = decided.filter(function (x) { return Number.parseFloat(x.actualChange) < 0; }).length;
       if (decided.length === 1) combined.trackRecordBaseline = 'the market ' + (fell ? 'fell' : 'did not fall') + ' on that day';
       else if (decided.length > 1) combined.trackRecordBaseline = 'the market fell on ' + fell + ' of those ' + decided.length + ' days';
     }
