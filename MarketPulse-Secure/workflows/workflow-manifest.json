@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "871e7693b1c16d765e40993c95a7a3c868bc8e4359cbc97167bdecd57e446daa",
+  "workflowSha256": "05e16720fd4f20bdaa4c6cb5fbc137da65aad71d24fe0cb9a90d1bb21d25edff",
   "sources": {
     "scripts/analysis-contract.txt": "4d33c42038b38af92861179d7afc1e8716876adf07ceb5f0dfeb8d9d61cd8a4a",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -23,7 +23,7 @@
     "fetch-cn-stock-prices.js": "9e25cc8bd5475c2ea344f7b58e52d5055be3beb81563542a4299bb037bacc36f",
     "combine-all-data1.js": "d193286f40b7c748aed92d92315b3afc23a2e561b9fb52899a9c440ccd3c749a",
     "compose-telegram-message1.js": "f14215dad15f8248e46aa32bc953b4a5801d17363fb52ff3a8c2ab5345f37c8b",
-    "verify-analysis-runtime.js": "0cee71ecd6a7f093174172791e21987f935efceec2069487ad16ae54ebf4669c",
+    "verify-analysis-runtime.js": "50a1811426ebebb39ecc8c1dc4ea65cfe3e6688c2e3c4bc197517ddffb021083",
     "verify-ai-analysis.js": "98ea1ab2b2e66fc26a4d6eca537e862e3f6b301c0e4bcc2b32420012e852a4ef",
     "verify-ai-analysis1.js": "ca113a9d8a3220410081cebe625c659d0a8aa41b61bedaab7373831942669ed9",
     "prepare-dashboard-runtime.js": "a0e60b3bc2b29a963538696790642a35cd94d39e4ef9b10de13eefbb65f1f74c",
