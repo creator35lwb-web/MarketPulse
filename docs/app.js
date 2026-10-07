@@ -453,7 +453,10 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     app.innerHTML = '';
     app.appendChild(el('p', 'state-msg', 'Loading the latest brief…'));
     fetch('data/latest-' + edition.toLowerCase() + '.json', {cache: 'no-store'})
-      .then(function (res) { if (!res.ok) throw new Error('No brief published yet for this edition.'); return res.json(); })
+      .then(function (res) {
+        if (!res.ok) throw new Error('No brief published yet for this edition.');
+        return res.json();
+      })
       .then(function (data) {
         if (requestSequence !== loadSequence) return;
         if (data.edition !== edition) throw new Error('The published brief does not match the selected edition.');

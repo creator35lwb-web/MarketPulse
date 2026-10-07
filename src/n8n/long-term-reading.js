@@ -21,9 +21,13 @@ const MP_LTR = (() => {
   const toNumber = value => {
     if (typeof value === 'number') return Number.isFinite(value) ? value : null;
     if (typeof value !== 'string') return null;
-    const m = /^\s*(?:[$¥€£]|HK\$)?([+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)\s*%?(?:\s*\([^)]*\))?\s*$/.exec(value);
-    if (!m) return null;
-    const n = Number(m[1].replace(/,/g, ''));
+    // Strip the known decorations one at a time, then accept plain or comma-grouped digits.
+    // Each pattern is anchored and unambiguous, so matching time stays linear.
+    let t = value.trim().replace(/^(?:HK\$|[$¥€£])/, '').replace(/\s*\([^()]*\)$/, '').replace(/\s*%$/, '');
+    const sign = /^[+-]/.test(t) ? t[0] : '';
+    t = t.slice(sign.length);
+    if (!/^\d+(?:\.\d+)?$/.test(t) && !/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(t)) return null;
+    const n = Number(sign + t.replaceAll(',', ''));
     return Number.isFinite(n) ? n : null;
   };
   const round = (value, digits = 1) => Math.round(value * 10 ** digits) / 10 ** digits;
@@ -64,7 +68,7 @@ const MP_LTR = (() => {
     const zone = zoneFor(edition);
     const market = localParts(new Date(marketTime * 1000), zone);
     const today = localParts(now, zone);
-    const openMinutes = edition === 'CN' ? 9 * 60 + 30 : 9 * 60 + 30;
+    const openMinutes = 9 * 60 + 30;  // both exchanges open at 09:30 local time
     const closeMinutes = edition === 'CN' ? 15 * 60 : 16 * 60;
     const weekday = ![0, 6].includes(weekdayOf(today.date));
     // The last session a run should see: CN runs after the close, US before the open.

@@ -154,8 +154,15 @@ function padStart(s, n) { return ' '.repeat(Math.max(0, n - visible(s))) + s; }
 // Thousands separators only; the digits, decimals, currency sign and sign stay as fetched.
 function grouped(v) {
   if (isNA(v)) return 'N/A';
-  const m = /^((?:HK)?\$|[¥€£])?([+-]?)(\d{4,})(\.\d+)?$/.exec(String(v));
-  return m ? (m[1] || '') + m[2] + m[3].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[4] || '') : String(v);
+  const s = String(v);
+  const prefix = (/^(?:HK\$|[$¥€£])/.exec(s) || [''])[0];
+  const rest = s.slice(prefix.length);
+  const sign = /^[+-]/.test(rest) ? rest[0] : '';
+  const [whole, fraction] = rest.slice(sign.length).split('.');
+  if (!/^\d{4,}$/.test(whole) || (fraction !== undefined && !/^\d+$/.test(fraction))) return s;
+  let out = '';
+  for (let i = 0; i < whole.length; i++) out += (i && (whole.length - i) % 3 === 0 ? ',' : '') + whole[i];
+  return prefix + sign + out + (fraction === undefined ? '' : '.' + fraction);
 }
 // The change is shown exactly as fetched, with a direction mark in front.
 function changeCell(v) {
