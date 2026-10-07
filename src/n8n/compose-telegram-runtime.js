@@ -77,7 +77,7 @@ function withheldNotice(verification) {
   const reasons = verification && Array.isArray(verification.reasonCodes) ? verification.reasonCodes : [];
   const has = codes => reasons.some(code => codes.includes(code));
   const shown = ' The source data is shown above.';
-  if ((_health && _health.status === 'OUTAGE') || has(['SOURCE_HEALTH_UNAVAILABLE'])) {
+  if (_health?.status === 'OUTAGE' || has(['SOURCE_HEALTH_UNAVAILABLE'])) {
     return '⏸️ AI commentary unavailable: the source data did not load well enough for an analysis this run.' + shown;
   }
   if (has(['MODEL_OUTPUT_UNAVAILABLE'])) return '⏸️ AI commentary unavailable: no AI model returned a response this run.' + shown;

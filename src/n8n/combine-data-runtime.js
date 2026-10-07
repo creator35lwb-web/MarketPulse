@@ -106,7 +106,7 @@ function MP_COMBINE(EDITION, runtime) {
     const priorSession = sessionOf(priorMarketTime);
     const laterSession = todaySession !== null && priorSession !== null && todaySession > priorSession;
     const intraday = todayMarketTime !== null && MP_LTR.freshness(EDITION, todayMarketTime, new RuntimeDate()).intraday;
-    const callGraded = !!(prev && prev.date) && tr.some(x => x && x.priorDate === prev.date);
+    const callGraded = !!prev?.date && tr.some(x => x?.priorDate === prev.date);
     const sessionGraded = todaySession !== null && tr.some(x => x && (x.session || sessionOf(x.marketTime)) === todaySession);
     const scoreable = marketAdvanced && laterSession && !intraday && !callGraded && !sessionGraded && gapInBounds && !alreadyScoredToday;
     if (prev && prev.sentiment && !isNaN(todayChange) && !scoreable) {
