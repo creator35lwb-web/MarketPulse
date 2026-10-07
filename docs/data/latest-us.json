@@ -1,7 +1,14 @@
 {
+  "schemaVersion": 2,
+  "verification": {
+    "version": 1,
+    "status": "approved",
+    "checkedClaims": 4,
+    "reasonCodes": []
+  },
   "edition": "US",
-  "generatedAt": "2026-08-09T14:47:53.803Z",
-  "dateLabel": "Sunday, August 9, 2026",
+  "generatedAt": "2026-10-07T13:40:49.695Z",
+  "dateLabel": "Wednesday, October 7, 2026",
   "health": {
     "status": "OK",
     "missing": [],
@@ -10,110 +17,110 @@
   "dashboard": {
     "buffettIndicator": {
       "title": "Buffett Indicator",
-      "value": "136%",
-      "status": "Slightly Overvalued",
-      "emoji": "🟡"
+      "value": "251%",
+      "status": "Strongly Overvalued",
+      "emoji": "🔴"
     },
     "shillerPE": {
       "title": "Shiller P/E (CAPE)",
-      "value": "42.4",
+      "value": "41.9",
       "status": "Strongly Overvalued",
       "emoji": "🔴"
     },
     "yieldCurve": {
       "title": "Yield Curve (10Y-2Y)",
-      "value": "+0.44%",
+      "value": "+0.47%",
       "status": "Flat (Caution)",
       "emoji": "🟡"
     },
     "sp500VsMa200": {
       "title": "S&P 500 vs 200D-MA",
-      "value": "+10.0%",
+      "value": "+7.3%",
       "status": "Strong Bullish (Golden Cross)",
       "emoji": "🟢🟢"
     }
   },
   "facts": {
-    "buffettIndicator": "136%",
-    "shillerPE": "42.4",
-    "yieldCurve": "+0.44%",
-    "sp500VsMa200": "+10.0%",
+    "buffettIndicator": "251%",
+    "shillerPE": "41.9",
+    "yieldCurve": "+0.47%",
+    "sp500VsMa200": "+7.3%",
     "maSignal": "Golden Cross",
-    "fearGreedValue": 64,
-    "sp500": "7757.64",
-    "sp500Change": "+0.62%",
-    "dowJones": "54036.93",
-    "dowJonesChange": "+0.28%",
-    "vix": "14.90",
-    "vixChange": "-1.65%",
-    "gold": "$4399.70",
-    "goldChange": "+2.33%",
-    "oil": "$78.18",
-    "oilChange": "+1.15%",
-    "dxy": "99.60",
-    "dxyChange": "+0.07%",
-    "btc": "$65,123",
-    "btcChange": "+0.33%",
-    "gdpValue": "+1.5% (QoQ)",
-    "cpiValue": "3.46%",
-    "unemploymentValue": "4.1%",
-    "fedRateValue": "3.75%",
-    "treasury10Y": "4.69%",
-    "treasury2Y": "4.25%",
-    "googlChange": "-0.96%",
-    "babaChange": "+1.26%",
-    "adbeChange": "+1.91%",
-    "sofiChange": "+1.55%",
-    "asmlChange": "+2.15%"
+    "fearGreedValue": 47,
+    "sp500": "7770.67",
+    "sp500Change": "-0.62%",
+    "dowJones": "51073.31",
+    "dowJonesChange": "-0.87%",
+    "vix": "15.81",
+    "vixChange": "+5.33%",
+    "gold": "$4116.60",
+    "goldChange": "-1.68%",
+    "oil": "$90.39",
+    "oilChange": "+1.06%",
+    "dxy": "102.42",
+    "dxyChange": "+0.58%",
+    "btc": "$83,060",
+    "btcChange": "-2.91%",
+    "gdpValue": "+2.2% (QoQ annualized)",
+    "cpiValue": "3.35%",
+    "unemploymentValue": "4.2%",
+    "fedRateValue": "4.00%",
+    "treasury10Y": "5.31%",
+    "treasury2Y": "4.84%",
+    "googlChange": "-1.04%",
+    "babaChange": "-2.01%",
+    "adbeChange": "-2.64%",
+    "sofiChange": "-1.01%",
+    "asmlChange": "-2.25%"
   },
   "fearGreed": {
-    "score": 64,
-    "classification": "Greed",
-    "change1d": "+4",
-    "change1w": "+18"
+    "score": 47,
+    "classification": "Neutral",
+    "change1d": "+0",
+    "change1w": "+17"
   },
   "screener": [
     {
       "label": "S&P 500",
       "factKey": "sp500Change",
-      "value": "7757.64",
-      "change": "+0.62%"
+      "value": "7770.67",
+      "change": "-0.62%"
     },
     {
       "label": "Dow Jones",
       "factKey": "dowJonesChange",
-      "value": "54036.93",
-      "change": "+0.28%"
+      "value": "51073.31",
+      "change": "-0.87%"
     },
     {
       "label": "VIX",
       "factKey": "vixChange",
-      "value": "14.90",
-      "change": "-1.65%"
+      "value": "15.81",
+      "change": "+5.33%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4399.70",
-      "change": "+2.33%"
+      "value": "$4116.60",
+      "change": "-1.68%"
     },
     {
       "label": "Oil (WTI)",
       "factKey": "oilChange",
-      "value": "$78.18",
-      "change": "+1.15%"
+      "value": "$90.39",
+      "change": "+1.06%"
     },
     {
       "label": "US Dollar",
       "factKey": "dxyChange",
-      "value": "99.60",
-      "change": "+0.07%"
+      "value": "102.42",
+      "change": "+0.58%"
     },
     {
       "label": "Bitcoin",
       "factKey": "btcChange",
-      "value": "$65,123",
-      "change": "+0.33%"
+      "value": "$83,060",
+      "change": "-2.91%"
     }
   ],
   "economic": [
@@ -121,181 +128,62 @@
       "label": "GDP Growth",
       "period": "Apr 2026",
       "factKey": "gdpValue",
-      "value": "+1.5% (QoQ)"
+      "value": "+2.2% (QoQ annualized)"
     },
     {
       "label": "Inflation/CPI",
-      "period": "Jun 2026",
+      "period": "Aug 2026",
       "factKey": "cpiValue",
-      "value": "3.46%"
+      "value": "3.35%"
     },
     {
       "label": "Unemployment",
-      "period": "Jul 2026",
+      "period": "Sep 2026",
       "factKey": "unemploymentValue",
-      "value": "4.1%"
+      "value": "4.2%"
     },
     {
       "label": "Fed Funds Rate",
       "factKey": "fedRateValue",
-      "value": "3.75%"
+      "value": "4.00%"
     },
     {
       "label": "10Y Treasury",
       "factKey": "treasury10Y",
-      "value": "4.69%"
+      "value": "5.31%"
     },
     {
       "label": "2Y Treasury",
       "factKey": "treasury2Y",
-      "value": "4.25%"
+      "value": "4.84%"
     }
   ],
-  "watchlist": "  GOOGL: $354.30 (-0.96%)\n  BABA: $128.41 (+1.26%)\n  ADBE: $265.21 (+1.91%)\n  SOFI: $18.38 (+1.55%)\n  ASML: $1740.99 (+2.15%)",
+  "watchlist": "  GOOGL: $344.08 (-1.04%)\n  BABA: $107.07 (-2.01%)\n  ADBE: $231.84 (-2.64%)\n  SOFI: $15.60 (-1.01%)\n  ASML: $1792.88 (-2.25%)",
   "trackRecord": {
-    "accuracy": "6/16 (38%) · 1 too flat to judge",
-    "last": "Cautiously Bearish (2026-08-07) → market moved +0.62% → Miss"
+    "accuracy": "16/23 (70%) · 7 too flat to judge",
+    "last": "Cautiously Bearish (2026-10-03) → market moved -0.62% → Correct"
   },
   "history": [
-    {
-      "date": "2026-07-13",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-14",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.42%"
-    },
-    {
-      "date": "2026-07-15",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.38%"
-    },
-    {
-      "date": "2026-07-16",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.51%"
-    },
-    {
-      "date": "2026-07-17",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-18",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "FAIL",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-19",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-20",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.19%"
-    },
-    {
-      "date": "2026-07-21",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.89%"
-    },
-    {
-      "date": "2026-07-22",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.01%"
-    },
-    {
-      "date": "2026-07-24",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.05%"
-    },
-    {
-      "date": "2026-07-25",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-26",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
-    {
-      "date": "2026-07-27",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.02%"
-    },
-    {
-      "date": "2026-07-28",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.21%"
-    },
-    {
-      "date": "2026-07-29",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-1.52%"
-    },
-    {
-      "date": "2026-07-30",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+1.66%"
-    },
     {
       "date": "2026-07-31",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+0.70%"
+      "result": null,
+      "actualChange": null
     },
     {
       "date": "2026-08-01",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+1.48%"
+      "result": null,
+      "actualChange": null
     },
     {
       "date": "2026-08-04",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": "miss",
-      "actualChange": "+1.79%"
+      "result": null,
+      "actualChange": null
     },
     {
       "date": "2026-08-05",
@@ -322,18 +210,179 @@
       "date": "2026-08-09",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.32%"
+    },
+    {
+      "date": "2026-08-12",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
+    },
+    {
+      "date": "2026-08-13",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": null,
+      "actualChange": null
+    },
+    {
+      "date": "2026-08-16",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.48%"
+    },
+    {
+      "date": "2026-08-20",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.87%"
+    },
+    {
+      "date": "2026-08-21",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.43%"
+    },
+    {
+      "date": "2026-08-23",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.28%"
+    },
+    {
+      "date": "2026-08-25",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.72%"
+    },
+    {
+      "date": "2026-08-27",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "flat",
+      "actualChange": "+0.19%"
+    },
+    {
+      "date": "2026-08-28",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.47%"
+    },
+    {
+      "date": "2026-08-30",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.65%"
+    },
+    {
+      "date": "2026-08-31",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.58%"
+    },
+    {
+      "date": "2026-09-01",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.71%"
+    },
+    {
+      "date": "2026-09-02",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.38%"
+    },
+    {
+      "date": "2026-09-05",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.58%"
+    },
+    {
+      "date": "2026-09-11",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.86%"
+    },
+    {
+      "date": "2026-09-12",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.48%"
+    },
+    {
+      "date": "2026-09-14",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.45%"
+    },
+    {
+      "date": "2026-09-16",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.45%"
+    },
+    {
+      "date": "2026-09-17",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "flat",
+      "actualChange": "+0.17%"
+    },
+    {
+      "date": "2026-09-27",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.25%"
+    },
+    {
+      "date": "2026-10-01",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "miss",
+      "actualChange": "+0.73%"
+    },
+    {
+      "date": "2026-10-03",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "hit",
+      "actualChange": "-0.62%"
+    },
+    {
+      "date": "2026-10-07",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "gemini-3.6-flash",
-  "analysisProvider": "Google",
+  "analysisModel": "openai/gpt-oss-120b",
+  "analysisProvider": "Groq",
   "analysis": {
     "sentiment": "Cautiously Bearish",
-    "confidence": "Medium",
+    "confidence": "High",
     "claims": [
       {
-        "text": "Broad market valuation metrics remain significantly elevated above historical fair value norms.",
+        "text": "Overall equity valuations are markedly above historical norms, limiting margin of safety.",
         "basedOn": [
           "buffettIndicator",
           "shillerPE"
@@ -341,57 +390,71 @@
         "direction": "supports_bearish"
       },
       {
-        "text": "Investor sentiment reflects greed as benchmark equity indices trade well above their long-term moving averages.",
+        "text": "The flattening yield curve signals heightened uncertainty about future growth.",
         "basedOn": [
-          "fearGreedValue",
-          "sp500VsMa200"
+          "yieldCurve"
         ],
         "direction": "supports_bearish"
       },
       {
-        "text": "Media coverage highlights strong sales growth for benchmark companies alongside an increase in stocks outperforming the main market index.",
+        "text": "Equity momentum remains positive as the broad market trades above its long‑term trend line.",
         "basedOn": [
-          "headline_1",
-          "headline_4"
+          "sp500VsMa200"
         ],
         "direction": "supports_bullish"
+      },
+      {
+        "text": "Market volatility has ticked higher, reflecting increasing investor nervousness.",
+        "basedOn": [
+          "vix",
+          "vixChange"
+        ],
+        "direction": "supports_bearish"
       }
     ],
-    "interpretation": "While market participation and top-line revenues display short-term strength, core structural valuation metrics continue to signal severe overvaluation across equities. Compared to our previous outlook, market breadth and corporate revenue momentum have shown temporary improvement, yet a margin of safety remains sparse for disciplined capital allocation. Value investors should prioritize cash preservation and maintain extreme selectivity until asset prices better reflect intrinsic value.",
-    "wisdom": "Be fearful when others are greedy, and remember that price is what you pay while value is what you get."
+    "interpretation": "Equity valuations are still far above what earnings and GDP would justify, eroding the safety cushion that value investors seek. At the same time, price momentum is strong, though the flat yield curve and rising volatility remind us that downside risk remains significant. Consequently, a cautious stance that leans bearish is appropriate.",
+    "wisdom": "Price is what you pay, value is what you get."
   },
   "news": [
     {
-      "title": "S&P 500 sales growth is at a nearly 5-year high. Here's what's behind the surge.",
-      "url": "https://www.marketwatch.com/story/s-p-500-sales-growth-is-at-a-nearly-5-year-high-heres-whats-behind-the-surge-a4ccf06d?mod=mw_rss_topstories"
+      "factKey": "headline_1",
+      "title": "My brother-in-law convinced his parents to sign over their home and life savings to buy a $3 million compound. Do I intervene?",
+      "url": "https://www.marketwatch.com/story/my-brother-in-law-convinced-his-parents-to-sign-over-their-home-and-savings-to-buy-a-3-million-compound-do-i-intervene-03fb96b7?mod=mw_rss_topstories"
     },
     {
-      "title": "'I don't wish to be cold-hearted': My elderly relative can no longer care for himself. Am I wrong to leave his care to the state?",
-      "url": "https://www.marketwatch.com/story/i-dont-wish-to-be-cold-hearted-my-elderly-relative-can-no-longer-care-for-himself-am-i-wrong-to-leave-his-care-to-the-state-8d546b32?mod=mw_rss_topstories"
+      "factKey": "headline_2",
+      "title": "Kalshi is coming for 'Dancing with the Stars' fans",
+      "url": "https://www.marketwatch.com/story/prediction-markets-are-coming-for-pop-culture-f54e883e?mod=mw_rss_topstories"
     },
     {
-      "title": "'This has been an emotionally difficult time': My brother has cancer and my father is 94. How do I shoulder this responsibility?",
-      "url": "https://www.marketwatch.com/story/this-has-been-an-emotionally-difficult-time-my-brother-has-cancer-and-my-father-is-94-how-do-i-shoulder-this-responsibility-9da09dc4?mod=mw_rss_topstories"
+      "factKey": "headline_3",
+      "title": "Parental controls aren't just for kids anymore",
+      "url": "https://www.marketwatch.com/story/worse-than-taking-away-your-parents-car-keys-taking-away-their-cellphone-how-to-protect-your-aging-parents-f01be6e6?mod=mw_rss_topstories"
     },
     {
-      "title": "The number of stocks beating the S&P 500 is the highest in 4 years. Why that number should rise.",
-      "url": "https://www.marketwatch.com/story/the-number-of-stocks-beating-the-s-p-500-is-the-highest-in-4-years-why-that-number-should-rise-b9bd05b3?mod=mw_rss_topstories"
+      "factKey": "headline_4",
+      "title": "Intel investors get some reassurance from Elon Musk over a major chip endeavor",
+      "url": "https://www.marketwatch.com/story/elon-musk-and-intel-ceo-shore-up-chipmakers-role-in-terafab-project-and-heres-what-the-news-is-doing-to-the-stock-315d0974?mod=mw_rss_topstories"
     },
     {
-      "title": "I got two email invitations from friends. Is this a phishing scam  -  or am I suddenly popular?",
-      "url": "https://www.marketwatch.com/story/i-got-two-email-invitations-from-friends-is-this-a-phishing-scam-or-am-i-suddenly-popular-d9680aa8?mod=mw_rss_topstories"
+      "factKey": "headline_5",
+      "title": "'Trump accounts' could force MAGA children to own New York Times stock",
+      "url": "https://www.marketwatch.com/story/trump-accounts-could-force-maga-children-to-own-new-york-times-stock-46177c96?mod=mw_rss_topstories"
     },
     {
-      "title": "'Her bank accounts were stripped bare by Medicaid': My late friend had $20,000 in credit-card debt. Will her life insurance pay for it?",
-      "url": "https://www.marketwatch.com/story/her-bank-accounts-were-stripped-bare-by-medicaid-my-late-friend-had-20-000-in-credit-card-debt-will-her-life-insurance-pay-for-it-17ee9792?mod=mw_rss_topstories"
+      "factKey": "headline_6",
+      "title": "These two hard-hit stocks are poised for a comeback, says fund manager",
+      "url": "https://www.marketwatch.com/story/these-two-hard-hit-stocks-are-poised-for-a-comeback-says-fund-manager-cccc0c4e?mod=mw_rss_topstories"
     },
     {
-      "title": "'My wife and I are both retired': Do we dip into our $2.3 million fund to pay off our $300,000 mortgage at 2.9%?",
-      "url": "https://www.marketwatch.com/story/my-wife-and-i-are-both-retired-do-we-dip-into-our-2-3-million-fund-to-pay-off-our-300-000-mortgage-at-2-9-2d23d1df?mod=mw_rss_topstories"
+      "factKey": "headline_7",
+      "title": "Meta's stock scores a rare 'golden cross' buy signal as investors swarm to its chart-topping AI agent Muse",
+      "url": "https://www.marketwatch.com/story/meta-stock-achieves-a-golden-cross-as-shares-thrive-since-muse-introduction-5ba818d4?mod=mw_rss_topstories"
     },
     {
-      "title": "'I'm in my peak earning years': I'm working beyond 70. Will that help increase my Social Security?",
-      "url": "https://www.marketwatch.com/story/im-in-my-peak-earning-years-im-working-beyond-70-will-that-help-increase-my-social-security-b0fd84da?mod=mw_rss_topstories"
+      "factKey": "headline_8",
+      "title": "SpaceX reportedly is looking to borrow as much money as the company generates in revenue to buy Nvidia chips",
+      "url": "https://www.marketwatch.com/story/spacex-reportedly-is-looking-to-raise-as-much-money-as-the-company-generates-in-revenue-to-buy-nvidia-chips-01ca6d82?mod=mw_rss_topstories"
     }
   ],
   "sources": [
