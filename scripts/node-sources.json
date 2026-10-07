@@ -16,7 +16,7 @@
   },
   "Compose Telegram Message": {
     "file": "compose-telegram-message.js",
-    "includes": ["long-term-reading.js", "compose-telegram-runtime.js"],
+    "includes": ["long-term-reading.js", "public-links.js", "compose-telegram-runtime.js"],
     "policy": true
   },
   "Sanitize Error": {
@@ -48,7 +48,7 @@
   },
   "Compose Telegram Message1": {
     "file": "compose-telegram-message1.js",
-    "includes": ["long-term-reading.js", "compose-telegram-runtime.js"],
+    "includes": ["long-term-reading.js", "public-links.js", "compose-telegram-runtime.js"],
     "policy": true
   },
   "Verify AI Analysis": {
@@ -73,7 +73,7 @@
   },
   "Compose Weekly Report": {
     "file": "compose-weekly-report.js",
-    "includes": ["long-term-reading.js"],
+    "includes": ["long-term-reading.js", "public-links.js"],
     "policy": false
   }
 }

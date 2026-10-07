@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "f0d2b983ab13d661418e32a8b2fed7deb6b0c16928f53d61e3bdd4fd3ae989c0",
+  "workflowSha256": "5e8e3ae388d8da979b9d511e0f0aae88e274ffb0e52951f983b388c8529586e7",
   "sources": {
     "scripts/analysis-contract.txt": "e33ff2b7d09ac10dee12de79c3431daa6b9ae56c6c628748faa1bcfe9fc044ef",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -15,7 +15,8 @@
     "combine-data-runtime.js": "b800b4c10c412a91a68b4888ad903d6ae7711512ce00c226b37a5c434e903e9f",
     "combine-all-data.js": "9fed2dc86a164f346847a6e733daacb3e6a42c35fecdbb0ca69b8b45688392e6",
     "analysis-policy.js": "460a2974959c3499fc3ea9803c73775f5c01a364b102607aba924ebfcffb4d73",
-    "compose-telegram-runtime.js": "cda2e0f59a2ff1bbb217ffe718b5779ce020cd4b1ea990abf583ec29c79f496e",
+    "public-links.js": "7166b0eddf5be1eae115e3370035d94500805c4fca0a1789059b0b7f3b4ae8e1",
+    "compose-telegram-runtime.js": "a9a38b21aa0e7714ebe0346f7c36b9c42c458394d1a94828d643b55ec0d5c9f4",
     "compose-telegram-message.js": "6cc35ab9cc068ddf23165d7fd6e1a7947ee055c3d5a65f6d2d25ac56ff1930dd",
     "sanitize-error.js": "71545f67b174be72e6420c492fec12e68098c47f4d7451ebcf6f8caf4e4eb453",
     "compose-status-message.js": "9273f44530c32d9b665c3a11d3f48404e4f92cff5d07a75fdb78134195ac7cea",
@@ -30,6 +31,6 @@
     "prepare-dashboard-runtime.js": "844133900b56354d6a2d5c03a11f3fe4f381ad7deae4c4d7071efecaf6501e2a",
     "prepare-dashboard-data.js": "1092398e0509ca452b9565c03f3ce48af25af689309c719fff01bc1a4456a4ee",
     "prepare-dashboard-data1.js": "3b4c068ea96184bf32932154828243a2dd6d7c42e1c6a951c596fe47fcf45c9f",
-    "compose-weekly-report.js": "d52b6a59a1efbf59fe4d1bb1f39b70bc4e6e2d896cf4b7b03f4b58334c9b25f0"
+    "compose-weekly-report.js": "521a8415e3a598eaa7b82bccec8804f3d960a914852d62e9448b2289934455fb"
   }
 }

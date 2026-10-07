@@ -13,6 +13,20 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
   var TONE = {Wide: 1, Moderate: 2, Narrow: 3, Thin: 4, 'Bonds pay more': 4};
   var FIELD = {buffettIndicator: 'Buffett Indicator', shillerPE: 'Shiller CAPE', treasury10Y: '10Y Treasury', treasury2Y: '2Y Treasury', cpiValue: 'CPI', yieldCurve: 'Yield curve'};
 
+  // Public links: the same values as src/n8n/public-links.js, which tests/share-feedback.test.mjs
+  // holds equal. The feedback form is a Google Form (docs/feedback-form.md); its card stays hidden
+  // until the form is set.
+  var LINKS = {
+    dashboard: 'https://creator35lwb-web.github.io/MarketPulse/',
+    channel: 'https://t.me/n8nMarketPulse',
+    feedbackForm: '',
+    feedbackDetailsField: '',
+    pitch: 'MarketPulse: a free daily US and China market brief for value investors. ' +
+      'A long-term reading on fixed rules, and an AI short-term read that cites its data.'
+  };
+  var current = 'US';
+  var dialog = document.querySelector('.share-dialog');
+
   function el(tag, className, text) {
     var e = document.createElement(tag);
     if (className) e.className = className;
@@ -34,6 +48,23 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', timeZone: 'UTC'});
   }
   function num(value) { var n = parseFloat(String(value).replace(/[$,%]/g, '')); return isFinite(n) ? n : null; }
+
+  // Each edition has its own address (#us, #cn), so a shared link opens the edition that was shared.
+  function editionFromHash() {
+    var h = String(window.location.hash || '').toLowerCase();
+    return h === '#cn' || h === '#china' ? 'CN' : 'US';
+  }
+  function editionUrl(edition) { return LINKS.dashboard + (edition === 'CN' ? '#cn' : '#us'); }
+  function mytDate(iso) {
+    var t = Date.parse(iso);
+    return isFinite(t) ? new Date(t + 8 * 3600 * 1000).toISOString().slice(0, 10) : '';
+  }
+  // Same rule as MP_LINKS.feedback: the form opens with the brief's details filled in.
+  function feedbackUrl(details) {
+    if (!LINKS.feedbackForm) return '';
+    if (!LINKS.feedbackDetailsField || !details) return LINKS.feedbackForm;
+    return LINKS.feedbackForm + '?usp=pp_url&' + LINKS.feedbackDetailsField + '=' + encodeURIComponent(details);
+  }
 
   function row(label, value, opts) {
     opts = opts || {};
@@ -385,6 +416,15 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     });
 
     node.querySelector('.sources').textContent = 'Sources: ' + (data.sources || []).join(', ');
+
+    // Join, share and feedback. The feedback card appears only once the form exists.
+    node.querySelector('.channel-link').href = LINKS.channel;
+    var feedback = feedbackUrl(['dashboard', data.edition, mytDate(data.generatedAt)].filter(Boolean).join(' · '));
+    if (feedback) {
+      node.querySelector('.feedback-link').href = feedback;
+      node.querySelector('.feedback-card').hidden = false;
+    } else node.querySelector('.connect-grid').classList.add('is-single');
+    document.title = 'MarketPulse — ' + (data.edition === 'CN' ? 'China' : 'US') + ' Brief';
     app.appendChild(node);
     wireInteraction();
   }
@@ -465,13 +505,77 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
       .catch(function (err) { if (requestSequence === loadSequence) showError(err.message || 'Could not load the latest brief.'); });
   }
 
+  // ---------- Share ----------
+  // No tracking parameters: the shared link is the edition's plain address.
+  function shareTargets(url, text) {
+    var u = encodeURIComponent(url);
+    var t = encodeURIComponent(text);
+    return {
+      whatsapp: 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url),
+      telegram: 'https://t.me/share/url?url=' + u + '&text=' + t,
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + u,
+      x: 'https://x.com/intent/tweet?text=' + t + '&url=' + u,
+      linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=' + u,
+      email: 'mailto:?subject=' + encodeURIComponent('MarketPulse · daily market brief') + '&body=' + encodeURIComponent(text + '\n\n' + url)
+    };
+  }
+  function openShare() {
+    var url = editionUrl(current);
+    // Phones and tablets get their own share sheet; elsewhere, a small panel of links.
+    if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+      navigator.share({title: document.title, text: LINKS.pitch, url: url}).catch(function () { /* dismissed */ });
+      return;
+    }
+    if (!dialog) return;
+    var targets = shareTargets(url, LINKS.pitch);
+    dialog.querySelector('.share-pitch').textContent = LINKS.pitch;
+    dialog.querySelector('.share-url').value = url;
+    dialog.querySelector('.copy-label').textContent = 'Copy link';
+    dialog.querySelectorAll('[data-share]').forEach(function (a) { a.href = targets[a.dataset.share]; });
+    if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
+  }
+  function closeShare() {
+    if (typeof dialog.close === 'function') dialog.close(); else dialog.removeAttribute('open');
+  }
+  function copyLink() {
+    var input = dialog.querySelector('.share-url');
+    var label = dialog.querySelector('.copy-label');
+    function selected() { input.focus(); input.select(); label.textContent = 'Link selected'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(input.value).then(function () { label.textContent = 'Copied'; }, selected);
+    } else selected();
+  }
+  document.addEventListener('click', function (ev) {
+    if (ev.target.closest('.share-open')) openShare();
+  });
+  if (dialog) {
+    dialog.querySelector('.share-close').addEventListener('click', closeShare);
+    dialog.querySelector('.copy-link').addEventListener('click', copyLink);
+    // A click on the backdrop (outside the panel's box) closes it.
+    dialog.addEventListener('click', function (ev) {
+      if (ev.target !== dialog) return;
+      var r = dialog.getBoundingClientRect();
+      if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) closeShare();
+    });
+  }
+
+  // ---------- Edition ----------
+  function select(edition) {
+    current = edition;
+    if (toggle) toggle.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.edition === edition)); });
+    load(edition);
+  }
   if (toggle) {
     toggle.addEventListener('click', function (ev) {
       var btn = ev.target.closest('button[data-edition]');
       if (!btn) return;
-      toggle.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
-      load(btn.dataset.edition);
+      if (window.history && window.history.replaceState) window.history.replaceState(null, '', btn.dataset.edition === 'CN' ? '#cn' : '#us');
+      select(btn.dataset.edition);
     });
   }
-  load('US');
+  window.addEventListener('hashchange', function () {
+    var edition = editionFromHash();
+    if (edition !== current) select(edition);
+  });
+  select(editionFromHash());
 })();

@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MarketPulse — Market Brief</title>
 <meta name="description" content="A long-term reading of the US market for value investors, with an AI short-term read whose every claim cites its source data.">
+<link rel="canonical" href="https://creator35lwb-web.github.io/MarketPulse/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MarketPulse">
+<meta property="og:title" content="MarketPulse · Daily US &amp; China market brief">
+<meta property="og:description" content="A free daily brief for value investors: a long-term reading on fixed rules, and an AI short-term read whose every claim cites its data.">
+<meta property="og:url" content="https://creator35lwb-web.github.io/MarketPulse/">
+<meta property="og:image" content="https://creator35lwb-web.github.io/MarketPulse/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MarketPulse: the daily market brief for value investors">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%23141922%22/><path d=%22M6 21l6-7 5 4 9-10%22 fill=%22none%22 stroke=%22%23CFA75A%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +36,11 @@
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
   <symbol id="i-economy" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 10.5h7M8.5 14h4.5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
 </svg>
 
 <div class="wrap">
@@ -42,11 +58,34 @@
   <main id="app">
     <p class="state-msg">Loading the latest brief…</p>
   </main>
+
+  <dialog class="share-dialog" aria-labelledby="share-title">
+    <div class="share-head">
+      <h2 id="share-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share this brief</h2>
+      <button type="button" class="icon-btn share-close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <p class="share-pitch"></p>
+    <div class="share-copy">
+      <input class="share-url" type="text" readonly aria-label="Link to this brief">
+      <button type="button" class="btn copy-link" autofocus><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span class="copy-label">Copy link</span></button>
+    </div>
+    <div class="share-grid">
+      <a data-share="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <a data-share="telegram" target="_blank" rel="noopener noreferrer">Telegram</a>
+      <a data-share="facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a data-share="x" target="_blank" rel="noopener noreferrer">X</a>
+      <a data-share="linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a data-share="email">Email</a>
+    </div>
+  </dialog>
 </div>
 
 <template id="tpl-report">
   <section class="masthead">
-    <p class="eyebrow"><span class="edition-name"></span> Daily Brief · <span class="date"></span></p>
+    <div class="masthead-row">
+      <p class="eyebrow"><span class="edition-name"></span> Daily Brief · <span class="date"></span></p>
+      <button type="button" class="icon-btn share-open" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+    </div>
     <p class="asof"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span class="asof-label"></span></p>
     <p class="publication-time"></p>
   </section>
@@ -161,6 +200,24 @@
     <h2 class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Additional cited evidence</h2>
     <div class="ledger extra-evidence-ledger"></div>
   </section>
+
+  <div class="grid-2 connect-grid">
+    <section class="card connect-card" aria-labelledby="join-title">
+      <h2 id="join-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg>Get the brief daily</h2>
+      <p class="connect-text">Each brief goes to the Telegram channel as soon as it is published. Free to join.</p>
+      <div class="connect-actions">
+        <a class="btn btn-primary channel-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg>Join on Telegram</a>
+        <button type="button" class="btn share-open" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+      </div>
+    </section>
+    <section class="card connect-card feedback-card" aria-labelledby="feedback-title" hidden>
+      <h2 id="feedback-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-message"/></svg>Help shape MarketPulse</h2>
+      <p class="connect-text">Tell us what helps, what confuses you, or a number that looks wrong. Anonymous, and it takes about a minute.</p>
+      <div class="connect-actions">
+        <a class="btn btn-primary feedback-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="#i-message"/></svg>Give feedback</a>
+      </div>
+    </section>
+  </div>
 
   <footer class="footer">
     <p class="sources"></p>

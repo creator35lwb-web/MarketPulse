@@ -104,7 +104,8 @@ const message = [
   '<i>Every line restates a dated, verified record from the public ledger — including the misses. Nothing is recalled from memory.</i>',
   ...(longTerm ? [longTerm] : []),
   sections.join('\n\n'),
-  '📖 Daily digests, sources and the full track record:\nhttps://YOUR_GITHUB_USERNAME.github.io/MarketPulse/',
+  '📖 Daily digests, sources and the full track record:\n' + MP_LINKS.DASHBOARD,
 ].join('\n\n');
 
-return [{ json: { message: message } }];
+// URLs for the Dashboard, Feedback and Share buttons under the post.
+return [{ json: { message: message, links: MP_LINKS.forPost('weekly', endISO) } }];

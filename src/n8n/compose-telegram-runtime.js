@@ -264,7 +264,7 @@ const trackRecord = '🎯 <b>TRACK RECORD</b> <code>' + d.trackRecordAccuracy + 
 const footer = '━━━━━━━━━━━━━━━━━━' +
   (checkedLine ? '\n' + checkedLine : '') +
   '\n📎 <i>' + (isUS ? 'CNN Fear &amp; Greed · FRED · MarketWatch · Yahoo Finance · multpl.com' : 'Yahoo Finance · World Bank · Google News') + '</i>' +
-  '\n🔗 <a href="https://creator35lwb-web.github.io/MarketPulse/">Dashboard</a> · <a href="https://github.com/creator35lwb-web/MarketPulse">Open source</a>' +
+  '\n🔗 <a href="' + MP_LINKS.DASHBOARD + '">Dashboard</a> · <a href="' + MP_LINKS.REPOSITORY + '">Open source</a>' +
   '\n<i>Information only, not financial advice. AI commentary is checked for sources, not for correctness.</i>';
 
 const ltr = isUS ? boundaryData.longTermReading : null;
@@ -287,9 +287,11 @@ if (message.length > 4096) {
       '\nGold: <code>' + sourceValue('gold') + '</code> (' + sourceValue('goldChange') + ')' +
       '\n\n' + compactAnalysis +
       '\n\n<i>Digest shortened to fit Telegram. AI commentary is informational only, not financial advice.</i>' +
-      '\n<a href="https://creator35lwb-web.github.io/MarketPulse/">Open Dashboard</a>';
+      '\n<a href="' + MP_LINKS.DASHBOARD + '">Open Dashboard</a>';
   }
   console.error('[MarketPulse][TG-COMPACT] digest shortened to ' + message.length + ' chars');
 }
-return [{ json: { message, timestamp: now.toISOString() } }];
+// URLs for the Dashboard, Feedback and Share buttons under the post; the date is the brief's MYT date.
+const links = MP_LINKS.forPost(EDITION, new RuntimeDate(now.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10));
+return [{ json: { message, timestamp: now.toISOString(), links } }];
 }

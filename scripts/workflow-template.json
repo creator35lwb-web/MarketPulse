@@ -184,8 +184,38 @@
       "parameters": {
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.message }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📊 Dashboard",
+                    "additionalFields": {
+                      "url": "={{ $json.links.dashboard }}"
+                    }
+                  },
+                  {
+                    "text": "💬 Feedback",
+                    "additionalFields": {
+                      "url": "={{ $json.links.feedback }}"
+                    }
+                  },
+                  {
+                    "text": "📣 Share",
+                    "additionalFields": {
+                      "url": "={{ $json.links.share }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "additionalFields": {
-          "parse_mode": "=HTML"
+          "parse_mode": "=HTML",
+          "appendAttribution": false
         }
       },
       "id": "9c286417-7396-4c34-b6ed-3d1b76d5c357",
@@ -341,7 +371,8 @@
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.message }}",
         "additionalFields": {
-          "parse_mode": "HTML"
+          "parse_mode": "HTML",
+          "appendAttribution": false
         }
       },
       "id": "97192353-7590-4a36-b4e8-03e34f053ff9",
@@ -528,8 +559,38 @@
       "parameters": {
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.message }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📊 Dashboard",
+                    "additionalFields": {
+                      "url": "={{ $json.links.dashboard }}"
+                    }
+                  },
+                  {
+                    "text": "💬 Feedback",
+                    "additionalFields": {
+                      "url": "={{ $json.links.feedback }}"
+                    }
+                  },
+                  {
+                    "text": "📣 Share",
+                    "additionalFields": {
+                      "url": "={{ $json.links.share }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "additionalFields": {
-          "parse_mode": "HTML"
+          "parse_mode": "HTML",
+          "appendAttribution": false
         }
       },
       "id": "4ddcc14b-9a27-410d-8896-eedde986c747",
@@ -908,8 +969,38 @@
       "parameters": {
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ $json.message }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📊 Dashboard",
+                    "additionalFields": {
+                      "url": "={{ $json.links.dashboard }}"
+                    }
+                  },
+                  {
+                    "text": "💬 Feedback",
+                    "additionalFields": {
+                      "url": "={{ $json.links.feedback }}"
+                    }
+                  },
+                  {
+                    "text": "📣 Share",
+                    "additionalFields": {
+                      "url": "={{ $json.links.share }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "additionalFields": {
-          "parse_mode": "=HTML"
+          "parse_mode": "=HTML",
+          "appendAttribution": false
         }
       },
       "id": "weekly-send-2026-07-22",
