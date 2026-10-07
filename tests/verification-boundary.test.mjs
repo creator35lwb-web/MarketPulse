@@ -198,7 +198,7 @@ for (const edition of ['US','CN']) {
   test(`${edition}: macro-only partial data retains the last dashboard and sends available source data`,()=>{
     const data={_health:{status:'DEGRADED',missing:['market prices'],suspect:[]},gdpValue:'+1.5% (QoQ annualized)',gdpYear:'2026',cpiValue:'3.46%'};
     const r=pipeline(edition,'',{data});assert.equal(r.payload,null);assert.ok(!r.state.mpLedger?.[edition]?.length);
-    assert.match(r.message,/\+1\.5% \(QoQ annualized\)/);assert.match(r.message,/AI commentary withheld/);
+    assert.match(r.message,/\+1\.5% \(QoQ annualized\)/);assert.match(r.message,/AI commentary unavailable: no AI model returned a response/);
   });
   test(`${edition}: outage cannot replace last-good dashboard or ledger`,()=>{
     const data=groundTruth(edition);data._health.status='OUTAGE';const r=pipeline(edition,validAnalysis(edition),{data});
@@ -234,4 +234,35 @@ test('numeric policy states a bounded lexicon and catches nonfinite values',()=>
 test('only ordinary HTTP(S) source links are emitted',()=>{
   for(const value of ['javascript:alert(1)','https://user:pass@example.com/news','https://example.com\\evil','data:text/html,hello']) assert.equal(policy.safeHttpUrl(value),null);
   assert.equal(policy.safeHttpUrl('https://example.com/news?a=b'),'https://example.com/news?a=b');
+});
+
+// W5: "unavailable" (no analysis existed to check) is not "withheld" (one existed and failed a
+// check). Telegram and the dashboard give the same reason for the same codes.
+test('the Telegram notice and the dashboard say why there is no analysis, in the same terms', async () => {
+  const {verificationPresentation} = await import('../docs/dashboard-state.mjs');
+  const advising = ed => {const a=validAnalysis(ed);a.claims[0].claim='Investors should trim positions as prices fall.';return a;};
+  const cases = [
+    ['no model responded', () => '', /⏸️ AI commentary unavailable: no AI model returned a response this run\./, /did not return a response/],
+    ['malformed JSON', () => '{"claims":[', /🚫 AI commentary withheld: the response failed the required format or consistency checks\./, /format or consistency checks/],
+    ['unknown citation', ed => {const a=validAnalysis(ed);a.claims[0].basedOn=['inventedMetric'];return a;}, /🚫 AI commentary withheld: its evidence references failed the citation checks\./, /failed attribution checks/],
+    ['numeric text', ed => ({...validAnalysis(ed),interpretation:'Expect a return of 987654%.'}), /numerical-language filter/, /numerical-language filter/],
+    ['advice in a claim', advising, /🚫 AI commentary withheld: it told readers what to do with their money/, /told readers what to do with their money/],
+  ];
+  for (const edition of ['US','CN']) {
+    for (const [label, candidate, telegram, dashboard] of cases) {
+      const r = pipeline(edition, candidate(edition));
+      assert.match(r.message, telegram, edition + ': ' + label);
+      assert.doesNotMatch(r.message, /no analysis passed the current schema/, edition + ': ' + label);
+      assert.match(verificationPresentation(r.payload).message, dashboard, edition + ': ' + label);
+    }
+  }
+  // US only: a claim citing only long-term valuation must be neutral (W15).
+  const data = {...groundTruth('US'), buffettIndicator:'251%', shillerPE:'41.9'};
+  const anchored = validAnalysis('US'); anchored.claims[0].basedOn = ['buffettIndicator','shillerPE'];
+  const r = pipeline('US', anchored, {data});
+  assert.match(r.message, /withheld: it used long-term valuation as short-term evidence/);
+  assert.match(verificationPresentation(r.payload).message, /long-term valuation as short-term evidence/);
+  // A source outage is "unavailable", whatever the model returned.
+  const outage = pipeline('US', validAnalysis('US'), {data:{...groundTruth('US'), _health:{status:'OUTAGE',missing:['ALL'],suspect:[]}}});
+  assert.match(outage.message, /⏸️ AI commentary unavailable: the source data did not load well enough/);
 });

@@ -93,5 +93,11 @@ export function verificationPresentation(data, state = presentationState(data)) 
   if (reasons.includes('NUMERIC_MODEL_TEXT')) {
     return {tone: 'withheld', message: 'AI commentary withheld: its text triggered the numerical-language filter. The available source data is shown separately.'};
   }
+  if (reasons.some(code => ['ADVICE_IN_CLAIM', 'ADVICE_ONLY_TEXT'].includes(code))) {
+    return {tone: 'withheld', message: 'AI commentary withheld: it told readers what to do with their money, which this brief never publishes. The available source data is shown separately.'};
+  }
+  if (reasons.includes('LONG_TERM_DIRECTION')) {
+    return {tone: 'withheld', message: 'AI commentary withheld: it used long-term valuation as short-term evidence. The available source data is shown separately.'};
+  }
   return {tone: 'withheld', message: 'AI commentary withheld: the response failed the required format or consistency checks. The available source data is shown separately.'};
 }

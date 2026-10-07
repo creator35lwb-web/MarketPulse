@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "5200dc6401884b285b4a1bae8793cc1fa8f646d3f8b8e09211e59b0e9f85cd82",
+  "workflowSha256": "08e5d4f8d04a26385c6bd4e5372096229ccf1773a1368529f58679e248525c6b",
   "sources": {
     "scripts/analysis-contract.txt": "e33ff2b7d09ac10dee12de79c3431daa6b9ae56c6c628748faa1bcfe9fc044ef",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -16,7 +16,7 @@
     "combine-all-data.js": "9fed2dc86a164f346847a6e733daacb3e6a42c35fecdbb0ca69b8b45688392e6",
     "analysis-policy.js": "460a2974959c3499fc3ea9803c73775f5c01a364b102607aba924ebfcffb4d73",
     "public-links.js": "b469e67b694bf6d2414bef06ceb574ddda90f7399a88baa21ae267ea170f50da",
-    "compose-telegram-runtime.js": "a9a38b21aa0e7714ebe0346f7c36b9c42c458394d1a94828d643b55ec0d5c9f4",
+    "compose-telegram-runtime.js": "15056ddb72cbe8ace3f5cdc173469b868051eb820b6d64fcb883d92463f5419d",
     "compose-telegram-message.js": "6cc35ab9cc068ddf23165d7fd6e1a7947ee055c3d5a65f6d2d25ac56ff1930dd",
     "sanitize-error.js": "71545f67b174be72e6420c492fec12e68098c47f4d7451ebcf6f8caf4e4eb453",
     "compose-status-message.js": "9273f44530c32d9b665c3a11d3f48404e4f92cff5d07a75fdb78134195ac7cea",

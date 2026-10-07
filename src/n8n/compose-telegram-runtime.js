@@ -9,7 +9,6 @@ const d = {
   ...Object.fromEntries(MP_POLICY.factKeysFor(EDITION).map(key => [key,'N/A'])),
   gdpYear:'N/A',cpiYear:'N/A',unemploymentYear:'N/A',watchlistSummary:'N/A',
   trackRecordAccuracy:'Building history',trackRecordLast:'',
-  llmAnalysis:'🚫 AI commentary withheld — no analysis passed the current schema and attribution checks. Available source data is shown above.',
   headlinesList:[],headlinesLinks:[],
   ...(isUS ? {
     fearGreedClassification:'Unknown',fearGreedChange1d:'N/A',fearGreedChange1w:'N/A',
@@ -20,7 +19,6 @@ const d = {
 for (const item of items) {
   const j = item.json || {};
   for (const key of Object.keys(d)) {
-    if (key === 'llmAnalysis') continue;
     if (j[key] !== undefined && j[key] !== null && j[key] !== '' && j[key] !== 'N/A' && j[key] !== 'Unknown' && j[key] !== 'Analysis unavailable') {
       d[key] = j[key];
     }
@@ -37,7 +35,7 @@ for (const key of [...MP_POLICY.factKeysFor(EDITION),...(isUS ? ['fearGreedChang
 // without a final blanket-escape stripping them back out.
 // headlinesList stays an array (escaped per-element where it's actually used) - String()-ing
 // it here would collapse it to a comma-joined string and break headline_N index lookups.
-for (const k of Object.keys(d)) { if (k !== 'llmAnalysis' && k !== 'headlinesList' && k !== 'headlinesLinks') d[k] = esc(d[k]); }
+for (const k of Object.keys(d)) { if (k !== 'headlinesList' && k !== 'headlinesLinks') d[k] = esc(d[k]); }
 
 
 // ===== DATA HEALTH BANNER (hardening) =====
@@ -72,6 +70,29 @@ const boundaryData = Object.assign({}, ...items.map(item => item.json || {}));
 const approval = MP_POLICY.readApproval(boundaryData, EDITION);
 const _structured = approval.ok ? approval.analysis : null;
 const evidenceFacts = MP_POLICY.collectFacts(boundaryData, EDITION);
+// Why there is no AI section today. "Unavailable" means no analysis existed to check;
+// "withheld" means one existed and failed a check. The reason codes choose the words, the
+// same way the dashboard explains them (verificationPresentation in docs/dashboard-state.mjs).
+function withheldNotice(verification) {
+  const reasons = verification && Array.isArray(verification.reasonCodes) ? verification.reasonCodes : [];
+  const has = codes => reasons.some(code => codes.includes(code));
+  const shown = ' The source data is shown above.';
+  if ((_health && _health.status === 'OUTAGE') || has(['SOURCE_HEALTH_UNAVAILABLE'])) {
+    return '⏸️ AI commentary unavailable: the source data did not load well enough for an analysis this run.' + shown;
+  }
+  if (has(['MODEL_OUTPUT_UNAVAILABLE'])) return '⏸️ AI commentary unavailable: no AI model returned a response this run.' + shown;
+  if (!reasons.length || has(['APPROVAL_MISSING', 'APPROVAL_INVALID', 'APPROVAL_COUNT_MISMATCH', 'VERIFICATION_EXCEPTION'])) {
+    return '🚫 AI commentary withheld: a complete verification record was not available, so no analysis is shown.' + shown;
+  }
+  if (has(['FACT_UNAVAILABLE', 'HEADLINE_UNAVAILABLE', 'CITATION_LIST_INVALID', 'CITATION_KEY_INVALID'])) {
+    return '🚫 AI commentary withheld: its evidence references failed the citation checks.' + shown;
+  }
+  if (has(['NUMERIC_MODEL_TEXT'])) return '🚫 AI commentary withheld: its text triggered the numerical-language filter.' + shown;
+  if (has(['ADVICE_IN_CLAIM', 'ADVICE_ONLY_TEXT'])) return '🚫 AI commentary withheld: it told readers what to do with their money, which this brief never publishes.' + shown;
+  if (has(['LONG_TERM_DIRECTION'])) return '🚫 AI commentary withheld: it used long-term valuation as short-term evidence.' + shown;
+  return '🚫 AI commentary withheld: the response failed the required format or consistency checks.' + shown;
+}
+
 let analysisBlock = '', compactAnalysis = '', checkedLine = '';
 if (_structured) {
   const LBL = {
@@ -142,7 +163,7 @@ if (_structured) {
   checkedLine = '✅ <i>' + ((_structured.claims || []).length) + ' claims cite available source data. Schema and citation availability checked; prose accuracy is not fact-checked.' + modelNote + '</i>';
 } else {
   // Withholding notice is fixed code-owned text, never the original model response.
-  analysisBlock = esc(d.llmAnalysis);
+  analysisBlock = esc(withheldNotice(boundaryData._verification));
   compactAnalysis = analysisBlock;
 }
 
