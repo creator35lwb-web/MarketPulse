@@ -70,6 +70,28 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate,
   }
   const history = buildHistory();
   const facts = MP_POLICY.collectFacts(d, EDITION);
+
+  // Long-term reading (US) and session freshness: code-computed, projected to known fields only.
+  const pick = (o, keys) => Object.fromEntries(keys.filter(k => o[k] !== undefined).map(k => [k, o[k]]));
+  function projectReading(r) {
+    if (!MP_POLICY.record(r) || r.version !== MP_LTR.VERSION) return null;
+    const sub = (o, keys) => MP_POLICY.record(o) ? pick(o, keys) : null;
+    return {
+      version:r.version,status:r.status,today:r.today,
+      valuation:sub(r.valuation, ['lo','hi','label','topBand']),
+      since:typeof r.since === 'string' ? r.since : null,
+      pending:sub(r.pending, ['label','count','of']),
+      marginOfSafety:typeof r.marginOfSafety === 'string' ? r.marginOfSafety : null,
+      measures:Object.fromEntries(['buffettIndicator','shillerPE'].map(k => [k, MP_POLICY.record(r.measures) ? sub(r.measures[k], ['label','value','level','levelLabel']) : null])),
+      stocksVsBonds:sub(r.stocksVsBonds, ['earningsYield','realYield10Y','gap','label']),
+      mood:sub(r.mood, ['score','label','change1d','change1w']),
+      trend:sub(r.trend, ['value','above']),
+      rates:sub(r.rates, ['curve','label']),
+      changes:Array.isArray(r.changes) ? r.changes : [],
+    };
+  }
+  const fresh = MP_LTR.freshness(EDITION, isUS ? d.sp500MarketTime : d.csi300MarketTime, now);
+  const asOf = {label:fresh.label,session:fresh.session || null,closed:!!fresh.closed,intraday:!!fresh.intraday};
   const availableScreener = screener.filter(row => MP_POLICY.own(facts, row.factKey) && MP_POLICY.own(facts, row.factKey.replace(/Change$/, '')));
   if (Object.keys(facts).length === 0 || availableScreener.length === 0 || !health || !['OK','DEGRADED'].includes(health.status)) {
     console.error('[MarketPulse][PUBLISH-GUARD] dashboard publish SKIPPED (facts=' + Object.keys(facts).length + ', marketRows=' + availableScreener.length + ', health=' + (health ? health.status : 'none') + ') - retaining the last published payload without usable market quotes.');
@@ -81,6 +103,8 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate,
     edition:EDITION,
     generatedAt:now.toISOString(),
     dateLabel,
+    asOf,
+    ...(isUS ? {longTermReading:projectReading(d.longTermReading)} : {}),
     health:health ? {status:health.status,missing:health.missing || [],suspect:health.suspect || []} : {status:'OUTAGE',missing:['ALL'],suspect:[]},
     dashboard:Object.fromEntries(Object.entries(dashboard).filter(([key]) => MP_POLICY.own(facts, key))),
     facts,

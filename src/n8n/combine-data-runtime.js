@@ -164,5 +164,26 @@ function MP_COMBINE(EDITION, runtime) {
     console.error('\u{1F534} [MarketPulse][DATA-HEALTH] OUTAGE | Fetch node returned nothing at all this run (total upstream failure)');
   }
 
+  // ===== LONG-TERM READING (W15, rules ltr.v1) + VALUATION INPUT CHECKS (W18) =====
+  // Code computes the reading before the analyst runs, so the prompt receives it as a
+  // fixed fact. Failed input checks join the existing data-quality flags; they never
+  // stop the edition. US only: the China edition has no valuation source yet.
+  if (EDITION === 'US') {
+    combined.longTermReading = null;
+    combined.longTermSummary = 'Long-term reading unavailable today.';
+    try {
+      const sd = $getWorkflowStaticData('global');
+      if (!sd.mpLongTerm) sd.mpLongTerm = {};
+      if (!sd.mpLongTerm.US) sd.mpLongTerm.US = {};
+      const result = MP_LTR.compute(combined, sd.mpLongTerm.US, new RuntimeDate(), combined.sp500MarketTime);
+      combined.longTermReading = result.reading;
+      combined.longTermSummary = MP_LTR.promptSummary(result.reading);
+      if (result.flags.length && combined._health && typeof combined._health === 'object') {
+        combined._health.suspect = [...(Array.isArray(combined._health.suspect) ? combined._health.suspect : []), ...result.flags];
+        console.error('[MarketPulse][INPUT-CHECK] ' + result.flags.map(f => f.field + ':' + f.check).join(', '));
+      }
+    } catch (e) { console.error('[MarketPulse][LTR] reading unavailable: ' + (e && e.message)); }
+  }
+
   return [{ json: combined }];
 }

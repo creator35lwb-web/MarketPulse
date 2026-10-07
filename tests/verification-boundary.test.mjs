@@ -114,7 +114,7 @@ for (const edition of ['US','CN']) {
     assert.doesNotMatch(r.message,/Markets remain uncertain|evidence:/);assert.match(r.message,/-2\.00%/);
   });
   test(`${edition}: oversized source summary preserves a bounded, complete digest`,()=>{
-    const data=groundTruth(edition);data.watchlistSummary='Long source summary. '.repeat(300);const r=pipeline(edition,validAnalysis(edition),{data});
+    const data=groundTruth(edition);data.stockDetails=[];data.watchlistSummary='Long source summary. '.repeat(300);const r=pipeline(edition,validAnalysis(edition),{data});
     assert.ok(r.message.length<=4096);assert.match(r.message,/Digest shortened/);assert.match(r.message,/-2\.00%/);
     assert.match(r.message,/<a href="https:\/\/creator35lwb-web\.github\.io\/MarketPulse\/">Open Dashboard<\/a>$/);
     assert.equal((r.message.match(/<code>/g)||[]).length,(r.message.match(/<\/code>/g)||[]).length);
@@ -192,7 +192,7 @@ for (const edition of ['US','CN']) {
   test(`${edition}: unusable numerical source table fields display N/A`,()=>{
     const data=groundTruth(edition);data.gold='NaN%';data.goldChange='junk1';data.cpiValue=Infinity;
     const r=pipeline(edition,validAnalysis(edition),{data});
-    assert.match(r.message,/Gold: <code>N\/A<\/code> \(N\/A\)/);assert.doesNotMatch(r.message,/NaN%|junk1|Infinity/);
+    assert.match(r.message,/\nGold +N\/A +N\/A\n/);assert.doesNotMatch(r.message,/NaN%|junk1|Infinity/);
     assert.equal(r.payload.verification.status,'approved');assert.equal(Object.hasOwn(r.payload.facts,'gold'),false);
   });
   test(`${edition}: macro-only partial data retains the last dashboard and sends available source data`,()=>{
