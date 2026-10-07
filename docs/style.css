@@ -130,12 +130,16 @@ button { font: inherit; color: inherit; }
   margin-bottom: 28px;
   border-bottom: 1px solid var(--rule);
 }
-.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
-.brand-mark { width: 28px; height: 28px; }
-.brand-mark rect { fill: var(--text); }
-.brand-mark path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.wordmark { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: 0.005em; }
-.wordmark em { font-style: normal; color: var(--accent); }
+.brand { display: inline-flex; align-items: center; text-decoration: none; min-width: 0; }
+/* The channel's logo as a horizontal lockup; the dark-theme file lifts the navy so it reads on dark. */
+.brand-lockup { display: block; height: 34px; width: auto; max-width: 100%; }
+.brand-lockup.on-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand-lockup.on-light { display: none; }
+  :root:not([data-theme="light"]) .brand-lockup.on-dark { display: block; }
+}
+:root[data-theme="dark"] .brand-lockup.on-light { display: none; }
+:root[data-theme="dark"] .brand-lockup.on-dark { display: block; }
 
 .edition-toggle {
   display: flex;
@@ -602,4 +606,5 @@ section.card > .card-title { margin-bottom: 12px; }
   .card, .reading-card { padding: 16px; }
   .band-labels { font-size: 10.5px; }
   .share-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .brand-lockup { height: 28px; }
 }
