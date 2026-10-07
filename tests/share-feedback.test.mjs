@@ -73,6 +73,14 @@ test('the channel posts send the buttons and drop the n8n attribution line', () 
   assert.equal(node('Send Status to Telegram').parameters.additionalFields.appendAttribution, false);
 });
 
+test('every Telegram send retries, including the weekly report', () => {
+  // The 2026-10-04 weekly report was lost to one failed connection: its node was the only one without a retry.
+  const template = JSON.parse(read('scripts/workflow-template.json'));
+  const sends = template.nodes.filter(n => n.type === 'n8n-nodes-base.telegram');
+  assert.ok(sends.some(n => n.name === 'Send Weekly to Telegram'));
+  for (const n of sends) assert.deepEqual([n.retryOnFail, n.maxTries, n.waitBetweenTries], [true, 3, 5000], n.name);
+});
+
 test('the dashboard uses the same links as the Telegram posts', () => {
   const block = /var LINKS = (\{[\s\S]*?\n {2}\});/.exec(read('docs/app.js'));
   assert.ok(block, 'LINKS block in docs/app.js');

@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "78c84a52d15f9a2f5392254a912475bb79d251c544bf1c062e87b643a1224edd",
+  "workflowSha256": "b4b9f03bad4b3a9f321708d2d85f2929d44154405fba12eb00cbae2e65a4fa7b",
   "sources": {
     "scripts/analysis-contract.txt": "e33ff2b7d09ac10dee12de79c3431daa6b9ae56c6c628748faa1bcfe9fc044ef",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -12,11 +12,11 @@
     "fetch-stock-helpers.js": "2976809959d00f8964941313bff1f896033fdc1f2c35f76624c6bc96580707ca",
     "fetch-stock-prices.js": "dc1587e00425323dccdcf5e12b8f49c9a0ff7259c18b291b6199293213877f79",
     "long-term-reading.js": "22f385db13121d6f31ddc56b922494c9a0a1c0d4ecafdee70b51b160ea18cfdd",
-    "combine-data-runtime.js": "f9153b2a3b5817ca286d332bac7744b5aced8c062eddf296414c2e72f46cdce0",
+    "combine-data-runtime.js": "23e49f102a04a17e321749c068880b0cde811452688cba2fd58a3ff141743699",
     "combine-all-data.js": "9fed2dc86a164f346847a6e733daacb3e6a42c35fecdbb0ca69b8b45688392e6",
     "analysis-policy.js": "460a2974959c3499fc3ea9803c73775f5c01a364b102607aba924ebfcffb4d73",
     "public-links.js": "b469e67b694bf6d2414bef06ceb574ddda90f7399a88baa21ae267ea170f50da",
-    "compose-telegram-runtime.js": "bffa475484b016d353aa6fb13095335652932217dffa03dcdbf082fd003612d7",
+    "compose-telegram-runtime.js": "c1717c75bff5150ed52e6caef90467e1622f94fc9514660f147049e210e7315e",
     "compose-telegram-message.js": "6cc35ab9cc068ddf23165d7fd6e1a7947ee055c3d5a65f6d2d25ac56ff1930dd",
     "sanitize-error.js": "71545f67b174be72e6420c492fec12e68098c47f4d7451ebcf6f8caf4e4eb453",
     "compose-status-message.js": "9273f44530c32d9b665c3a11d3f48404e4f92cff5d07a75fdb78134195ac7cea",
@@ -28,9 +28,9 @@
     "verify-analysis-runtime.js": "9368fa114cf13c3aac5f65e67180ebc8d431fe3989fa0cabd7e2c16f79b24d67",
     "verify-ai-analysis.js": "98ea1ab2b2e66fc26a4d6eca537e862e3f6b301c0e4bcc2b32420012e852a4ef",
     "verify-ai-analysis1.js": "ca113a9d8a3220410081cebe625c659d0a8aa41b61bedaab7373831942669ed9",
-    "prepare-dashboard-runtime.js": "844133900b56354d6a2d5c03a11f3fe4f381ad7deae4c4d7071efecaf6501e2a",
+    "prepare-dashboard-runtime.js": "e8845dde2d305e673ae140538304f4eaebc613c1e1e011bfb2fd7bea27bc3ae1",
     "prepare-dashboard-data.js": "1092398e0509ca452b9565c03f3ce48af25af689309c719fff01bc1a4456a4ee",
     "prepare-dashboard-data1.js": "3b4c068ea96184bf32932154828243a2dd6d7c42e1c6a951c596fe47fcf45c9f",
-    "compose-weekly-report.js": "521a8415e3a598eaa7b82bccec8804f3d960a914852d62e9448b2289934455fb"
+    "compose-weekly-report.js": "f9e32dee131ece24d66277caf2d0077a2720279392926bc88dfe23dc3d229ce6"
   }
 }

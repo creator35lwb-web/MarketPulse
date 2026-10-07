@@ -81,6 +81,14 @@ for (const ed of editions) {
   var flatWeek = scored.length - weekDecided.length;
   lines.push('Week: <b>' + weekHits + '/' + weekDecided.length + '</b> · All-time: <b>' + allHits + '/' + allDecided.length + '</b>'
     + (flatWeek ? ' · <i>' + flatWeek + ' day' + (flatWeek === 1 ? '' : 's') + ' too flat to judge</i>' : ''));
+  // W4: the base rate on the same judged days, so a call that rarely changes is not flattered.
+  const fellOn = function (list) { return list.filter(function (t) { return Number.parseFloat(t.actualChange) < 0; }).length; };
+  if (allDecided.length) {
+    const allTimeFell = fellOn(allDecided) + ' of ' + allDecided.length;
+    lines.push('<i>For comparison, the market fell on ' + (weekDecided.length
+      ? fellOn(weekDecided) + ' of ' + weekDecided.length + ' judged days this week and ' + allTimeFell + ' all-time.'
+      : allTimeFell + ' judged days all-time.') + '</i>');
+  }
   } else {
     lines.push('No calls came due for scoring this week.');
   }
