@@ -52,6 +52,8 @@ const MP_POLICY = (() => {
     if (!sentiments.includes(candidate.sentiment)) fail('SENTIMENT_INVALID');
     if (!confidences.includes(candidate.confidence)) fail('CONFIDENCE_INVALID');
     for (const [field,max] of [['sentiment',40],['confidence',10],['interpretation',1200],['wisdom',600]]) {
+      // Editorial rules may remove an advising wisdom sentence entirely (see applyEditorialRules).
+      if (field === 'wisdom' && candidate.wisdom === '') continue;
       if (!text(candidate[field], max)) fail('ANALYSIS_TEXT_INVALID');
       else if (hasNumericText(candidate[field])) fail('NUMERIC_MODEL_TEXT');
     }
@@ -88,6 +90,49 @@ const MP_POLICY = (() => {
       interpretation:candidate.interpretation.trim(),wisdom:candidate.wisdom.trim(),
     }};
   };
+  // Editorial rules (W15 spec sections 4 and 5), applied once at verification time to an
+  // analysis that already passed validateAnalysis. Published payloads are not re-judged by
+  // them, so data published under the earlier contract stays valid.
+  // 1. Long-term valuation inputs describe the backdrop, not the short-term read: a claim
+  //    citing only them must be neutral.
+  // 2. The broadcast describes the market and never tells readers what to do with money.
+  //    Advising sentences are removed from interpretation and wisdom; an advising claim
+  //    withholds the analysis, because a claim cannot be edited away from its evidence.
+  //    A recommended stance counts as advice too ("a defensive stance is warranted").
+  const LONG_TERM_KEYS = new Set(['buffettIndicator', 'shillerPE']);
+  const ADVICE = [
+    /\b(?:you|investors?|value investors?|readers?|one)\s+(?:should|must|need to|ought to|may want to|might consider)\b/i,
+    /\b(?:we|i)\s+(?:recommend|suggest|advise)\b/i,
+    /\b(?:consider|time to)\s+(?:buying|selling|adding|trimming|reducing|accumulating)\b/i,
+    /\bit(?:'s|’s| is| would be| may be| might be)\s+(?:prudent|wise|advisable|sensible)\s+to\b/i,
+    /\b(?:caution|patience|selectivity)\s+(?:is|remains)\s+(?:warranted|advised|advisable|prudent)\b/i,
+  ];
+  // A stance word and a verdict on it in the same sentence (each sentence is checked alone).
+  const STANCE = /\b(?:stance|posture|positioning|allocation)\b/i;
+  const STANCE_VERDICT = /\b(?:is|remains|seems|would be|may be)\s+(?:appropriate|warranted|advisable|prudent|justified|sensible|wise)\b/i;
+  const advises = value => typeof value === 'string' &&
+    (ADVICE.some(pattern => pattern.test(value)) || (STANCE.test(value) && STANCE_VERDICT.test(value)));
+  const trimAdvice = value => {
+    const sentences = value.split(/(?<=[.!?])\s+/);
+    const kept = sentences.filter(sentence => !advises(sentence));
+    return {text:kept.join(' ').trim(), trimmed:kept.length !== sentences.length};
+  };
+  const applyEditorialRules = analysis => {
+    const reasons = new Set(), notes = [];
+    for (const claim of analysis.claims) {
+      if (advises(claim.claim)) reasons.add('ADVICE_IN_CLAIM');
+      if (claim.basedOn.length && claim.basedOn.every(key => LONG_TERM_KEYS.has(key)) && claim.direction !== 'neutral') reasons.add('LONG_TERM_DIRECTION');
+    }
+    const interpretation = trimAdvice(analysis.interpretation);
+    const wisdom = trimAdvice(analysis.wisdom);
+    if (!interpretation.text) reasons.add('ADVICE_ONLY_TEXT');
+    if (interpretation.trimmed || wisdom.trimmed) notes.push('ADVICE_TRIMMED');
+    const reasonCodes = [...reasons];
+    return {ok:!reasonCodes.length,reasonCodes,notes,analysis:reasonCodes.length ? null : {
+      ...analysis,claims:analysis.claims.map(claim => ({...claim,basedOn:[...claim.basedOn]})),
+      interpretation:interpretation.text,wisdom:wisdom.text,
+    }};
+  };
   const readApproval = (data, edition) => {
     try {
       const a = data.approvedAnalysis, v = data._verification;
@@ -112,6 +157,6 @@ const MP_POLICY = (() => {
     return {version:1,status:approval.ok ? 'approved' : 'withheld',checkedClaims:approval.ok ? approval.analysis.claims.length : 0,
       reasonCodes:approval.ok ? [] : reasonCodes.length ? reasonCodes : ['APPROVAL_INVALID']};
   };
-  return {own,record,exactKeys,sentiments,confidences,directions,hasNumericText,isUsableFact,isUsableHeadline,factKeysFor,collectFacts,validateAnalysis,readApproval,safeHttpUrl,verificationFor};
+  return {own,record,exactKeys,sentiments,confidences,directions,hasNumericText,isUsableFact,isUsableHeadline,factKeysFor,collectFacts,validateAnalysis,applyEditorialRules,advises,readApproval,safeHttpUrl,verificationFor};
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = MP_POLICY;

@@ -2,87 +2,180 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MarketPulse — Market Ledger</title>
-<meta name="description" content="Market data with attributed AI commentary, visible publication status, and a retrospective sentiment record.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MarketPulse — Market Brief</title>
+<meta name="description" content="A long-term reading of the US market for value investors, with an AI short-term read whose every claim cites its source data.">
+<link rel="canonical" href="https://creator35lwb-web.github.io/MarketPulse/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MarketPulse">
+<meta property="og:title" content="MarketPulse · Daily US &amp; China market brief">
+<meta property="og:description" content="A free daily brief for value investors: a long-term reading on fixed rules, and an AI short-term read whose every claim cites its data.">
+<meta property="og:url" content="https://creator35lwb-web.github.io/MarketPulse/">
+<meta property="og:image" content="https://creator35lwb-web.github.io/MarketPulse/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MarketPulse: the daily market brief for value investors">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%23141922%22/><path d=%22M6 21l6-7 5 4 9-10%22 fill=%22none%22 stroke=%22%23CFA75A%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-5 9 5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><rect x="3" y="5" width="15" height="14" rx="1.5"/><path d="M18 9h3v8.5a1.5 1.5 0 0 1-3 0z"/><path d="M6.5 9h8M6.5 12.5h8M6.5 16h5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-economy" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 10.5h7M8.5 14h4.5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
 
-  <div class="topbar">
-    <div class="wordmark">Market<em>Pulse</em></div>
+<div class="wrap">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="MarketPulse home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M6 21l6-7 5 4 9-10"/></svg>
+      <span class="wordmark">Market<em>Pulse</em></span>
+    </a>
     <div class="edition-toggle" role="group" aria-label="Edition">
       <button type="button" data-edition="US" aria-pressed="true">US</button>
-      <button type="button" data-edition="CN" aria-pressed="false">CN</button>
+      <button type="button" data-edition="CN" aria-pressed="false">China</button>
     </div>
-  </div>
+  </header>
 
   <main id="app">
-    <p class="state-msg">Loading the latest briefing…</p>
+    <p class="state-msg">Loading the latest brief…</p>
   </main>
 
+  <dialog class="share-dialog" aria-labelledby="share-title">
+    <div class="share-head">
+      <h2 id="share-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share this brief</h2>
+      <button type="button" class="icon-btn share-close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <p class="share-pitch"></p>
+    <div class="share-copy">
+      <input class="share-url" type="text" readonly aria-label="Link to this brief">
+      <button type="button" class="btn copy-link" autofocus><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span class="copy-label">Copy link</span></button>
+    </div>
+    <div class="share-grid">
+      <a data-share="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <a data-share="telegram" target="_blank" rel="noopener noreferrer">Telegram</a>
+      <a data-share="facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a data-share="x" target="_blank" rel="noopener noreferrer">X</a>
+      <a data-share="linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a data-share="email">Email</a>
+    </div>
+  </dialog>
 </div>
 
 <template id="tpl-report">
-  <section class="hero">
-    <div class="eyebrow"><span class="date"></span> · <span class="edition-name"></span> edition</div>
+  <section class="masthead">
+    <div class="masthead-row">
+      <p class="eyebrow"><span class="edition-name"></span> Daily Brief · <span class="date"></span></p>
+      <button type="button" class="icon-btn share-open" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+    </div>
+    <p class="asof"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span class="asof-label"></span></p>
     <p class="publication-time"></p>
-    <h1><span class="read-label">Latest read</span>: <span class="sentiment-word"></span></h1>
-    <p class="sub">Market figures come from fetched sources. Accepted AI commentary cites available evidence; attribution does not prove an interpretation is correct.</p>
-    <div class="hint">Select a claim to see its cited data or headline</div>
   </section>
 
   <div class="publication-banner flag-banner" role="status" hidden></div>
   <div class="flag-banner data-health-banner" hidden></div>
 
-  <section class="dashboard-section">
-    <div class="section-label">Value Investor Dashboard</div>
-    <div class="ledger dashboard-ledger"></div>
-  </section>
-
-  <section class="feargreed-section">
-    <div class="section-label">Fear &amp; Greed</div>
-    <div class="gauge-card">
-      <div class="gauge-track"><div class="gauge-dot"></div></div>
-      <div class="gauge-readout">
-        <span class="score"></span>
-        <span class="label"></span>
+  <section class="card reading-card" aria-labelledby="reading-title">
+    <div class="card-head">
+      <h2 id="reading-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-compass"/></svg>Long-term reading</h2>
+      <span class="rules-chip">Fixed rules · not AI opinion</span>
+    </div>
+    <div class="reading-body">
+      <div class="verdict">
+        <p class="micro">Valuation</p>
+        <p class="verdict-word"></p>
+        <p class="verdict-status"></p>
+      </div>
+      <div class="band-meter" role="img">
+        <div class="band-rows"></div>
+        <div class="band-labels"></div>
+      </div>
+      <dl class="reading-facts"></dl>
+      <div class="changes">
+        <h3 class="micro">What would change it</h3>
+        <ul class="change-list"></ul>
       </div>
     </div>
+    <p class="reading-note" hidden></p>
   </section>
 
-  <section class="screener-section">
-    <div class="section-label">Market Screener</div>
-    <div class="ledger screener-ledger"></div>
-  </section>
-
-  <section class="economic-section">
-    <div class="section-label">Economic Indicators</div>
-    <div class="ledger economic-ledger"></div>
-  </section>
-
-  <section class="watchlist-section">
-    <div class="section-label">Watchlist</div>
-    <pre class="watchlist-block"></pre>
-  </section>
-
-  <section class="trackrecord-section">
-    <div class="section-label">Track Record</div>
-    <div class="trackrecord">
-      <div class="accuracy"></div>
-      <div class="last"></div>
+  <section class="context-strip" aria-label="Market context">
+    <div class="tile mood-tile" data-factkey="fearGreedValue">
+      <p class="tile-title"><svg class="icon" aria-hidden="true"><use href="#i-thermo"/></svg>Mr. Market</p>
+      <p class="tile-value"><span class="mood-score"></span><span class="tile-unit">/100</span></p>
+      <p class="tile-label mood-label"></p>
+      <div class="gauge-track"><div class="gauge-dot"></div></div>
+    </div>
+    <div class="tile trend-tile" data-factkey="sp500VsMa200">
+      <p class="tile-title"><svg class="icon" aria-hidden="true"><use href="#i-trend"/></svg>Trend</p>
+      <p class="tile-value trend-value"></p>
+      <p class="tile-label trend-label"></p>
+    </div>
+    <div class="tile rates-tile" data-factkey="yieldCurve">
+      <p class="tile-title"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Rates</p>
+      <p class="tile-value curve-value"></p>
+      <p class="tile-label curve-label"></p>
     </div>
   </section>
 
-  <section class="history-section">
-    <div class="section-label">Sentiment History</div>
-    <p class="history-empty state-msg" hidden>Building history — check back after a few more days for a timeline to appear here.</p>
-    <div class="history-strip" role="list" aria-label="Daily sentiment history"></div>
+  <section class="card read-card" aria-labelledby="read-title">
+    <div class="card-head">
+      <h2 id="read-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg>Short-term read</h2>
+      <span class="rules-chip ai-chip">AI · graded daily</span>
+    </div>
+    <p class="read-line"><span class="read-dot"></span><button type="button" class="sentiment-word"></button><span class="confidence"></span></p>
+    <p class="hint">Select a claim to light up the data it cites</p>
+    <p class="analysis-notice" hidden></p>
+    <div class="claims"></div>
+    <p class="interpretation"></p>
+    <blockquote class="wisdom"></blockquote>
+    <div class="verified-strip"></div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card table-card" aria-labelledby="markets-title">
+      <h2 id="markets-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>Markets</h2>
+      <div class="ledger screener-ledger"></div>
+    </section>
+    <section class="card table-card" aria-labelledby="economy-title">
+      <h2 id="economy-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-economy"/></svg>Economy</h2>
+      <div class="ledger economic-ledger"></div>
+    </section>
+  </div>
+
+  <section class="card table-card watchlist-section" aria-labelledby="watch-title">
+    <h2 id="watch-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-eye"/></svg>Watchlist</h2>
+    <div class="ledger watchlist-ledger"></div>
+    <pre class="watchlist-block" hidden></pre>
+  </section>
+
+  <section class="card trackrecord-section" aria-labelledby="record-title">
+    <div class="card-head">
+      <h2 id="record-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>Track record</h2>
+      <span class="accuracy"></span>
+    </div>
+    <p class="record-note">Each short-term read is graded automatically against what the market did next. Nothing is predicted.</p>
+    <p class="last"></p>
+    <p class="history-empty state-msg" hidden>The history builds day by day; a timeline appears after a few editions.</p>
+    <div class="history-strip" role="list" aria-label="Daily short-term read history"></div>
     <div class="history-detail" hidden>
       <span class="history-detail-date"></span>
       <span class="history-detail-sentiment"></span>
@@ -92,38 +185,44 @@
       <span><i class="swatch bullish"></i> Bullish</span>
       <span><i class="swatch neutral"></i> Neutral</span>
       <span><i class="swatch bearish"></i> Bearish</span>
-      <span><i class="dot hit"></i> Correct call</span>
-      <span><i class="dot miss"></i> Missed call</span>
+      <span><i class="dot hit"></i> Correct</span>
+      <span><i class="dot miss"></i> Missed</span>
       <span><i class="dot flat"></i> Too flat to judge</span>
     </div>
   </section>
 
-  <section class="analysis-section">
-    <div class="section-label">Valu-Analyst</div>
-    <p class="analysis-notice" hidden></p>
-    <div class="claims"></div>
-    <p class="interpretation"></p>
-    <p class="wisdom"></p>
-  </section>
-
-  <section class="news-section">
-    <div class="section-label">Headlines in this briefing</div>
+  <section class="card news-section" aria-labelledby="news-title">
+    <h2 id="news-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-news"/></svg>Headlines in this brief</h2>
     <ol class="news-list"></ol>
   </section>
 
-  <section class="extra-evidence-section" hidden>
-    <div class="section-label">Additional cited evidence</div>
+  <section class="card extra-evidence-section" hidden>
+    <h2 class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Additional cited evidence</h2>
     <div class="ledger extra-evidence-ledger"></div>
   </section>
 
-  <section class="verify-section">
-    <div class="verified-strip"></div>
-  </section>
-
-  <div class="footer">
-    <div class="sources"></div>
-    <p style="margin-top:10px">AI-generated analysis for informational purposes only. Not financial advice. Part of the <a href="https://github.com/creator35lwb-web/MarketPulse">MarketPulse</a> open-source project.</p>
+  <div class="grid-2 connect-grid">
+    <section class="card connect-card" aria-labelledby="join-title">
+      <h2 id="join-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg>Get the brief daily</h2>
+      <p class="connect-text">Each brief goes to the Telegram channel as soon as it is published. Free to join.</p>
+      <div class="connect-actions">
+        <a class="btn btn-primary channel-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg>Join on Telegram</a>
+        <button type="button" class="btn share-open" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+      </div>
+    </section>
+    <section class="card connect-card feedback-card" aria-labelledby="feedback-title" hidden>
+      <h2 id="feedback-title" class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-message"/></svg>Help shape MarketPulse</h2>
+      <p class="connect-text">Tell us what helps, what confuses you, or a number that looks wrong. Anonymous, and it takes about a minute.</p>
+      <div class="connect-actions">
+        <a class="btn btn-primary feedback-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="#i-message"/></svg>Give feedback</a>
+      </div>
+    </section>
   </div>
+
+  <footer class="footer">
+    <p class="sources"></p>
+    <p>Information only, not financial advice. The long-term reading follows fixed, published rules; AI commentary is checked for sources, not for correctness. <a href="https://github.com/creator35lwb-web/MarketPulse">MarketPulse is open source</a>.</p>
+  </footer>
 </template>
 
 <script type="module" src="app.js"></script>

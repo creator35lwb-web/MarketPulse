@@ -6,6 +6,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
   let approved = null;
   let analysisModel = null;
   let analysisProvider = null;
+  let notes = [];
 
   try {
     const items = $input.all();
@@ -53,6 +54,12 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
         });
         reasons = result.reasonCodes;
         approved = result.analysis;
+        if (approved) {
+          const editorial = MP_POLICY.applyEditorialRules(approved);
+          reasons = editorial.reasonCodes;
+          approved = editorial.analysis;
+          notes = editorial.notes;
+        }
       }
     }
   } catch (_) {
@@ -73,6 +80,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
     reasonCodes:approved ? [] : [...new Set(reasons.length ? reasons : ['APPROVAL_MISSING'])],
     contradictions:approved ? [] : [...new Set(reasons)],unverified:[],
     scope:'schema-and-attribution',analysisModel,analysisProvider,
+    notes:approved ? [...notes] : [],
   };
   data._analysisModel = approved ? analysisModel : null;
   data._analysisProvider = approved ? analysisProvider : null;
@@ -100,6 +108,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
           claims:approved.claims.map(c => ({claim:c.claim.slice(0,200),basedOn:[...c.basedOn]})),
           verdict:'PASS',score:100,violations:0,health:data._health.status,
           model:analysisModel,marketTime,verificationVersion:1,
+          ...(notes.includes('ADVICE_TRIMMED') ? {adviceTrimmed:true} : {}),
         };
         if (ledger.length && ledger[ledger.length - 1].date === today) ledger[ledger.length - 1] = entry;
         else ledger.push(entry);

@@ -87,11 +87,25 @@ for (const ed of editions) {
   sections.push(lines.join('\n'));
 }
 
+// Long-term reading (rules ltr.v1): restate the confirmed level and whether it changed this week.
+let longTerm = '';
+try {
+  const lt = sd.mpLongTerm && sd.mpLongTerm.US;
+  if (lt && lt.confirmed) {
+    const label = MP_LTR.rangeLabel(lt.confirmed.lo, lt.confirmed.hi);
+    const moves = (Array.isArray(lt.history) ? lt.history : []).filter(function (h) { return inWindow(h.date); });
+    longTerm = '🧭 <b>Long-term reading (US):</b> ' + esc(label) + ' · margin of safety ' + esc(MP_LTR.marginFor(lt.confirmed.hi).toLowerCase()) +
+      (moves.length ? ' · <i>changed this week</i>' : ' · <i>unchanged this week (since ' + esc(lt.confirmed.since) + ')</i>');
+  }
+} catch (_) { longTerm = ''; }
+
 const message = [
   '📅 <b>MarketPulse Weekly — ' + fmtRange(startISO, endISO) + '</b>',
   '<i>Every line restates a dated, verified record from the public ledger — including the misses. Nothing is recalled from memory.</i>',
+  ...(longTerm ? [longTerm] : []),
   sections.join('\n\n'),
-  '📖 Daily digests, sources and the full track record:\nhttps://YOUR_GITHUB_USERNAME.github.io/MarketPulse/',
+  '📖 Daily digests, sources and the full track record:\n' + MP_LINKS.DASHBOARD,
 ].join('\n\n');
 
-return [{ json: { message: message } }];
+// URLs for the Dashboard, Feedback and Share buttons under the post.
+return [{ json: { message: message, links: MP_LINKS.forPost('weekly', endISO) } }];

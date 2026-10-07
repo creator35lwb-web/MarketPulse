@@ -188,6 +188,51 @@ export function validateDashboardData(data, { edition, now = Date.now() } = {}) 
       if (entry.actualChange !== null && !policy.isUsableFact(entry.actualChange)) fail(`history[${i}].actualChange`, 'must be finite or null');
     });
   }
+  // Optional since the long-term reading (rules ltr.v1). Code-computed; checked for shape,
+  // for bounded text, and for agreement with the published facts it quotes.
+  if (data.asOf !== undefined && object(data.asOf, 'asOf')) {
+    keys(data.asOf, ['label', 'session', 'closed', 'intraday'], 'asOf');
+    text(data.asOf.label, 'asOf.label', 200);
+    if (data.asOf.session !== null && !(typeof data.asOf.session === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.asOf.session))) fail('asOf.session', 'must be a date or null');
+    for (const name of ['closed', 'intraday']) if (typeof data.asOf[name] !== 'boolean') fail(`asOf.${name}`, 'must be a boolean');
+  }
+  if (data.longTermReading !== undefined && data.longTermReading !== null && object(data.longTermReading, 'longTermReading')) {
+    const r = data.longTermReading, path = 'longTermReading';
+    const LABELS = ['Cheap', 'Fair', 'Slightly expensive', 'Expensive', 'Very expensive'];
+    if (data.edition !== 'US') fail(path, 'is published for the US edition only');
+    if (r.version !== 'ltr.v1') fail(`${path}.version`, 'must be ltr.v1');
+    if (!['first', 'steady', 'pending', 'changed', 'held', 'unavailable'].includes(r.status)) fail(`${path}.status`, 'unknown status');
+    if (!['ok', 'disagree', 'unavailable'].includes(r.today)) fail(`${path}.today`, 'unknown value');
+    const level = v => Number.isInteger(v) && v >= 1 && v <= 5;
+    if (r.valuation !== null) {
+      if (!object(r.valuation, `${path}.valuation`)) {/* reported */}
+      else {
+        if (!level(r.valuation.lo) || !level(r.valuation.hi) || r.valuation.lo > r.valuation.hi || r.valuation.hi - r.valuation.lo > 1) fail(`${path}.valuation`, 'levels must be 1..5 and at most one apart');
+        text(r.valuation.label, `${path}.valuation.label`, 100);
+      }
+      if (!['Wide', 'Moderate', 'Narrow', 'Thin'].includes(r.marginOfSafety)) fail(`${path}.marginOfSafety`, 'unknown value');
+      if (typeof r.since !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r.since)) fail(`${path}.since`, 'must be a date');
+    } else if (r.marginOfSafety !== null) fail(`${path}.marginOfSafety`, 'must be null without a valuation');
+    if (object(r.measures, `${path}.measures`)) {
+      for (const key of ['buffettIndicator', 'shillerPE']) {
+        const m = r.measures[key];
+        if (m === null || m === undefined) continue;
+        if (!object(m, `${path}.measures.${key}`)) continue;
+        if (!Object.hasOwn(facts, key) || facts[key] !== m.value) fail(`${path}.measures.${key}.value`, 'must equal its available published fact');
+        if (!level(m.level) || m.levelLabel !== LABELS[m.level - 1]) fail(`${path}.measures.${key}.level`, 'must be a level 1..5 with its label');
+      }
+    }
+    if (r.stocksVsBonds !== null && object(r.stocksVsBonds, `${path}.stocksVsBonds`)) {
+      for (const name of ['earningsYield', 'realYield10Y', 'gap']) if (typeof r.stocksVsBonds[name] !== 'number' || !Number.isFinite(r.stocksVsBonds[name])) fail(`${path}.stocksVsBonds.${name}`, 'must be finite');
+      if (!['Bonds pay more', 'Thin', 'Moderate', 'Wide'].includes(r.stocksVsBonds.label)) fail(`${path}.stocksVsBonds.label`, 'unknown value');
+    }
+    if (r.mood !== null && object(r.mood, `${path}.mood`)) {
+      if (!Object.hasOwn(facts, 'fearGreedValue') || Number(facts.fearGreedValue) !== r.mood.score) fail(`${path}.mood.score`, 'must agree with its available fact');
+      text(r.mood.label, `${path}.mood.label`, 50);
+    }
+    if (!Array.isArray(r.changes) || r.changes.length > 6) fail(`${path}.changes`, 'must be an array of at most six entries');
+    else r.changes.forEach((c, i) => { if (!object(c, `${path}.changes[${i}]`) || !['valuation', 'rates', 'mood'].includes(c.kind)) fail(`${path}.changes[${i}].kind`, 'unknown kind'); });
+  }
   if (data.fearGreed !== undefined && data.fearGreed !== null && object(data.fearGreed, 'fearGreed')) {
     if (typeof data.fearGreed.score !== 'number' || !Number.isFinite(data.fearGreed.score) || data.fearGreed.score < 0 || data.fearGreed.score > 100) fail('fearGreed.score', 'must be a number in 0..100');
     if (!Object.hasOwn(facts, 'fearGreedValue') || Number(facts.fearGreedValue) !== data.fearGreed.score) fail('fearGreed.score', 'must agree with its available fact');
