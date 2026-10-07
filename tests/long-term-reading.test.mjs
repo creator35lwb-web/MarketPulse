@@ -138,6 +138,27 @@ test('editorial rules: long-term-only claims must be neutral and advice never re
   assert.deepEqual(policy.applyEditorialRules(onlyAdvice).reasonCodes, ['ADVICE_ONLY_TEXT']);
 });
 
+test('editorial rules: a recommended stance is advice, while describing a stance is not', () => {
+  // The first two are the only such sentences in 50 published editions (US 2026-10-07 and a CN edition);
+  // the rule matched no published claim, so it would never have withheld an analysis.
+  for (const sentence of ['Consequently, a cautious stance that leans bearish is appropriate.',
+    'Although offshore markets remain resilient, the persistent weakness in consumer demand coupled with mainland selling pressure suggests a more defensive stance is warranted.',
+    'It is prudent to wait for confirmation.', 'It’s wise to stay patient here.', 'Caution is warranted while volatility stays high.']) {
+    assert.equal(policy.advises(sentence), true, sentence);
+  }
+  for (const sentence of ['The Fed kept a restrictive stance.', 'Volatility remains elevated, which is consistent with a cautious market mood.',
+    'Prices sit far above long-run norms, leaving a thin margin of safety.', 'Positioning in futures remains crowded.']) {
+    assert.equal(policy.advises(sentence), false, sentence);
+  }
+  const facts = {buffettIndicator:'251%', shillerPE:'41.9'};
+  const analysis = {sentiment:'Cautiously Bearish', confidence:'High', wisdom:'',
+    interpretation:'Equity valuations are still far above what earnings and GDP would justify. Consequently, a cautious stance that leans bearish is appropriate.',
+    claims:[{claim:'Valuations remain far above historical norms.', basedOn:['buffettIndicator','shillerPE'], direction:'neutral'}]};
+  const trimmed = policy.applyEditorialRules(policy.validateAnalysis(analysis, {facts}).analysis);
+  assert.equal(trimmed.analysis.interpretation, 'Equity valuations are still far above what earnings and GDP would justify.');
+  assert.deepEqual(trimmed.notes, ['ADVICE_TRIMMED']);
+});
+
 test('pipeline: a bearish valuation-only claim is withheld; a neutral one is published with the reading', () => {
   const data = {...groundTruth('US'), ...OCT7, sp500MarketTime:sessionAt('2026-09-09T20:00:00Z')};
   const combined = runNode('combine-all-data', [{json:data}], {state:{}})[0].json;

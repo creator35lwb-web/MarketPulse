@@ -98,13 +98,20 @@ const MP_POLICY = (() => {
   // 2. The broadcast describes the market and never tells readers what to do with money.
   //    Advising sentences are removed from interpretation and wisdom; an advising claim
   //    withholds the analysis, because a claim cannot be edited away from its evidence.
+  //    A recommended stance counts as advice too ("a defensive stance is warranted").
   const LONG_TERM_KEYS = new Set(['buffettIndicator', 'shillerPE']);
   const ADVICE = [
     /\b(?:you|investors?|value investors?|readers?|one)\s+(?:should|must|need to|ought to|may want to|might consider)\b/i,
     /\b(?:we|i)\s+(?:recommend|suggest|advise)\b/i,
     /\b(?:consider|time to)\s+(?:buying|selling|adding|trimming|reducing|accumulating)\b/i,
+    /\bit(?:'s|’s| is| would be| may be| might be)\s+(?:prudent|wise|advisable|sensible)\s+to\b/i,
+    /\b(?:caution|patience|selectivity)\s+(?:is|remains)\s+(?:warranted|advised|advisable|prudent)\b/i,
   ];
-  const advises = value => typeof value === 'string' && ADVICE.some(pattern => pattern.test(value));
+  // A stance word and a verdict on it in the same sentence (each sentence is checked alone).
+  const STANCE = /\b(?:stance|posture|positioning|allocation)\b/i;
+  const STANCE_VERDICT = /\b(?:is|remains|seems|would be|may be)\s+(?:appropriate|warranted|advisable|prudent|justified|sensible|wise)\b/i;
+  const advises = value => typeof value === 'string' &&
+    (ADVICE.some(pattern => pattern.test(value)) || (STANCE.test(value) && STANCE_VERDICT.test(value)));
   const trimAdvice = value => {
     const sentences = value.split(/(?<=[.!?])\s+/);
     const kept = sentences.filter(sentence => !advises(sentence));
