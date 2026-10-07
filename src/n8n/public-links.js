@@ -13,7 +13,8 @@ const MP_LINKS = (() => {
   const PITCH = 'MarketPulse: a free daily US and China market brief for value investors. ' +
     'A long-term reading on fixed rules, and an AI short-term read that cites its data.';
 
-  const dashboard = edition => DASHBOARD + (edition === 'US' ? '#us' : edition === 'CN' ? '#cn' : '');
+  const EDITION_HASH = {US: '#us', CN: '#cn'};
+  const dashboard = edition => DASHBOARD + (EDITION_HASH[edition] || '');
 
   // The form opens with the brief's details filled in, so a "number looks wrong" report can be
   // checked against the exact brief the reader saw. Returns '' while no form is set.

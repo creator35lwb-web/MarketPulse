@@ -57,7 +57,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
   function editionUrl(edition) { return LINKS.dashboard + (edition === 'CN' ? '#cn' : '#us'); }
   function mytDate(iso) {
     var t = Date.parse(iso);
-    return isFinite(t) ? new Date(t + 8 * 3600 * 1000).toISOString().slice(0, 10) : '';
+    return Number.isFinite(t) ? new Date(t + 8 * 3600 * 1000).toISOString().slice(0, 10) : '';
   }
   // Same rule as MP_LINKS.feedback: the form opens with the brief's details filled in.
   function feedbackUrl(details) {
@@ -541,7 +541,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     var input = dialog.querySelector('.share-url');
     var label = dialog.querySelector('.copy-label');
     function selected() { input.focus(); input.select(); label.textContent = 'Link selected'; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(input.value).then(function () { label.textContent = 'Copied'; }, selected);
     } else selected();
   }
@@ -569,7 +569,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     toggle.addEventListener('click', function (ev) {
       var btn = ev.target.closest('button[data-edition]');
       if (!btn) return;
-      if (window.history && window.history.replaceState) window.history.replaceState(null, '', btn.dataset.edition === 'CN' ? '#cn' : '#us');
+      if (window.history?.replaceState) window.history.replaceState(null, '', btn.dataset.edition === 'CN' ? '#cn' : '#us');
       select(btn.dataset.edition);
     });
   }
