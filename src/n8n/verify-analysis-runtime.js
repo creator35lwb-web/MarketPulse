@@ -37,7 +37,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
       try {
         const fallback = $(EDITION === 'CN' ? 'Groq Analyst1' : 'Groq Analyst').all();
         if (fallback.some(item => item && item.json && typeof item.json.text === 'string' && item.json.text.trim() === candidateText)) {
-          analysisModel = 'llama-3.3-70b-versatile'; analysisProvider = 'Groq';
+          analysisModel = 'openai/gpt-oss-120b'; analysisProvider = 'Groq';
         }
       } catch (_) { /* fallback was not executed */ }
       if (!analysisModel) { analysisModel = 'gemini-3.6-flash'; analysisProvider = 'Google'; }

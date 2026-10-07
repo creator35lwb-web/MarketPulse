@@ -124,6 +124,9 @@
         960,
         576
       ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
       "onError": "continueRegularOutput"
     },
     {
@@ -437,6 +440,9 @@
         912,
         96
       ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
       "onError": "continueRegularOutput"
     },
     {
@@ -777,7 +783,7 @@
     },
     {
       "parameters": {
-        "model": "llama-3.3-70b-versatile",
+        "model": "openai/gpt-oss-120b",
         "options": {}
       },
       "id": "fb00000-0000-4890-9abc-def00000000c",
@@ -847,7 +853,7 @@
     },
     {
       "parameters": {
-        "model": "llama-3.3-70b-versatile",
+        "model": "openai/gpt-oss-120b",
         "options": {}
       },
       "id": "fb000001-0000-4890-9abc-def00000000c",

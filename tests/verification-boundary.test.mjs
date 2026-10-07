@@ -210,7 +210,7 @@ for (const edition of ['US','CN']) {
   });
   test(`${edition}: fallback provenance comes from executed node, not model self-report`,()=>{
     const a=validAnalysis(edition);const text=JSON.stringify(a);const r=pipeline(edition,a,{context:{$:()=>({all:()=>[{json:{text}}]})}});
-    assert.equal(r.payload.analysisProvider,'Groq');assert.equal(r.payload.analysisModel,'llama-3.3-70b-versatile');
+    assert.equal(r.payload.analysisProvider,'Groq');assert.equal(r.payload.analysisModel,'openai/gpt-oss-120b');
   });
   test(`${edition}: markup in approved qualitative prose is escaped`,()=>{
     const a=validAnalysis(edition);a.claims[0].claim='Equities face <b>pressure</b> & uncertainty.';const r=pipeline(edition,a);

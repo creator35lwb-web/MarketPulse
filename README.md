@@ -37,7 +37,7 @@ The workflow template uses `Asia/Kuala_Lumpur` (UTC+8):
 
 These are execution schedules, not promises that every source contains a new market session. Publication monitoring allows one hour of grace. The weekly summary reads stored records; it does not fetch new market data or call a model.
 
-The template selects Google Gemini `gemini-3.6-flash` with Groq `llama-3.3-70b-versatile` as the fallback. Configure credentials and confirm model availability for your own installation.
+The template selects Google Gemini `gemini-3.6-flash` with Groq `openai/gpt-oss-120b` as the fallback (Groq retired `llama-3.3-70b-versatile` on 2026-08-16). Both analysis chains retry five times, five seconds apart. Configure credentials and confirm model availability for your own installation.
 
 ## Build and check locally
 
