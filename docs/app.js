@@ -17,7 +17,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
   // holds equal. The feedback form is a Google Form (docs/feedback-form.md); its card stays hidden
   // when no form is set.
   var LINKS = {
-    dashboard: 'https://creator35lwb-web.github.io/MarketPulse/',
+    dashboard: 'https://creator35lwb-web.github.io/MoatPillar/',
     channel: 'https://t.me/MoatPillar',
     feedbackForm: 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform',
     feedbackDetailsField: 'entry.857131096',

@@ -116,7 +116,7 @@ for (const edition of ['US','CN']) {
   test(`${edition}: oversized source summary preserves a bounded, complete digest`,()=>{
     const data=groundTruth(edition);data.stockDetails=[];data.watchlistSummary='Long source summary. '.repeat(300);const r=pipeline(edition,validAnalysis(edition),{data});
     assert.ok(r.message.length<=4096);assert.match(r.message,/Digest shortened/);assert.match(r.message,/-2\.00%/);
-    assert.match(r.message,/<a href="https:\/\/creator35lwb-web\.github\.io\/MarketPulse\/">Open Dashboard<\/a>$/);
+    assert.match(r.message,/<a href="https:\/\/creator35lwb-web\.github\.io\/MoatPillar\/">Open Dashboard<\/a>$/);
     assert.equal((r.message.match(/<code>/g)||[]).length,(r.message.match(/<\/code>/g)||[]).length);
     assert.equal((r.message.match(/<i>/g)||[]).length,(r.message.match(/<\/i>/g)||[]).length);
   });

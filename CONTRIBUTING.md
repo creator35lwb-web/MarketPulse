@@ -4,7 +4,7 @@ Contributions should improve the reliability, clarity, or usefulness of the sour
 
 ## Report a problem
 
-Use [GitHub issues](https://github.com/creator35lwb-web/MarketPulse/issues) for reproducible bugs and feature proposals. Include the affected edition, expected and actual behavior, relevant timestamps, n8n/Node versions, and a small sanitized example.
+Use [GitHub issues](https://github.com/creator35lwb-web/MoatPillar/issues) for reproducible bugs and feature proposals. Include the affected edition, expected and actual behavior, relevant timestamps, n8n/Node versions, and a small sanitized example.
 
 Distinguish source fetch, model verification, Telegram delivery, repository publication, and Pages deployment. A stale dashboard alone does not establish that the host is offline or that Telegram failed.
 

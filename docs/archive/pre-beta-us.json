@@ -1,18 +1,11 @@
 {
   "edition": "US",
-  "generatedAt": "2026-10-07T13:40:49.695Z",
+  "generatedAt": "2026-10-08T13:01:49.048Z",
   "trackRecord": {
-    "accuracy": "16/23 (70%) · 7 too flat to judge",
-    "last": "Cautiously Bearish (2026-10-03) → market moved -0.62% → Correct"
+    "accuracy": "15/22 (68%) · 8 too flat to judge",
+    "last": "Cautiously Bearish (2026-10-07) → market moved -0.22% → Too flat to judge"
   },
   "history": [
-    {
-      "date": "2026-07-31",
-      "sentiment": "Cautiously Bearish",
-      "verdict": "PASS",
-      "result": null,
-      "actualChange": null
-    },
     {
       "date": "2026-08-01",
       "sentiment": "Cautiously Bearish",
@@ -31,8 +24,8 @@
       "date": "2026-08-05",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
-      "result": "hit",
-      "actualChange": "-0.26%"
+      "result": null,
+      "actualChange": null
     },
     {
       "date": "2026-08-06",
@@ -211,6 +204,13 @@
     },
     {
       "date": "2026-10-07",
+      "sentiment": "Cautiously Bearish",
+      "verdict": "PASS",
+      "result": "flat",
+      "actualChange": "-0.22%"
+    },
+    {
+      "date": "2026-10-08",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
       "result": null,
