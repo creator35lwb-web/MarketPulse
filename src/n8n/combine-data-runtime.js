@@ -37,6 +37,7 @@ function MP_COMBINE(EDITION, runtime) {
   combined.trackRecordAccuracy = 'Building history';
   combined.trackRecordLast = '';
   combined.trackRecordBaseline = '';
+  combined.trackRecordSince = '';
   try {
     const sd = $getWorkflowStaticData('global');
     const led = (sd.mpLedger && sd.mpLedger[EDITION]) || [];
@@ -46,9 +47,11 @@ function MP_COMBINE(EDITION, runtime) {
     // its marketTime is null, so the trading-day guard skipped scoring forever and
     // orphaned the last real call (CN 2026-07-23), while 'your sentiment was null'
     // leaked into the prompt. Walk back to the most recent stated verdict instead.
+    // The beta (W25): only a call written by this code can be the prior, so the beta's first call
+    // has none, and the beta scorer never grades a call from before the beta.
     let prev = null;
     for (let i = led.length - 1; i >= 0; i--) {
-      if (led[i] && led[i].sentiment) { prev = led[i]; break; }
+      if (led[i] && led[i].sentiment && MP_PHASE.current(led[i])) { prev = led[i]; break; }
     }
     if (prev && prev.date) {
       let t = 'On ' + prev.date + ' your sentiment was ' + prev.sentiment + ' (confidence ' + prev.confidence + '; verification verdict ' + prev.verdict + ').';
@@ -143,7 +146,7 @@ function MP_COMBINE(EDITION, runtime) {
       // non-event: being right that nothing would happen is the whole content of it.
       if ((bullish || bearish) && Math.abs(todayChange) < FLAT_BAND) result = 'flat';
       // session and priorSession record which session graded the call, and which one it was formed on.
-      tr.push({ priorDate: prev.date, scoredDate: new RuntimeDate().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND, session: todaySession, priorSession: priorSession });
+      tr.push({ priorDate: prev.date, scoredDate: new RuntimeDate().toISOString().slice(0, 10), priorSentiment: prev.sentiment, actualChange: todayChangeStr, result: result, gapDays: gapDays, model: (prev.model || null), marketTime: todayMarketTime, band: FLAT_BAND, session: todaySession, priorSession: priorSession, phase: MP_PHASE.CURRENT });
       if (tr.length > 30) tr.splice(0, tr.length - 30);
       // Accuracy counts only days the market actually decided. Flats are surfaced beside
       // the ratio rather than hidden, so the reader can see how many days were unjudgeable.
@@ -162,14 +165,19 @@ function MP_COMBINE(EDITION, runtime) {
     // Scoring and REPORTING are different questions. Whether a new call can be graded
     // today depends on the market; what the record currently says does not. The record
     // is read from the persisted trackRecord, so it is computed here for every run.
-    if (tr.length) {
-      const decided = tr.filter(function (x) { return x.result === 'hit' || x.result === 'miss'; });
+    // The beta (W25): readers see only the grades written by this code. The guards above read
+    // every entry, of any phase, so a session still grades at most one call.
+    const shown = tr.filter(MP_PHASE.current);
+    if (shown.length) {
+      const decided = shown.filter(function (x) { return x.result === 'hit' || x.result === 'miss'; });
       const hits = decided.filter(function (x) { return x.result === 'hit'; }).length;
-      const flats = tr.filter(function (x) { return x.result === 'flat'; }).length;
+      const flats = shown.filter(function (x) { return x.result === 'flat'; }).length;
       combined.trackRecordAccuracy = decided.length
         ? hits + '/' + decided.length + ' (' + Math.round(100 * hits / decided.length) + '%)' + (flats ? ' · ' + flats + ' too flat to judge' : '')
         : (flats ? '0 judged · ' + flats + ' too flat to judge' : 'Building history');
-      const last = tr[tr.length - 1];
+      const last = shown[shown.length - 1];
+      // The call date of the oldest grade shown: the record covers every call made since then.
+      combined.trackRecordSince = shown[0].priorDate || '';
       combined.trackRecordLast = last.priorSentiment + ' (' + last.priorDate + ') → market moved ' + last.actualChange + ' → ' + (last.result === 'hit' ? 'Correct' : last.result === 'flat' ? 'Too flat to judge' : 'Miss');
       // ===== BASE RATE BESIDE THE HIT RATE (W4, 2026-10-08) =====
       // A call that rarely changes scores whatever share of days the market moved its way, so the

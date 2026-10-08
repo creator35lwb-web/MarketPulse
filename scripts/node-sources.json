@@ -11,12 +11,12 @@
   },
   "Combine All Data": {
     "file": "combine-all-data.js",
-    "includes": ["long-term-reading.js", "combine-data-runtime.js"],
+    "includes": ["long-term-reading.js", "record-phase.js", "combine-data-runtime.js"],
     "policy": false
   },
   "Compose Telegram Message": {
     "file": "compose-telegram-message.js",
-    "includes": ["long-term-reading.js", "public-links.js", "compose-telegram-runtime.js"],
+    "includes": ["long-term-reading.js", "public-links.js", "record-phase.js", "compose-telegram-runtime.js"],
     "policy": true
   },
   "Sanitize Error": {
@@ -43,37 +43,37 @@
   },
   "Combine All Data1": {
     "file": "combine-all-data1.js",
-    "includes": ["long-term-reading.js", "combine-data-runtime.js"],
+    "includes": ["long-term-reading.js", "record-phase.js", "combine-data-runtime.js"],
     "policy": false
   },
   "Compose Telegram Message1": {
     "file": "compose-telegram-message1.js",
-    "includes": ["long-term-reading.js", "public-links.js", "compose-telegram-runtime.js"],
+    "includes": ["long-term-reading.js", "public-links.js", "record-phase.js", "compose-telegram-runtime.js"],
     "policy": true
   },
   "Verify AI Analysis": {
     "file": "verify-ai-analysis.js",
-    "includes": ["verify-analysis-runtime.js"],
+    "includes": ["record-phase.js", "verify-analysis-runtime.js"],
     "policy": true
   },
   "Verify AI Analysis1": {
     "file": "verify-ai-analysis1.js",
-    "includes": ["verify-analysis-runtime.js"],
+    "includes": ["record-phase.js", "verify-analysis-runtime.js"],
     "policy": true
   },
   "Prepare Dashboard Data": {
     "file": "prepare-dashboard-data.js",
-    "includes": ["long-term-reading.js", "prepare-dashboard-runtime.js"],
+    "includes": ["long-term-reading.js", "record-phase.js", "prepare-dashboard-runtime.js"],
     "policy": true
   },
   "Prepare Dashboard Data1": {
     "file": "prepare-dashboard-data1.js",
-    "includes": ["long-term-reading.js", "prepare-dashboard-runtime.js"],
+    "includes": ["long-term-reading.js", "record-phase.js", "prepare-dashboard-runtime.js"],
     "policy": true
   },
   "Compose Weekly Report": {
     "file": "compose-weekly-report.js",
-    "includes": ["long-term-reading.js", "public-links.js"],
+    "includes": ["long-term-reading.js", "public-links.js", "record-phase.js"],
     "policy": false
   }
 }

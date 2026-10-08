@@ -8,7 +8,7 @@ function oneLine(s) { return String(s).replace(/\s*\n+\s*/g,' ').trim(); }
 const d = {
   ...Object.fromEntries(MP_POLICY.factKeysFor(EDITION).map(key => [key,'N/A'])),
   gdpYear:'N/A',cpiYear:'N/A',unemploymentYear:'N/A',watchlistSummary:'N/A',
-  trackRecordAccuracy:'Building history',trackRecordLast:'',trackRecordBaseline:'',
+  trackRecordAccuracy:'Building history',trackRecordLast:'',trackRecordBaseline:'',trackRecordSince:'',
   headlinesList:[],headlinesLinks:[],
   ...(isUS ? {
     fearGreedClassification:'Unknown',fearGreedChange1d:'N/A',fearGreedChange1w:'N/A',
@@ -204,7 +204,7 @@ function SENTIMENT_DOT(s) {
 const dateStr = now.toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const fresh = MP_LTR.freshness(EDITION, isUS ? boundaryData.sp500MarketTime : boundaryData.csi300MarketTime, now);
 const freshLine = '🕒 ' + (fresh.closed || fresh.intraday ? '<b>' + esc(fresh.label) + '</b>' : '<i>' + esc(fresh.label) + '</i>');
-const header = '📊 <b>MarketPulse</b> · ' + (isUS ? 'US' : 'China') + ' Daily Brief\n<i>' + esc(dateStr) + '</i>\n' + freshLine + '\n\n';
+const header = '📊 <b>MarketPulse</b> · ' + (isUS ? 'US' : 'China') + ' Daily Brief · <i>' + MP_PHASE.LABEL + '</i>\n<i>' + esc(dateStr) + '</i>\n' + freshLine + '\n\n';
 
 // ===== LONG-TERM READING (US): computed by code before the analyst ran =====
 function longTermSection(r) {
@@ -278,10 +278,13 @@ for (const item of items) {
 }
 const watchlist = watchRows.length ? table(watchRows) : (isNA(d.watchlistSummary) ? '<i>Unavailable today</i>' : '<pre>' + d.watchlistSummary + '</pre>');
 
+// The beta record (W25) names the call date it covers from; the record before the beta is archived.
+const recordSince = MP_PHASE.dateLabel(d.trackRecordSince);
 const trackRecord = '🎯 <b>TRACK RECORD</b> <code>' + d.trackRecordAccuracy + '</code>' +
   (d.trackRecordBaseline ? '\n<i>For comparison, ' + d.trackRecordBaseline + '.</i>' : '') +
   (d.trackRecordLast ? '\n<i>Last: ' + d.trackRecordLast + '</i>' : '') +
-  '\n<i>Short-term reads are graded automatically against what the market did next, never predicted.</i>';
+  '\n<i>' + (recordSince ? MP_PHASE.LABEL + ' record since ' + recordSince + '.' : 'The ' + MP_PHASE.LABEL.toLowerCase() + ' record starts once its first call is graded.') +
+  ' Short-term reads are graded automatically against what the market did next, never predicted.</i>';
 
 const footer = '━━━━━━━━━━━━━━━━━━' +
   (checkedLine ? '\n' + checkedLine : '') +
@@ -303,7 +306,7 @@ if (message.length > 4096) {
   if (message.length > 4096) {
     const sourceValue = key => MP_POLICY.own(evidenceFacts, key) ? esc(evidenceFacts[key]) : 'N/A';
     const sourceStatus = _health && ['OK','DEGRADED','OUTAGE'].includes(_health.status) ? _health.status : 'OUTAGE';
-    message = '📊 <b>MarketPulse Daily Digest (' + EDITION + ')</b>\n📅 ' + dateStr +
+    message = '📊 <b>MarketPulse Daily Digest (' + EDITION + ')</b> · <i>' + MP_PHASE.LABEL + '</i>\n📅 ' + dateStr +
       '\n<b>Source health:</b> ' + sourceStatus +
       '\n' + (isUS ? 'S&amp;P 500' : 'CSI 300') + ': <code>' + sourceValue(isUS ? 'sp500' : 'csi300') + '</code> (' + sourceValue(isUS ? 'sp500Change' : 'csi300Change') + ')' +
       '\nGold: <code>' + sourceValue('gold') + '</code> (' + sourceValue('goldChange') + ')' +

@@ -24,6 +24,8 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     pitch: 'MarketPulse: a free daily US and China market brief for value investors. ' +
       'A long-term reading on fixed rules, and an AI short-term read that cites its data.'
   };
+  // The record published before the beta (W25), archived unchanged by scripts/archive-pre-beta.mjs.
+  var ARCHIVE_URL = 'archive/pre-beta.html';
   var current = 'US';
   var dialog = document.querySelector('.share-dialog');
 
@@ -46,6 +48,10 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     if (!dateStr) return '';
     var d = new Date(dateStr + 'T12:00:00Z');
     return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', timeZone: 'UTC'});
+  }
+  function fmtLongDay(dateStr) {
+    var d = new Date(dateStr + 'T12:00:00Z');
+    return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC'});
   }
   function num(value) { var n = parseFloat(String(value).replace(/[$,%]/g, '')); return isFinite(n) ? n : null; }
 
@@ -370,7 +376,19 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
         baseline.textContent = 'For comparison, ' + data.trackRecord.baseline + '.';
         baseline.hidden = false;
       }
+      // The beta record (W25): where it starts, and the record from before the beta, archived unchanged.
+      if (data.trackRecord.phase === 'beta') {
+        var phaseNote = node.querySelector('.phase-note');
+        phaseNote.textContent = data.trackRecord.since
+          ? 'Beta record since ' + fmtLongDay(data.trackRecord.since) + '. '
+          : 'The beta record starts once its first call is graded. ';
+        var archive = el('a', null, 'See the record from before the beta');
+        archive.href = ARCHIVE_URL;
+        phaseNote.appendChild(archive);
+        phaseNote.hidden = false;
+      }
     }
+    document.querySelector('.beta-tag').hidden = data.trackRecord?.phase !== 'beta';
     var history = data.history || [];
     if (history.length < 2) {
       node.querySelector('.history-empty').hidden = false;

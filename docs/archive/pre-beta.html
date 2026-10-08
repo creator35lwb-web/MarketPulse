@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MarketPulse · Record before the beta</title>
+<meta name="description" content="The track record MarketPulse published before its beta, archived unchanged.">
+<meta name="archive-sources" content="us:42b7445d4b4247fda5a1053f312aa3ba39204b6a cn:963c037ca3c3ce85aae91cb538a22030b12fd4a6">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/brand/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
+<style>
+:root {
+  --bg: #F2F3F5; --surface: #FFFFFF; --rule: #E1E4E9; --text: #121826; --muted: #5B6474;
+  --accent: #8A6A2E; --accent-soft: rgba(138, 106, 46, 0.10); --pos: #1E7A4C; --neg: #B3382F;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "SFMono-Regular", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0D1015; --surface: #141922; --rule: #252C38; --text: #ECE9E2; --muted: #98A1AF;
+    --accent: #CFA75A; --accent-soft: rgba(207, 167, 90, 0.12); --pos: #4CB782; --neg: #E0675C;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 var(--sans); }
+a { color: var(--accent); text-underline-offset: 3px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 48px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 0 18px; margin-bottom: 28px; border-bottom: 1px solid var(--rule); }
+.lockup { display: block; height: 34px; width: auto; max-width: 100%; }
+.lockup.on-dark { display: none; }
+@media (prefers-color-scheme: dark) { .lockup.on-light { display: none; } .lockup.on-dark { display: block; } }
+.kicker { margin: 0 0 6px; color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+h1 { margin: 0 0 12px; font: 600 clamp(28px, 6vw, 40px)/1.15 var(--serif); }
+.lead { margin: 0 0 24px; font-size: 17px; color: var(--muted); }
+.note { margin: 0 0 24px; padding: 14px 16px; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; background: var(--accent-soft); }
+.note h2 { margin: 0 0 6px; font-size: 15px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.card { margin: 0 0 20px; padding: 18px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+.card h2 { margin: 0 0 12px; font: 600 22px/1.2 var(--serif); }
+.summary { display: grid; gap: 10px; margin: 0 0 16px; }
+.summary div { display: grid; gap: 2px; }
+dt { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+dd { margin: 0; }
+.figure { font: 500 19px/1.3 var(--mono); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+caption { text-align: left; color: var(--muted); font-size: 13px; padding-bottom: 6px; }
+th, td { padding: 7px 6px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+td:nth-child(1), td:nth-child(3) { white-space: nowrap; }
+th { color: var(--muted); font-size: 12px; font-weight: 600; }
+td:nth-child(3) { font-family: var(--mono); }
+.result.hit { color: var(--pos); }
+.result.miss { color: var(--neg); }
+.result.flat, .result.none { color: var(--muted); }
+.fine { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+code { font-family: var(--mono); font-size: 0.92em; }
+footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a href="../" aria-label="MarketPulse dashboard">
+      <img class="lockup on-light" src="../assets/brand/lockup.png" alt="" width="661" height="120">
+      <img class="lockup on-dark" src="../assets/brand/lockup-dark.png" alt="" width="661" height="120">
+    </a>
+    <a href="../">Back to the dashboard</a>
+  </header>
+  <main>
+  <p class="kicker">Archive</p>
+  <h1>The record before the beta</h1>
+  <p class="lead">MarketPulse restarts its public track record with its beta. This page keeps the record it published before the beta, unchanged.</p>
+  <section class="note" aria-labelledby="why-title">
+    <h2 id="why-title">Why the record restarts</h2>
+    <p>The beta brings a corrected scorer. Before it, when no new AI call was published for several days, later runs graded the last call again, and a run that started late could grade a call against a session that was still trading. The beta grades each call once, against closed sessions only, and shows beside the hit rate how often the market fell on the same days.</p>
+    <p>The figures below are exactly as published, including any extra grades.</p>
+  </section>
+  <section class="card" aria-labelledby="us-title">
+    <h2 id="us-title">US edition</h2>
+    <dl class="summary">
+      <div><dt>Track record, as last published</dt><dd class="figure">16/23 (70%) · 7 too flat to judge</dd></div>
+      <div><dt>Last graded call</dt><dd>Cautiously Bearish (2026-10-03) → market moved -0.62% → Correct</dd></div>
+      <div><dt>Published</dt><dd>Oct 7, 2026, 21:40 MYT</dd></div>
+    </dl>
+    <div class="table-wrap">
+      <table>
+        <caption>The 30 calls in that publication, newest first</caption>
+        <thead><tr><th scope="col">Call date</th><th scope="col">Short-term read</th><th scope="col">Market move</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+        <tr><td>2026-10-07</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-10-03</td><td>Cautiously Bearish</td><td>-0.62%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-10-01</td><td>Cautiously Bearish</td><td>+0.73%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-09-27</td><td>Cautiously Bearish</td><td>-0.25%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-17</td><td>Cautiously Bearish</td><td>+0.17%</td><td class="result flat">Too flat to judge</td></tr>
+        <tr><td>2026-09-16</td><td>Cautiously Bearish</td><td>-0.45%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-14</td><td>Cautiously Bearish</td><td>-0.45%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-12</td><td>Cautiously Bearish</td><td>-0.48%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-11</td><td>Cautiously Bearish</td><td>+0.86%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-09-05</td><td>Cautiously Bearish</td><td>-0.58%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-02</td><td>Cautiously Bearish</td><td>-0.38%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-01</td><td>Cautiously Bearish</td><td>-0.71%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-31</td><td>Cautiously Bearish</td><td>-0.58%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-30</td><td>Cautiously Bearish</td><td>-0.65%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-28</td><td>Cautiously Bearish</td><td>+0.47%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-27</td><td>Cautiously Bearish</td><td>+0.19%</td><td class="result flat">Too flat to judge</td></tr>
+        <tr><td>2026-08-25</td><td>Cautiously Bearish</td><td>+0.72%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-23</td><td>Cautiously Bearish</td><td>-0.28%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-21</td><td>Cautiously Bearish</td><td>+0.43%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-20</td><td>Cautiously Bearish</td><td>-0.87%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-16</td><td>Cautiously Bearish</td><td>-0.48%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-13</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-08-12</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-08-09</td><td>Cautiously Bearish</td><td>-0.32%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-07</td><td>Cautiously Bearish</td><td>+0.62%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-06</td><td>Cautiously Bearish</td><td>-0.18%</td><td class="result flat">Too flat to judge</td></tr>
+        <tr><td>2026-08-05</td><td>Cautiously Bearish</td><td>-0.26%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-04</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-08-01</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-31</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">One row per call. Where a call was graded more than once, its row shows the last grade, while the figure above counts every grade, as published.</p>
+    <p class="fine">The figure and the calls are copied exactly from <code>docs/data/latest-us.json</code> at commit <a href="https://github.com/creator35lwb-web/MarketPulse/blob/42b7445d4b4247fda5a1053f312aa3ba39204b6a/docs/data/latest-us.json">42b7445</a>, which keeps the full publication. Archived copy of the record: <a href="pre-beta-us.json">pre-beta-us.json</a>.</p>
+  </section>
+  <section class="card" aria-labelledby="cn-title">
+    <h2 id="cn-title">China edition</h2>
+    <dl class="summary">
+      <div><dt>Track record, as last published</dt><dd class="figure">4/16 (25%) · 1 too flat to judge</dd></div>
+      <div><dt>Last graded call</dt><dd>Cautiously Bearish (2026-09-28) → market moved +0.29% → Miss</dd></div>
+      <div><dt>Published</dt><dd>Oct 7, 2026, 16:30 MYT</dd></div>
+    </dl>
+    <div class="table-wrap">
+      <table>
+        <caption>The 26 calls in that publication, newest first</caption>
+        <thead><tr><th scope="col">Call date</th><th scope="col">Short-term read</th><th scope="col">Market move</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+        <tr><td>2026-09-30</td><td>Cautiously Bullish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-09-28</td><td>Cautiously Bearish</td><td>+0.29%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-09-17</td><td>Neutral</td><td>+0.71%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-09-08</td><td>Neutral</td><td>-0.84%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-09-07</td><td>Neutral</td><td>-0.36%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-09-04</td><td>Cautiously Bullish</td><td>+0.59%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-08-31</td><td>Cautiously Bullish</td><td>-0.10%</td><td class="result flat">Too flat to judge</td></tr>
+        <tr><td>2026-08-24</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-08-12</td><td>Neutral</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-08-11</td><td>Cautiously Bearish</td><td>+0.58%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-10</td><td>Cautiously Bullish</td><td>-0.81%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-08-05</td><td>Cautiously Bullish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-30</td><td>Neutral</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-29</td><td>Cautiously Bullish</td><td>-1.10%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-28</td><td>Neutral</td><td>+0.67%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-27</td><td>Cautiously Bullish</td><td>-2.83%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-24</td><td>n/a</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-23</td><td>Cautiously Bullish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-22</td><td>Cautiously Bullish</td><td>+0.23%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-07-21</td><td>Bullish</td><td>-0.46%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-20</td><td>Cautiously Bullish</td><td>+3.06%</td><td class="result hit">Correct</td></tr>
+        <tr><td>2026-07-17</td><td>Bearish</td><td>+1.53%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-16</td><td>Neutral</td><td>-3.60%</td><td class="result miss">Missed</td></tr>
+        <tr><td>2026-07-15</td><td>n/a</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-13</td><td>Cautiously Bearish</td><td>—</td><td class="result none">Not graded</td></tr>
+        <tr><td>2026-07-10</td><td>Cautiously Bullish</td><td>-1.79%</td><td class="result miss">Missed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">One row per call. Where a call was graded more than once, its row shows the last grade, while the figure above counts every grade, as published.</p>
+    <p class="fine">The figure and the calls are copied exactly from <code>docs/data/latest-cn.json</code> at commit <a href="https://github.com/creator35lwb-web/MarketPulse/blob/963c037ca3c3ce85aae91cb538a22030b12fd4a6/docs/data/latest-cn.json">963c037</a>, which keeps the full publication. Archived copy of the record: <a href="pre-beta-cn.json">pre-beta-cn.json</a>.</p>
+  </section>
+  <p class="fine">Every earlier publication is in the repository's history: <a href="https://github.com/creator35lwb-web/MarketPulse/commits/main/docs/data/latest-us.json">US</a> · <a href="https://github.com/creator35lwb-web/MarketPulse/commits/main/docs/data/latest-cn.json">China</a>.</p>
+  </main>
+  <footer>Information only, not financial advice.</footer>
+</div>
+</body>
+</html>

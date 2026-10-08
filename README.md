@@ -80,6 +80,6 @@ Importing a workflow does not configure credentials, deploy Pages, or prove deli
 | `tests/` | Offline boundary, producer, source, dashboard, and monitor checks |
 | `MarketPulse-Secure/workflows/archive/` | Historical exports; not the current import target |
 
-The displayed track record is a retrospective comparison of stored sentiment with later benchmark movement. It is not a trading return, a forecast guarantee, or a measure of all commentary accuracy. Historical entries may use earlier scoring or verification rules.
+The displayed track record is a retrospective comparison of stored sentiment with later benchmark movement. It is not a trading return, a forecast guarantee, or a measure of all commentary accuracy. From the beta onward, it counts only calls made and graded under the current rules. The record published before the beta is archived unchanged in [`docs/archive/pre-beta.html`](https://creator35lwb-web.github.io/MarketPulse/archive/pre-beta.html); `scripts/archive-pre-beta.mjs` copies it byte for byte from the repository history.
 
 Read [Architecture](docs/ARCHITECTURE.md) for the publication contract and [Contributing](CONTRIBUTING.md) for development guidance. MarketPulse is informational software, not financial advice.

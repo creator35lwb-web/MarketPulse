@@ -140,6 +140,19 @@ button { font: inherit; color: inherit; }
 }
 :root[data-theme="dark"] .brand-lockup.on-light { display: none; }
 :root[data-theme="dark"] .brand-lockup.on-dark { display: block; }
+/* Shown while the record is in its beta phase (W25). */
+.beta-tag {
+  flex: 0 0 auto;
+  margin-left: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: 600 var(--fs-micro)/1.2 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .edition-toggle {
   display: flex;
@@ -467,7 +480,7 @@ section.card > .card-title { margin-bottom: 12px; }
 /* ---------- Track record ---------- */
 
 .accuracy { font-family: var(--mono); font-size: var(--fs-lg); color: var(--text); }
-.record-note, .last { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.record-note, .phase-note, .last { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
 .baseline {
   margin: 0 0 10px;
   padding: 8px 12px;

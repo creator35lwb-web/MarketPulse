@@ -53,12 +53,13 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate,
     ? analysis.claims.map(claim => ({text:claim.claim,basedOn:claim.basedOn || [],direction:claim.direction || 'neutral'}))
     : [];
 
-  // Read existing observations and scores without modifying ledger state.
+  // Read existing observations and scores without modifying ledger state. The beta record only
+  // (W25): the strip starts with the beta's first call.
   function buildHistory() {
     try {
       const state = $getWorkflowStaticData('global');
-      const ledger = (state.mpLedger && state.mpLedger[EDITION]) || [];
-      const scores = (state.mpTrackRecord && state.mpTrackRecord[EDITION]) || [];
+      const ledger = ((state.mpLedger && state.mpLedger[EDITION]) || []).filter(MP_PHASE.current);
+      const scores = ((state.mpTrackRecord && state.mpTrackRecord[EDITION]) || []).filter(MP_PHASE.current);
       const scoredByPriorDate = {};
       for (const score of scores) scoredByPriorDate[score.priorDate] = score;
       return ledger.map(entry => {
@@ -112,7 +113,8 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate,
     screener:availableScreener,
     economic:economic.filter(row => MP_POLICY.own(facts, row.factKey)),
     watchlist:d.watchlistSummary || '',
-    trackRecord:{accuracy:d.trackRecordAccuracy || 'Building history',last:d.trackRecordLast || '',baseline:d.trackRecordBaseline || ''},
+    trackRecord:{accuracy:d.trackRecordAccuracy || 'Building history',last:d.trackRecordLast || '',baseline:d.trackRecordBaseline || '',
+      phase:MP_PHASE.CURRENT,since:d.trackRecordSince || ''},
     history,
     analysisModel:analysis ? (d._analysisModel || null) : null,
     analysisProvider:analysis ? (d._analysisProvider || null) : null,

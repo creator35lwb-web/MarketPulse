@@ -9,7 +9,7 @@ for (const edition of ['US', 'CN']) {
   const run = (data, state = {}) => runNode(node, [{ json: data }], { state })[0].json;
   const priorState = (data, extra = {}) => ({
     mpLedger: { [edition]: [{ date: '2026-09-09', sentiment: 'Bearish', confidence: 'High', verdict: 'PASS',
-      marketTime: data[benchmark + 'MarketTime'] - 86400, claims: [], ...extra }] },
+      marketTime: data[benchmark + 'MarketTime'] - 86400, claims: [], phase: 'beta', ...extra }] },
     mpTrackRecord: { [edition]: [] },
   });
 
@@ -77,7 +77,8 @@ const clockAt = iso => class extends Date {
   static now() { return Date.parse(iso); }
 };
 const runAt = (node, state, now, data) => runNode(node, [{ json: data }], { state, context: { Date: clockAt(now) } })[0].json;
-const call = (date, marketTime) => ({ date, sentiment: 'Cautiously Bearish', confidence: 'High', verdict: 'PASS', marketTime, claims: [] });
+// Calls written by the current code carry the beta phase (W25); tests/beta-record.test.mjs covers older calls.
+const call = (date, marketTime) => ({ date, sentiment: 'Cautiously Bearish', confidence: 'High', verdict: 'PASS', marketTime, claims: [], phase: 'beta' });
 
 test('US replay of 2026-10-03 to 10-08: the Oct 3 call is graded once, on the Monday close, never on a late wake', () => {
   // The AI layer was down from Oct 4 to Oct 6, so no newer call was written.
@@ -111,13 +112,13 @@ test('a run during trading waits for the close, for both exchanges', () => {
   }
 });
 
-test('a session grades one call, including sessions recorded before the session field existed', () => {
-  // An older entry, without a session field, already graded the Sep 9 close.
+test('a session grades one call, including sessions graded before the session field and the beta existed', () => {
+  // An older entry, without a session field or a phase, already graded the Sep 9 close.
   const state = {
     mpLedger: { US: [call('2026-09-09', at('2026-09-08T20:00:00Z'))] },
     mpTrackRecord: { US: [{ priorDate: '2026-09-08', scoredDate: '2026-09-09', priorSentiment: 'Bearish', actualChange: '-1.00%', result: 'hit', marketTime: at('2026-09-09T20:00:00Z'), band: 0.25 }] },
   };
   const result = runAt('combine-all-data', state, '2026-09-10T13:00:00Z', { ...groundTruth('US'), sp500Change: '-1.00%', sp500MarketTime: at('2026-09-09T20:00:00Z') });
   assert.equal(state.mpTrackRecord.US.length, 1);
-  assert.equal(result.trackRecordAccuracy, '1/1 (100%)', 'the record still reads from the stored history');
+  assert.equal(result.trackRecordAccuracy, 'Building history', 'a grade from before the beta blocks the session but is not shown');
 });

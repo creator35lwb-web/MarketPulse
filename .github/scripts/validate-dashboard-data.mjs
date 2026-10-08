@@ -16,6 +16,7 @@ const record = value => value !== null && typeof value === 'object' && !Array.is
   && [Object.prototype, null].includes(Object.getPrototypeOf(value));
 const nonempty = (value, max = 2000) => typeof value === 'string' && !!value.trim() && value.length <= max;
 const validKey = value => typeof value === 'string' && KEY.test(value) && !FORBIDDEN.has(value);
+const isoDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value + 'T00:00:00Z'));
 
 // Raw-byte hashes at b2997c45c123a09920b406b81e2ce4bfea9e9827, explicitly listing
 // Git's LF bytes and Windows autocrlf checkouts. No other content/whitespace is exempt.
@@ -180,6 +181,11 @@ export function validateDashboardData(data, { edition, now = Date.now() } = {}) 
     // Optional since W4: the base rate on the same judged days, as plain text.
     if (data.trackRecord.baseline !== undefined && (typeof data.trackRecord.baseline !== 'string' || data.trackRecord.baseline.length > 200)) {
       fail('trackRecord.baseline', 'must be a string of at most 200 characters');
+    }
+    // Optional since W25: the record's phase, and the call date the shown record starts from.
+    if (data.trackRecord.phase !== undefined && data.trackRecord.phase !== 'beta') fail('trackRecord.phase', 'must be "beta" when present');
+    if (data.trackRecord.since !== undefined && !(data.trackRecord.since === '' || isoDate(data.trackRecord.since))) {
+      fail('trackRecord.since', 'must be an empty string or an ISO date');
     }
   }
   if (data.history !== undefined) {
