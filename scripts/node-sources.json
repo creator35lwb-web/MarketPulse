@@ -25,6 +25,7 @@
   },
   "Compose Status Message": {
     "file": "compose-status-message.js",
+    "includes": ["public-links.js"],
     "policy": false
   },
   "Confirmation": {

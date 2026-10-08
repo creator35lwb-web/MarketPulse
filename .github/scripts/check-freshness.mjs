@@ -207,7 +207,7 @@ export async function validateTelegram(token, fetchImpl = fetch) {
   const clean = cleanTelegramToken(token);
   if (!clean) throw new Error('Telegram token is not configured');
   const me = await telegramRequest(clean, 'getMe', {}, fetchImpl);
-  const chat = await telegramRequest(clean, 'getChat', { chat_id: '@n8nMarketPulse' }, fetchImpl);
+  const chat = await telegramRequest(clean, 'getChat', { chat_id: '@MoatPillar' }, fetchImpl);
   if (!me || !chat) throw new Error('Telegram credential read-access check failed');
   console.log('Telegram token and channel read access verified; posting permission was not tested.');
 }
@@ -257,7 +257,7 @@ https://creator35lwb-web.github.io/MarketPulse/`);
       continue;
     }
     const sent = await telegramRequest(token, 'sendMessage', {
-      chat_id: '@n8nMarketPulse', text: notice, disable_web_page_preview: true,
+      chat_id: '@MoatPillar', text: notice, disable_web_page_preview: true,
     }, fetchImpl);
     console.log(sent ? 'Telegram dashboard status notice accepted.' : 'Telegram status notice failed; the issue remains the record.');
   }

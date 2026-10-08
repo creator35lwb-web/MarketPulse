@@ -19,6 +19,9 @@ test('the favicons and touch icon exist at their declared sizes, with an SVG fav
   }
   assert.match(html, /<link rel="icon" type="image\/svg\+xml" href="assets\/brand\/mark-small\.svg">/);
   assert.deepEqual(png('assets/brand/channel-photo.png'), {width:640, height:640}, 'the Telegram channel photo');
+  // GitHub's social preview: 1280x640 is its recommended size, and uploads are capped at 1 MB.
+  assert.deepEqual(png('assets/brand/github-social-preview.png'), {width:1280, height:640}, 'the GitHub social preview');
+  assert.ok(readFileSync(new URL('../docs/assets/brand/github-social-preview.png', import.meta.url)).length < 1024 * 1024);
 });
 
 test('the top bar shows the seal and the name as text, and the old lockup images are gone', () => {

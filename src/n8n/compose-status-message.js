@@ -103,7 +103,8 @@ const messages = {
     '',
     'We apologize for the inconvenience. MoatPillar is temporarily unavailable at this time, as our team is currently offline. Service will resume as soon as we are back online.',
     '',
-    'If you have an urgent question or need a quick response in the meantime, please feel free to reach us here: https://github.com/YOUR_GITHUB_USERNAME/MarketPulse/issues',
+    // From the shared links module, so the address follows a repository rename (and a fork).
+    'If you have an urgent question or need a quick response in the meantime, please feel free to reach us here: ' + MP_LINKS.REPOSITORY + '/issues',
     '',
     'Thank you for your patience. We will be back shortly.',
   ]

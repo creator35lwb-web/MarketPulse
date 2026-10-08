@@ -18,7 +18,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
   // when no form is set.
   var LINKS = {
     dashboard: 'https://creator35lwb-web.github.io/MarketPulse/',
-    channel: 'https://t.me/n8nMarketPulse',
+    channel: 'https://t.me/MoatPillar',
     feedbackForm: 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform',
     feedbackDetailsField: 'entry.857131096',
     pitch: 'MoatPillar: a free daily US and China market brief for value investors. ' +
