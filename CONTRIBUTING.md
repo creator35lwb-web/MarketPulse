@@ -1,4 +1,4 @@
-# Contributing to MarketPulse
+# Contributing to MoatPillar
 
 Contributions should improve the reliability, clarity, or usefulness of the source-attributed market digest. Read the [project overview](README.md) and [architecture](docs/ARCHITECTURE.md) before changing the publication path.
 

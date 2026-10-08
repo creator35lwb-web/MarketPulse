@@ -1,4 +1,4 @@
-// The phase of the public record (W25). MarketPulse restarted its track record as a beta when the
+// The phase of the public record (W25). MoatPillar restarted its track record as a beta when the
 // launch bundle went live. Calls and grades written by this code carry the phase, and readers see
 // only the current phase's record. The record published before the beta is archived unchanged in
 // docs/archive/; older entries stay in staticData until the 30-entry windows roll them out.

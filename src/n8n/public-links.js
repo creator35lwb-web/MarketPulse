@@ -11,7 +11,7 @@ const MP_LINKS = (() => {
   // that empties them shows no feedback link.
   const FEEDBACK_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform';
   const FEEDBACK_DETAILS_FIELD = 'entry.857131096';
-  const PITCH = 'MarketPulse: a free daily US and China market brief for value investors. ' +
+  const PITCH = 'MoatPillar: a free daily US and China market brief for value investors. ' +
     'A long-term reading on fixed rules, and an AI short-term read that cites its data.';
 
   const EDITION_HASH = {US: '#us', CN: '#cn'};

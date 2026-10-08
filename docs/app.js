@@ -21,7 +21,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
     channel: 'https://t.me/n8nMarketPulse',
     feedbackForm: 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform',
     feedbackDetailsField: 'entry.857131096',
-    pitch: 'MarketPulse: a free daily US and China market brief for value investors. ' +
+    pitch: 'MoatPillar: a free daily US and China market brief for value investors. ' +
       'A long-term reading on fixed rules, and an AI short-term read that cites its data.'
   };
   // The record published before the beta (W25), archived unchanged by scripts/archive-pre-beta.mjs.
@@ -448,7 +448,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
       node.querySelector('.feedback-link').href = feedback;
       node.querySelector('.feedback-card').hidden = false;
     } else node.querySelector('.connect-grid').classList.add('is-single');
-    document.title = 'MarketPulse — ' + (data.edition === 'CN' ? 'China' : 'US') + ' Brief';
+    document.title = 'MoatPillar — ' + (data.edition === 'CN' ? 'China' : 'US') + ' Brief';
     app.appendChild(node);
     wireInteraction();
   }
@@ -540,7 +540,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + u,
       x: 'https://x.com/intent/tweet?text=' + t + '&url=' + u,
       linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=' + u,
-      email: 'mailto:?subject=' + encodeURIComponent('MarketPulse · daily market brief') + '&body=' + encodeURIComponent(text + '\n\n' + url)
+      email: 'mailto:?subject=' + encodeURIComponent('MoatPillar · daily market brief') + '&body=' + encodeURIComponent(text + '\n\n' + url)
     };
   }
   function openShare() {
