@@ -15,12 +15,12 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
 
   // Public links: the same values as src/n8n/public-links.js, which tests/share-feedback.test.mjs
   // holds equal. The feedback form is a Google Form (docs/feedback-form.md); its card stays hidden
-  // until the form is set.
+  // when no form is set.
   var LINKS = {
     dashboard: 'https://creator35lwb-web.github.io/MarketPulse/',
     channel: 'https://t.me/n8nMarketPulse',
-    feedbackForm: '',
-    feedbackDetailsField: '',
+    feedbackForm: 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform',
+    feedbackDetailsField: 'entry.857131096',
     pitch: 'MarketPulse: a free daily US and China market brief for value investors. ' +
       'A long-term reading on fixed rules, and an AI short-term read that cites its data.'
   };
@@ -423,7 +423,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
 
     node.querySelector('.sources').textContent = 'Sources: ' + (data.sources || []).join(', ');
 
-    // Join, share and feedback. The feedback card appears only once the form exists.
+    // Join, share and feedback. The feedback card appears only when a form is set.
     node.querySelector('.channel-link').href = LINKS.channel;
     var feedback = feedbackUrl(['dashboard', data.edition, mytDate(data.generatedAt)].filter(Boolean).join(' · '));
     if (feedback) {
