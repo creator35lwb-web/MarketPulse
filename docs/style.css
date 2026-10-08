@@ -1,5 +1,5 @@
 /* ============================================================
-   MarketPulse — research-note design system
+   MoatPillar — research-note design system
    Layout: one reading column. The long-term reading leads as the
    page's single statement piece; context, the AI short-term read,
    and the source tables follow in order of how slowly they change.
@@ -130,16 +130,17 @@ button { font: inherit; color: inherit; }
   margin-bottom: 28px;
   border-bottom: 1px solid var(--rule);
 }
-.brand { display: inline-flex; align-items: center; text-decoration: none; min-width: 0; }
-/* The channel's logo as a horizontal lockup; the dark-theme file lifts the navy so it reads on dark. */
-.brand-lockup { display: block; height: 34px; width: auto; max-width: 100%; }
-.brand-lockup.on-dark { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .brand-lockup.on-light { display: none; }
-  :root:not([data-theme="light"]) .brand-lockup.on-dark { display: block; }
+.brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; min-width: 0; }
+/* The MoatPillar seal (a pillar standing in its moat) beside the name in the display serif.
+   "Pillar" takes the accent, so the name follows the light and dark themes on its own. */
+.brand-mark { display: block; flex: 0 0 auto; width: 40px; height: 40px; }
+.brand-name {
+  font: 600 27px/1 var(--display);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
 }
-:root[data-theme="dark"] .brand-lockup.on-light { display: none; }
-:root[data-theme="dark"] .brand-lockup.on-dark { display: block; }
+.brand-name span { color: var(--accent); }
 /* Shown while the record is in its beta phase (W25). */
 .beta-tag {
   flex: 0 0 auto;
@@ -628,5 +629,7 @@ section.card > .card-title { margin-bottom: 12px; }
   .card, .reading-card { padding: 16px; }
   .band-labels { font-size: 10.5px; }
   .share-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .brand-lockup { height: 28px; }
+  .brand { gap: 9px; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-name { font-size: 23px; }
 }

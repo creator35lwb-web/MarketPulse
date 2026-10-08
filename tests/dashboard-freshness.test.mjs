@@ -126,6 +126,15 @@ test('title parsing is exact and cannot confuse partial dates or combined editio
   assert.equal(parseAlertTitle('⚠️ MarketPulse digest missing — US + CN — 2026-09-10'), null);
 });
 
+test('alerts filed before the rename to MoatPillar still match, so they close and are not filed twice', () => {
+  assert.match(issueTitle('US', '2026-10-12'), /^⚠️ MoatPillar dashboard publication stale — US — 2026-10-12$/);
+  const before = '⚠️ MarketPulse dashboard publication stale — CN — 2026-10-09';
+  assert.deepEqual(parseAlertTitle(before), { label: 'CN', date: '2026-10-09' });
+  const issue = { ...botIssue(9, 'CN', '2026-10-09'), title: before };
+  const stale = { label: 'CN', valid: false, stale: true, expectedDate: '2026-10-09' };
+  assert.equal(planReconciliation([stale], [issue]).create.length, 0, 'the old-title alert still counts for its date');
+});
+
 test('issue text distinguishes repository publication from host, Telegram, and website health', () => {
   const result = checkEdition('us', null, at('2026-09-10T14:00:00Z'));
   assert.match(issueBody(result), /does not establish host availability, Telegram delivery/);

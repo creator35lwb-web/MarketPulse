@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MoatPillar">
+  <defs>
+    <linearGradient id="mp-sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1D4275"/>
+      <stop offset="1" stop-color="#0E2546"/>
+    </linearGradient>
+    <linearGradient id="mp-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8C76F"/>
+      <stop offset="1" stop-color="#B8892D"/>
+    </linearGradient>
+  </defs>
+  <!-- The seal: a navy disc with a thin gold rim. -->
+  <circle cx="256" cy="256" r="248" fill="url(#mp-sea)"/>
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#C9A24A" stroke-width="5" opacity="0.85"/>
+  <!-- The pillar: abacus, echinus, neck, a tapered fluted shaft, and a two-step base. -->
+  <g fill="url(#mp-gold)">
+    <rect x="174" y="92" width="164" height="24" rx="4"/>
+    <path d="M186 116H326L311 136H201Z"/>
+    <rect x="206" y="136" width="100" height="10" rx="2"/>
+    <path d="M213 146H299L303 344H209Z"/>
+    <rect x="200" y="344" width="112" height="14" rx="7"/>
+    <rect x="184" y="358" width="144" height="22" rx="3"/>
+  </g>
+  <!-- Flutes, cut into the shaft. -->
+  <g fill="#173763">
+    <rect x="232" y="158" width="8" height="174" rx="4"/>
+    <rect x="252" y="158" width="8" height="174" rx="4"/>
+    <rect x="272" y="158" width="8" height="174" rx="4"/>
+  </g>
+  <!-- The moat: two lines of calm water at the pillar's foot. -->
+  <g fill="none" stroke="url(#mp-gold)" stroke-width="11" stroke-linecap="round">
+    <path d="M116 408q20-9 40 0t40 0t40 0t40 0t40 0t40 0t40 0"/>
+    <path d="M156 436q20-9 40 0t40 0t40 0t40 0t40 0"/>
+  </g>
+</svg>

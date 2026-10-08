@@ -70,7 +70,7 @@ test('deploy replay: the beta ignores the calls before it, then grades its own f
 test('both editions label every post as the beta', () => {
   for (const edition of ['US', 'CN']) {
     const r = pipeline(edition, validAnalysis(edition));
-    assert.match(r.message, new RegExp('^📊 <b>MarketPulse</b> · ' + (edition === 'US' ? 'US' : 'China') + ' Daily Brief · <i>Beta</i>\\n'));
+    assert.match(r.message, new RegExp('^🏛️ <b>MoatPillar</b> · ' + (edition === 'US' ? 'US' : 'China') + ' Daily Brief · <i>Beta</i>\\n'));
     assert.equal(r.state.mpLedger[edition][0].phase, 'beta');
   }
 });
@@ -79,7 +79,7 @@ test('the weekly report restates the beta record only', () => {
   // The fixture clock is 2026-09-10 20:00 in Malaysia, so the week runs Sep 3 to Sep 9.
   const old = {mpLedger: {US: [preBetaCall('2026-09-04', 1)], CN: []}, mpTrackRecord: {US: [preBetaGrade('2026-09-04', '-1.00%', 'hit')], CN: []}};
   const message = runNode('compose-weekly-report', [], {state: old})[0].json.message;
-  assert.match(message, /^📅 <b>MarketPulse Weekly — Sep 3–9, 2026<\/b> · <i>Beta<\/i>/);
+  assert.match(message, /^📅 <b>MoatPillar Weekly — Sep 3–9, 2026<\/b> · <i>Beta<\/i>/);
   assert.match(message, /🇺🇸 <b>US edition<\/b>\nNo calls on the beta record this week\./);
   assert.doesNotMatch(message, /Calls made|All-time/);
 });

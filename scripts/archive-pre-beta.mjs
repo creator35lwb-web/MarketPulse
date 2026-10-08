@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Archives the record MarketPulse published before its beta (W25).
+// Archives the record MoatPillar (then MarketPulse) published before its beta (W25).
 //
 // For each edition, finds the newest published version of docs/data/latest-<ed>.json written
 // before the beta (one whose trackRecord has no phase), copies its record fields exactly to
@@ -76,9 +76,10 @@ export function renderPage(archives) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MarketPulse · Record before the beta</title>
-<meta name="description" content="The track record MarketPulse published before its beta, archived unchanged.">
+<title>MoatPillar · Record before the beta</title>
+<meta name="description" content="The track record MoatPillar, then called MarketPulse, published before its beta, archived unchanged.">
 <meta name="archive-sources" content="${esc(sources)}">
+<link rel="icon" type="image/svg+xml" href="../assets/brand/mark-small.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/brand/favicon-32.png">
 <link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
 <style>
@@ -102,9 +103,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 var
 a { color: var(--accent); text-underline-offset: 3px; }
 .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 48px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 0 18px; margin-bottom: 28px; border-bottom: 1px solid var(--rule); }
-.lockup { display: block; height: 34px; width: auto; max-width: 100%; }
-.lockup.on-dark { display: none; }
-@media (prefers-color-scheme: dark) { .lockup.on-light { display: none; } .lockup.on-dark { display: block; } }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand img { display: block; width: 36px; height: 36px; }
+.brand-name { font: 600 24px/1 var(--serif); color: var(--text); white-space: nowrap; }
+.brand-name span { color: var(--accent); }
 .kicker { margin: 0 0 6px; color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 h1 { margin: 0 0 12px; font: 600 clamp(28px, 6vw, 40px)/1.15 var(--serif); }
 .lead { margin: 0 0 24px; font-size: 17px; color: var(--muted); }
@@ -137,16 +139,16 @@ footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
 <body>
 <div class="wrap">
   <header class="topbar">
-    <a href="../" aria-label="MarketPulse dashboard">
-      <img class="lockup on-light" src="../assets/brand/lockup.png" alt="" width="661" height="120">
-      <img class="lockup on-dark" src="../assets/brand/lockup-dark.png" alt="" width="661" height="120">
+    <a class="brand" href="../" aria-label="MoatPillar dashboard">
+      <img src="../assets/brand/mark.svg" alt="" width="36" height="36">
+      <span class="brand-name">Moat<span>Pillar</span></span>
     </a>
     <a href="../">Back to the dashboard</a>
   </header>
   <main>
   <p class="kicker">Archive</p>
   <h1>The record before the beta</h1>
-  <p class="lead">MarketPulse restarts its public track record with its beta. This page keeps the record it published before the beta, unchanged.</p>
+  <p class="lead">MoatPillar, called MarketPulse until its beta, restarts its public track record with the beta. This page keeps the record published before the beta, unchanged.</p>
   <section class="note" aria-labelledby="why-title">
     <h2 id="why-title">Why the record restarts</h2>
     <p>The beta brings a corrected scorer. Before it, when no new AI call was published for several days, later runs graded the last call again, and a run that started late could grade a call against a session that was still trading. The beta grades each call once, against closed sessions only, and shows beside the hit rate how often the market fell on the same days.</p>

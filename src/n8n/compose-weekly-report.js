@@ -111,7 +111,7 @@ try {
 } catch (_) { longTerm = ''; }
 
 const message = [
-  '📅 <b>MarketPulse Weekly — ' + fmtRange(startISO, endISO) + '</b> · <i>' + MP_PHASE.LABEL + '</i>',
+  '📅 <b>MoatPillar Weekly — ' + fmtRange(startISO, endISO) + '</b> · <i>' + MP_PHASE.LABEL + '</i>',
   '<i>Every line restates a dated, verified record from the public ledger — including the misses. Nothing is recalled from memory.</i>',
   ...(longTerm ? [longTerm] : []),
   sections.join('\n\n'),

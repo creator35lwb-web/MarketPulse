@@ -43,7 +43,7 @@ let _health = null;
 for (const item of items) { if (item.json && item.json._health) _health = item.json._health; }
 let healthBanner = '';
 if (_health && _health.status === 'OUTAGE') {
-  healthBanner = `🚨 <b>DATA OUTAGE</b> - most live sources failed to load today.\nValues below may be missing/stale (${esc((_health.missing || []).join(', '))}).\nCheck n8n logs (tag: MarketPulse FETCH-FAIL).\n\n`;
+  healthBanner = `🚨 <b>DATA OUTAGE</b> - most live sources failed to load today.\nValues below may be missing/stale (${esc((_health.missing || []).join(', '))}).\n\n`;
 } else if (_health && _health.status === 'DEGRADED') {
   healthBanner = `⚠️ <b>PARTIAL DATA</b> - some sources unavailable: ${esc((_health.missing || []).join(', '))}.\n\n`;
 }
@@ -204,7 +204,7 @@ function SENTIMENT_DOT(s) {
 const dateStr = now.toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const fresh = MP_LTR.freshness(EDITION, isUS ? boundaryData.sp500MarketTime : boundaryData.csi300MarketTime, now);
 const freshLine = '🕒 ' + (fresh.closed || fresh.intraday ? '<b>' + esc(fresh.label) + '</b>' : '<i>' + esc(fresh.label) + '</i>');
-const header = '📊 <b>MarketPulse</b> · ' + (isUS ? 'US' : 'China') + ' Daily Brief · <i>' + MP_PHASE.LABEL + '</i>\n<i>' + esc(dateStr) + '</i>\n' + freshLine + '\n\n';
+const header = '🏛️ <b>MoatPillar</b> · ' + (isUS ? 'US' : 'China') + ' Daily Brief · <i>' + MP_PHASE.LABEL + '</i>\n<i>' + esc(dateStr) + '</i>\n' + freshLine + '\n\n';
 
 // ===== LONG-TERM READING (US): computed by code before the analyst ran =====
 function longTermSection(r) {
@@ -306,7 +306,7 @@ if (message.length > 4096) {
   if (message.length > 4096) {
     const sourceValue = key => MP_POLICY.own(evidenceFacts, key) ? esc(evidenceFacts[key]) : 'N/A';
     const sourceStatus = _health && ['OK','DEGRADED','OUTAGE'].includes(_health.status) ? _health.status : 'OUTAGE';
-    message = '📊 <b>MarketPulse Daily Digest (' + EDITION + ')</b> · <i>' + MP_PHASE.LABEL + '</i>\n📅 ' + dateStr +
+    message = '🏛️ <b>MoatPillar Daily Brief (' + EDITION + ')</b> · <i>' + MP_PHASE.LABEL + '</i>\n📅 ' + dateStr +
       '\n<b>Source health:</b> ' + sourceStatus +
       '\n' + (isUS ? 'S&amp;P 500' : 'CSI 300') + ': <code>' + sourceValue(isUS ? 'sp500' : 'csi300') + '</code> (' + sourceValue(isUS ? 'sp500Change' : 'csi300Change') + ')' +
       '\nGold: <code>' + sourceValue('gold') + '</code> (' + sourceValue('goldChange') + ')' +

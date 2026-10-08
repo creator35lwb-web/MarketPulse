@@ -6,6 +6,7 @@ The **Feedback** button under each Telegram post, and the **Give feedback** butt
 - Short link, for posts and messages: https://forms.gle/UPscnXPE8oKkDHHx5
 - Question 5 is `entry.857131096`. The buttons fill it in.
 - The dashboard card appears with the Pages deploy of this change. The Telegram button switches from the dashboard to the form with the next workflow deploy.
+- **Rename (W26):** the live form still says MarketPulse. Edit its title, description and questions 1 and 2 to the MoatPillar wording below. Editing the text keeps the form's address and question IDs, so no link changes.
 
 To replace the form, set the two values from the new form's pre-filled link, `FEEDBACK_FORM` and `FEEDBACK_DETAILS_FIELD`:
 - in `src/n8n/public-links.js`
@@ -22,19 +23,19 @@ To replace the form, set the two values from the new form's pre-filled link, `FE
 
 ## Title and description
 
-**Title:** MarketPulse · Feedback
+**Title:** MoatPillar · Feedback
 
 **Description:**
 - Four quick questions; about a minute.
 - Anonymous: please don't include your name, phone number or any account details.
-- MarketPulse is information only, not financial advice, so we can't answer questions about what to buy or sell.
+- MoatPillar is information only, not financial advice, so we can't answer questions about what to buy or sell.
 
 ## Questions
 
-1. **Linear scale, 1 to 5 (required):** "How useful is MarketPulse for your own research?"
+1. **Linear scale, 1 to 5 (required):** "How useful is MoatPillar for your own research?"
    - Label 1: Not useful
    - Label 5: Very useful
-2. **Multiple choice (required):** "How would you feel if you could no longer get MarketPulse?"
+2. **Multiple choice (required):** "How would you feel if you could no longer get MoatPillar?"
    - Very disappointed
    - Somewhat disappointed
    - Not disappointed

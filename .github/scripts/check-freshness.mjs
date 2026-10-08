@@ -9,8 +9,10 @@ export const EDITIONS = Object.freeze({
   cn: { label: 'CN', deadlineHour: 9, deadlineMinute: 30, weekdaysOnly: true },
 });
 
-const TITLE_PREFIX = '⚠️ MarketPulse dashboard publication stale';
-const LEGACY_PREFIX = '⚠️ MarketPulse digest missing';
+const TITLE_PREFIX = '⚠️ MoatPillar dashboard publication stale';
+// Titles filed before the rename to MoatPillar (W26) and before September 2026: still matched,
+// so their issues close when the edition recovers and the same date is not filed twice.
+const LEGACY_PREFIXES = ['⚠️ MarketPulse dashboard publication stale', '⚠️ MarketPulse digest missing'];
 const DAY = 86_400_000;
 
 function editionConfig(edition) {
@@ -94,7 +96,7 @@ export function issueTitle(label, date) {
 
 export function parseAlertTitle(title) {
   if (typeof title !== 'string') return null;
-  for (const prefix of [TITLE_PREFIX, LEGACY_PREFIX]) {
+  for (const prefix of [TITLE_PREFIX, ...LEGACY_PREFIXES]) {
     const match = new RegExp('^' + prefix + ' — (US|CN) — (\\d{4}-\\d{2}-\\d{2})$').exec(title);
     if (match) return { label: match[1], date: match[2] };
   }
@@ -237,13 +239,13 @@ export async function reconcile(results, { repository, githubToken, telegramToke
   }
   const token = cleanTelegramToken(telegramToken);
   const notices = [];
-  if (created.length) notices.push(`📡 MarketPulse dashboard publication status
+  if (created.length) notices.push(`📡 MoatPillar dashboard publication status
 
 No dashboard repository update has been observed for: ${created.join('; ')} (UTC dates).
 
 This does not establish whether a Telegram digest was delivered or whether the host is available. Check the dashboard's displayed date before using its data.
 https://creator35lwb-web.github.io/MarketPulse/`);
-  if (resolved.length) notices.push(`✅ MarketPulse dashboard publication update
+  if (resolved.length) notices.push(`✅ MoatPillar dashboard publication update
 
 The repository now contains the dated update associated with these earlier alerts: ${resolved.join('; ')}.
 
