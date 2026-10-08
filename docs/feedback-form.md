@@ -6,7 +6,7 @@ The **Feedback** button under each Telegram post, and the **Give feedback** butt
 - Short link, for posts and messages: https://forms.gle/UPscnXPE8oKkDHHx5
 - Question 5 is `entry.857131096`. The buttons fill it in.
 - The dashboard card appears with the Pages deploy of this change. The Telegram button switches from the dashboard to the form with the next workflow deploy.
-- **Rename (W26):** the live form still says MarketPulse. Edit its title, description and questions 1 and 2 to the MoatPillar wording below. Editing the text keeps the form's address and question IDs, so no link changes.
+- **W26, 2026-10-08:** the form was renamed from MarketPulse. Its title, description and questions 1 and 2 now use the wording below. Its address and question IDs did not change, so every link still works.
 
 To replace the form, set the two values from the new form's pre-filled link, `FEEDBACK_FORM` and `FEEDBACK_DETAILS_FIELD`:
 - in `src/n8n/public-links.js`

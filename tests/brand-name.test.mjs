@@ -10,7 +10,6 @@ const ALLOWED = [
   /\[MarketPulse\]/g,
   /(?:called|then|renamed from) MarketPulse/g,
   /OANDA's MarketPulse/g,
-  /the live form still says MarketPulse/g,
   /\['⚠️ MarketPulse dashboard publication stale', '⚠️ MarketPulse digest missing'\]/g,
 ];
 const READER_FACING = [
