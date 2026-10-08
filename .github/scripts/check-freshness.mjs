@@ -244,13 +244,13 @@ export async function reconcile(results, { repository, githubToken, telegramToke
 No dashboard repository update has been observed for: ${created.join('; ')} (UTC dates).
 
 This does not establish whether a Telegram digest was delivered or whether the host is available. Check the dashboard's displayed date before using its data.
-https://creator35lwb-web.github.io/MarketPulse/`);
+https://creator35lwb-web.github.io/MoatPillar/`);
   if (resolved.length) notices.push(`✅ MoatPillar dashboard publication update
 
 The repository now contains the dated update associated with these earlier alerts: ${resolved.join('; ')}.
 
 Only those matching dates are resolved. Other missing dates remain recorded. The served dashboard may still need to refresh.
-https://creator35lwb-web.github.io/MarketPulse/`);
+https://creator35lwb-web.github.io/MoatPillar/`);
   for (const notice of notices) {
     if (!token) {
       console.log('Telegram status notice skipped: token is not configured.');

@@ -17,7 +17,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const REPOSITORY = 'https://github.com/creator35lwb-web/MarketPulse';
+const REPOSITORY = 'https://github.com/creator35lwb-web/MoatPillar';
 const PAGE = 'docs/archive/pre-beta.html';
 export const EDITIONS = [
   {key: 'us', title: 'US edition'},

@@ -3,16 +3,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 // W26: readers see MoatPillar. "MarketPulse" may remain only where it names the past, an internal
-// log tag, or an address that changes when the repository and the channel are renamed.
+// log tag, or a folder name. The repository and the channel are renamed, so no address keeps it.
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const ALLOWED = [
-  /https:\/\/creator35lwb-web\.github\.io\/MarketPulse\/[^\s"'<)`]*/g,
-  /https:\/\/github\.com\/[\w-]+\/MarketPulse[^\s"'<)`]*/g,
   /MarketPulse-Secure[^\s"'<)`]*/g,
   /\[MarketPulse\]/g,
-  /(?:called|then) MarketPulse/g,
+  /(?:called|then|renamed from) MarketPulse/g,
   /OANDA's MarketPulse/g,
-  /Repository paths and URLs that still say MarketPulse/g,
   /the live form still says MarketPulse/g,
   /\['⚠️ MarketPulse dashboard publication stale', '⚠️ MarketPulse digest missing'\]/g,
 ];

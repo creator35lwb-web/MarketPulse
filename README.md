@@ -4,9 +4,9 @@
 
 MoatPillar is an open-source daily market brief for value investors, covering the US and China, built with n8n. It combines fetched market data, a long-term reading on fixed rules, source-attributed AI commentary, Telegram delivery, and a static dashboard.
 
-MoatPillar was called MarketPulse until its beta in October 2026. It is an independent open-source project, not affiliated with OANDA's MarketPulse or with n8n. Repository paths and URLs that still say MarketPulse change when the repository is renamed.
+MoatPillar was called MarketPulse until its beta in October 2026. It is an independent open-source project, not affiliated with OANDA's MarketPulse or with n8n. The repository was renamed from MarketPulse at the same time; some folder names, such as `MarketPulse-Secure/`, keep the old name.
 
-[Dashboard](https://creator35lwb-web.github.io/MarketPulse/) · [Telegram channel](https://t.me/MoatPillar) · [Issues](https://github.com/creator35lwb-web/MarketPulse/issues) · [MIT license](LICENSE)
+[Dashboard](https://creator35lwb-web.github.io/MoatPillar/) · [Telegram channel](https://t.me/MoatPillar) · [Issues](https://github.com/creator35lwb-web/MoatPillar/issues) · [MIT license](LICENSE)
 
 ## Repository status
 
@@ -84,6 +84,6 @@ Importing a workflow does not configure credentials, deploy Pages, or prove deli
 | `tests/` | Offline boundary, producer, source, dashboard, and monitor checks |
 | `MarketPulse-Secure/workflows/archive/` | Historical exports; not the current import target |
 
-The displayed track record is a retrospective comparison of stored sentiment with later benchmark movement. It is not a trading return, a forecast guarantee, or a measure of all commentary accuracy. From the beta onward, it counts only calls made and graded under the current rules. The record published before the beta is archived unchanged in [`docs/archive/pre-beta.html`](https://creator35lwb-web.github.io/MarketPulse/archive/pre-beta.html); `scripts/archive-pre-beta.mjs` copies it exactly from the repository history.
+The displayed track record is a retrospective comparison of stored sentiment with later benchmark movement. It is not a trading return, a forecast guarantee, or a measure of all commentary accuracy. From the beta onward, it counts only calls made and graded under the current rules. The record published before the beta is archived unchanged in [`docs/archive/pre-beta.html`](https://creator35lwb-web.github.io/MoatPillar/archive/pre-beta.html); `scripts/archive-pre-beta.mjs` copies it exactly from the repository history.
 
 Read [Architecture](docs/ARCHITECTURE.md) for the publication contract and [Contributing](CONTRIBUTING.md) for development guidance. MoatPillar is informational software, not financial advice.

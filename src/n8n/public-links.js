@@ -3,8 +3,8 @@
 // (docs/app.js) keeps the same values, and tests/share-feedback.test.mjs holds the two equal.
 // A fork changes this file and the LINKS block in docs/app.js.
 const MP_LINKS = (() => {
-  const DASHBOARD = 'https://creator35lwb-web.github.io/MarketPulse/';
-  const REPOSITORY = 'https://github.com/creator35lwb-web/MarketPulse';
+  const DASHBOARD = 'https://creator35lwb-web.github.io/MoatPillar/';
+  const REPOSITORY = 'https://github.com/creator35lwb-web/MoatPillar';
   const CHANNEL = 'https://t.me/MoatPillar';
   // The feedback form is a Google Form Alton owns: anonymous, no sign-in (docs/feedback-form.md).
   // Both values come from its pre-filled link; the field is question 5, "Brief details". A fork
