@@ -51,7 +51,7 @@ function MP_COMBINE(EDITION, runtime) {
     // has none, and the beta scorer never grades a call from before the beta.
     let prev = null;
     for (let i = led.length - 1; i >= 0; i--) {
-      if (led[i] && led[i].sentiment && MP_PHASE.current(led[i])) { prev = led[i]; break; }
+      if (led[i]?.sentiment && MP_PHASE.current(led[i])) { prev = led[i]; break; }
     }
     if (prev && prev.date) {
       let t = 'On ' + prev.date + ' your sentiment was ' + prev.sentiment + ' (confidence ' + prev.confidence + '; verification verdict ' + prev.verdict + ').';

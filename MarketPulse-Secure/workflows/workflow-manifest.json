@@ -3,7 +3,7 @@
   "contractVersion": 2,
   "exportDate": "2026-09-10",
   "nodeCount": 46,
-  "workflowSha256": "4b9a356db8f0267ea69cdad85c326e2bc111b56a78e8f39e4a8d06d3e6fade98",
+  "workflowSha256": "e4f184fb0736ecf27d5d0186cb9d3d4fe9dc356cd5ad63fd7073ff68f0e798d2",
   "sources": {
     "scripts/analysis-contract.txt": "e33ff2b7d09ac10dee12de79c3431daa6b9ae56c6c628748faa1bcfe9fc044ef",
     "fetch-http.js": "c7aa601377c4e9e0e2701b1a59bbded6805371bd662989784b4a56e0ea493a9c",
@@ -13,7 +13,7 @@
     "fetch-stock-prices.js": "dc1587e00425323dccdcf5e12b8f49c9a0ff7259c18b291b6199293213877f79",
     "long-term-reading.js": "22f385db13121d6f31ddc56b922494c9a0a1c0d4ecafdee70b51b160ea18cfdd",
     "record-phase.js": "28ca45504a89ddb8915e42e35fb74f8eb54a7c65787534eadba5b1918148dd20",
-    "combine-data-runtime.js": "d9e9ef1241df3d336a38237c6073d4de11cbf7653ccab9fcbe25aee21726e673",
+    "combine-data-runtime.js": "05474225c678ec9511097649129e6521650e0b1a4d7b9fc004504e3869da2e0c",
     "combine-all-data.js": "9fed2dc86a164f346847a6e733daacb3e6a42c35fecdbb0ca69b8b45688392e6",
     "analysis-policy.js": "460a2974959c3499fc3ea9803c73775f5c01a364b102607aba924ebfcffb4d73",
     "public-links.js": "b469e67b694bf6d2414bef06ceb574ddda90f7399a88baa21ae267ea170f50da",
@@ -29,7 +29,7 @@
     "verify-analysis-runtime.js": "447ea3cef6046d7eb968a4c5ec7d357d034517b468156569ac94f32064040daa",
     "verify-ai-analysis.js": "98ea1ab2b2e66fc26a4d6eca537e862e3f6b301c0e4bcc2b32420012e852a4ef",
     "verify-ai-analysis1.js": "ca113a9d8a3220410081cebe625c659d0a8aa41b61bedaab7373831942669ed9",
-    "prepare-dashboard-runtime.js": "3d65bfcfc5f285034b48d93e8b61ccbef52361802d124ea1e859ec5946db77a9",
+    "prepare-dashboard-runtime.js": "908d0412c4f5acb755bf874017006e6fc24102eb66394c6d456a6f0256b2db5a",
     "prepare-dashboard-data.js": "1092398e0509ca452b9565c03f3ce48af25af689309c719fff01bc1a4456a4ee",
     "prepare-dashboard-data1.js": "3b4c068ea96184bf32932154828243a2dd6d7c42e1c6a951c596fe47fcf45c9f",
     "compose-weekly-report.js": "871506c682e58de53906fc783847bd39ea770228f2ae76391bd058f4d6c23022"

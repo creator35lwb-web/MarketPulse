@@ -162,7 +162,9 @@ ${archives.map(editionSection).join('\n')}
 `;
 }
 
-const git = (...args) => execFileSync('git', args, {cwd: ROOT, maxBuffer: 64 * 1024 * 1024});
+// Git is found only in fixed system directories, never through a PATH that a user or a tool can write to.
+const GIT_DIRS = process.platform === 'win32' ? [String.raw`C:\Program Files\Git\cmd`] : ['/usr/bin', '/bin', '/usr/local/bin'];
+const git = (...args) => execFileSync('git', args, {cwd: ROOT, maxBuffer: 64 * 1024 * 1024, env: {...process.env, PATH: GIT_DIRS.join(path.delimiter)}});
 
 // Newest first: the first version without a beta phase is the last one published before the beta.
 function findPreBeta(key) {
@@ -187,24 +189,31 @@ export function readArchive(root = ROOT) {
   return {page, archives};
 }
 
-function main() {
-  if (process.argv.includes('--check')) {
-    const {page, archives} = readArchive();
-    const problems = [];
-    for (const a of archives) {
-      if (!/^[0-9a-f]{40}$/.test(a.commit)) problems.push(a.key + ': the page names no source commit');
-      if (!isPreBeta(a.data)) problems.push(a.key + ': the archived copy carries a beta phase');
-      if (Object.keys(a.data).some(k => !RECORD_FIELDS.includes(k))) problems.push(a.key + ': the archived copy holds more than the record');
-      // A shallow clone lacks the source commit; a full one can prove the copy exact.
-      let source = null;
-      try { source = JSON.parse(git('show', a.commit + ':' + sourcePath(a.key)).toString('utf8')); } catch { console.warn(a.key + ': source commit not in this clone; copy not compared'); }
-      if (source && JSON.stringify(recordOf(source)) !== JSON.stringify(a.data)) problems.push(a.key + ': the archived record differs from its source commit');
-    }
-    if (renderPage(archives) !== page) problems.push(PAGE + ' does not match its archived copies; run node scripts/archive-pre-beta.mjs');
-    if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
-    console.log('Pre-beta archive verified: ' + archives.map(a => a.key + ' ' + a.commit.slice(0, 7)).join(', '));
-    return;
-  }
+// A shallow clone lacks the source commit; a full one can prove the copy exact.
+function sourceRecord(a) {
+  try { return recordOf(JSON.parse(git('show', a.commit + ':' + sourcePath(a.key)).toString('utf8'))); }
+  catch { console.warn(a.key + ': source commit not in this clone; copy not compared'); return null; }
+}
+
+function problemsWith(a) {
+  const problems = [];
+  if (!/^[0-9a-f]{40}$/.test(a.commit)) problems.push(a.key + ': the page names no source commit');
+  if (!isPreBeta(a.data)) problems.push(a.key + ': the archived copy carries a beta phase');
+  if (Object.keys(a.data).some(k => !RECORD_FIELDS.includes(k))) problems.push(a.key + ': the archived copy holds more than the record');
+  const source = sourceRecord(a);
+  if (source && JSON.stringify(source) !== JSON.stringify(a.data)) problems.push(a.key + ': the archived record differs from its source commit');
+  return problems;
+}
+
+function check() {
+  const {page, archives} = readArchive();
+  const problems = archives.flatMap(problemsWith);
+  if (renderPage(archives) !== page) problems.push(PAGE + ' does not match its archived copies; run node scripts/archive-pre-beta.mjs');
+  if (problems.length) { console.error(problems.join('\n')); process.exitCode = 1; return; }
+  console.log('Pre-beta archive verified: ' + archives.map(a => a.key + ' ' + a.commit.slice(0, 7)).join(', '));
+}
+
+function write() {
   mkdirSync(path.join(ROOT, 'docs/archive'), {recursive: true});
   const archives = EDITIONS.map(({key, title}) => {
     const found = findPreBeta(key);
@@ -216,4 +225,6 @@ function main() {
   console.log('Pre-beta archive written: ' + archives.map(a => a.key + ' ' + a.commit.slice(0, 7) + ' (' + mytStamp(a.data.generatedAt) + ')').join(', '));
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--check')) check(); else write();
+}

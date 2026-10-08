@@ -51,7 +51,7 @@ import {additionalEvidence, citationEvidence, headlineKey, presentationState, ve
   }
   function fmtLongDay(dateStr) {
     var d = new Date(dateStr + 'T12:00:00Z');
-    return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC'});
+    return Number.isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC'});
   }
   function num(value) { var n = parseFloat(String(value).replace(/[$,%]/g, '')); return isFinite(n) ? n : null; }
 

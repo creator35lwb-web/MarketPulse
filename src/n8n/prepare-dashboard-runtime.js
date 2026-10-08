@@ -58,8 +58,8 @@ function MP_PREPARE(EDITION, {$input, $getWorkflowStaticData, Date: RuntimeDate,
   function buildHistory() {
     try {
       const state = $getWorkflowStaticData('global');
-      const ledger = ((state.mpLedger && state.mpLedger[EDITION]) || []).filter(MP_PHASE.current);
-      const scores = ((state.mpTrackRecord && state.mpTrackRecord[EDITION]) || []).filter(MP_PHASE.current);
+      const ledger = (state.mpLedger?.[EDITION] || []).filter(MP_PHASE.current);
+      const scores = (state.mpTrackRecord?.[EDITION] || []).filter(MP_PHASE.current);
       const scoredByPriorDate = {};
       for (const score of scores) scoredByPriorDate[score.priorDate] = score;
       return ledger.map(entry => {
