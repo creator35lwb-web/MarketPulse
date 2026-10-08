@@ -6,7 +6,7 @@ MoatPillar is an open-source daily market brief for value investors, covering th
 
 MoatPillar was called MarketPulse until its beta in October 2026. It is an independent open-source project, not affiliated with OANDA's MarketPulse or with n8n. Repository paths and URLs that still say MarketPulse change when the repository is renamed.
 
-[Dashboard](https://creator35lwb-web.github.io/MarketPulse/) · [Telegram channel](https://t.me/n8nMarketPulse) · [Issues](https://github.com/creator35lwb-web/MarketPulse/issues) · [MIT license](LICENSE)
+[Dashboard](https://creator35lwb-web.github.io/MarketPulse/) · [Telegram channel](https://t.me/MoatPillar) · [Issues](https://github.com/creator35lwb-web/MarketPulse/issues) · [MIT license](LICENSE)
 
 ## Repository status
 

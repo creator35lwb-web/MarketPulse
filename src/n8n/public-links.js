@@ -5,7 +5,7 @@
 const MP_LINKS = (() => {
   const DASHBOARD = 'https://creator35lwb-web.github.io/MarketPulse/';
   const REPOSITORY = 'https://github.com/creator35lwb-web/MarketPulse';
-  const CHANNEL = 'https://t.me/n8nMarketPulse';
+  const CHANNEL = 'https://t.me/MoatPillar';
   // The feedback form is a Google Form Alton owns: anonymous, no sign-in (docs/feedback-form.md).
   // Both values come from its pre-filled link; the field is question 5, "Brief details". A fork
   // that empties them shows no feedback link.
