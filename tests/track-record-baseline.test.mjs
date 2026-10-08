@@ -6,7 +6,7 @@ import {runNode, groundTruth, validAnalysis, pipeline} from './helpers/n8n.mjs';
 // W4: beside the hit rate, how often the market fell on the same judged days. A call that never
 // changes scores exactly that share, so the hit rate alone flatters it.
 const entry = (priorDate, actualChange, result, scoredDate = priorDate) =>
-  ({priorDate, scoredDate, priorSentiment:'Cautiously Bearish', actualChange, result, band:0.25});
+  ({priorDate, scoredDate, priorSentiment:'Cautiously Bearish', actualChange, result, band:0.25, phase:'beta'});
 const combine = (edition, tr) =>
   runNode('combine-all-data' + (edition === 'CN' ? '1' : ''), [{json:groundTruth(edition)}], {state:{mpLedger:{[edition]:[]}, mpTrackRecord:{[edition]:tr}}})[0].json;
 
@@ -43,13 +43,15 @@ test('Telegram and the dashboard both show the comparison, and the contract acce
   assert.equal(none.payload.trackRecord.baseline, '');
 });
 
-test('the weekly report gives the same comparison for the week and all-time', () => {
+test('the weekly report gives the same comparison for the week and for the record since its first call', () => {
   // The fixture clock is 2026-09-10 20:00 in Malaysia, so the week runs Sep 3 to Sep 9.
-  const state = {mpLedger:{US:[], CN:[]}, mpTrackRecord:{US:[entry('2026-09-03', '-1.00%', 'hit', '2026-09-04'),
-    entry('2026-09-07', '+0.50%', 'miss', '2026-09-08'), entry('2026-08-19', '-0.40%', 'hit', '2026-08-20')], CN:[]}};
+  // Grades are stored oldest first, as the scorer appends them.
+  const state = {mpLedger:{US:[], CN:[]}, mpTrackRecord:{US:[entry('2026-08-19', '-0.40%', 'hit', '2026-08-20'),
+    entry('2026-09-03', '-1.00%', 'hit', '2026-09-04'), entry('2026-09-07', '+0.50%', 'miss', '2026-09-08')], CN:[]}};
   const message = runNode('compose-weekly-report', [], {state})[0].json.message;
-  assert.match(message, /<i>For comparison, the market fell on 1 of 2 judged days this week and 2 of 3 all-time\.<\/i>/);
+  assert.match(message, /Week: <b>1\/2<\/b> · Since Aug 19, 2026: <b>2\/3<\/b>/);
+  assert.match(message, /<i>For comparison, the market fell on 1 of 2 judged days this week and 2 of 3 since Aug 19, 2026\.<\/i>/);
   const quiet = {mpLedger:{US:[], CN:[]}, mpTrackRecord:{US:[entry('2026-08-19', '-0.40%', 'hit', '2026-08-20'),
     entry('2026-09-05', '+0.10%', 'flat', '2026-09-06')], CN:[]}};
-  assert.match(runNode('compose-weekly-report', [], {state:quiet})[0].json.message, /For comparison, the market fell on 1 of 1 judged days all-time\./);
+  assert.match(runNode('compose-weekly-report', [], {state:quiet})[0].json.message, /For comparison, the market fell on 1 of 1 judged days since Aug 19, 2026\./);
 });

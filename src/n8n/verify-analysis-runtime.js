@@ -107,7 +107,7 @@ function MP_VERIFY(EDITION, {$input, $, $getWorkflowStaticData, Date: RuntimeDat
           date:today,edition:EDITION,sentiment:approved.sentiment,confidence:approved.confidence,
           claims:approved.claims.map(c => ({claim:c.claim.slice(0,200),basedOn:[...c.basedOn]})),
           verdict:'PASS',score:100,violations:0,health:data._health.status,
-          model:analysisModel,marketTime,verificationVersion:1,
+          model:analysisModel,marketTime,verificationVersion:1,phase:MP_PHASE.CURRENT,
           ...(notes.includes('ADVICE_TRIMMED') ? {adviceTrimmed:true} : {}),
         };
         if (ledger.length && ledger[ledger.length - 1].date === today) ledger[ledger.length - 1] = entry;

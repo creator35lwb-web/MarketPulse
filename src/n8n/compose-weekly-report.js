@@ -44,21 +44,24 @@ const editions = [
   { key: 'CN', flag: '🇨🇳', index: 'CSI 300' },
 ];
 for (const ed of editions) {
-  const calls = (ledger[ed.key] || []).filter(function (e) { return inWindow(e.date); });
-  const scored = (track[ed.key] || []).filter(function (t) { return inWindow(t.scoredDate); });
-  const allTime = track[ed.key] || [];
+  // The beta record only (W25). The window holds the last 30 grades, so the running total is
+  // labelled with the call date it starts from, not "all-time".
+  const calls = (ledger[ed.key] || []).filter(function (e) { return MP_PHASE.current(e) && inWindow(e.date); });
+  const scored = (track[ed.key] || []).filter(function (t) { return MP_PHASE.current(t) && inWindow(t.scoredDate); });
+  const record = (track[ed.key] || []).filter(MP_PHASE.current);
+  const since = record.length ? MP_PHASE.dateLabel(record[0].priorDate) : '';
   // Flats are excluded from both numerator and denominator - a day the market did not
   // move is not a missed call. Counting them as misses would understate the record as
   // badly as counting them as hits would flatter it.
-  const allDecided = allTime.filter(function (t) { return t.result === 'hit' || t.result === 'miss'; });
-  const allHits = allDecided.filter(function (t) { return t.result === 'hit'; }).length;
+  const recordDecided = record.filter(function (t) { return t.result === 'hit' || t.result === 'miss'; });
+  const recordHits = recordDecided.filter(function (t) { return t.result === 'hit'; }).length;
   const weekDecided = scored.filter(function (t) { return t.result === 'hit' || t.result === 'miss'; });
   const weekHits = weekDecided.filter(function (t) { return t.result === 'hit'; }).length;
 
   const lines = [];
   lines.push(ed.flag + ' <b>' + ed.key + ' edition</b>');
   if (calls.length === 0 && scored.length === 0) {
-    lines.push('No digests were published this week.');
+    lines.push('No calls on the ' + MP_PHASE.LABEL.toLowerCase() + ' record this week.');
     sections.push(lines.join('\n'));
     continue;
   }
@@ -79,15 +82,15 @@ for (const ed of editions) {
     // Denominators are the DECIDED counts, matching the numerators above. Using the raw
   // totals here would silently count every flat day as a miss.
   var flatWeek = scored.length - weekDecided.length;
-  lines.push('Week: <b>' + weekHits + '/' + weekDecided.length + '</b> · All-time: <b>' + allHits + '/' + allDecided.length + '</b>'
+  lines.push('Week: <b>' + weekHits + '/' + weekDecided.length + '</b> · Since ' + since + ': <b>' + recordHits + '/' + recordDecided.length + '</b>'
     + (flatWeek ? ' · <i>' + flatWeek + ' day' + (flatWeek === 1 ? '' : 's') + ' too flat to judge</i>' : ''));
   // W4: the base rate on the same judged days, so a call that rarely changes is not flattered.
   const fellOn = function (list) { return list.filter(function (t) { return Number.parseFloat(t.actualChange) < 0; }).length; };
-  if (allDecided.length) {
-    const allTimeFell = fellOn(allDecided) + ' of ' + allDecided.length;
+  if (recordDecided.length) {
+    const recordFell = fellOn(recordDecided) + ' of ' + recordDecided.length;
     lines.push('<i>For comparison, the market fell on ' + (weekDecided.length
-      ? fellOn(weekDecided) + ' of ' + weekDecided.length + ' judged days this week and ' + allTimeFell + ' all-time.'
-      : allTimeFell + ' judged days all-time.') + '</i>');
+      ? fellOn(weekDecided) + ' of ' + weekDecided.length + ' judged days this week and ' + recordFell + ' since ' + since + '.'
+      : recordFell + ' judged days since ' + since + '.') + '</i>');
   }
   } else {
     lines.push('No calls came due for scoring this week.');
@@ -108,7 +111,7 @@ try {
 } catch (_) { longTerm = ''; }
 
 const message = [
-  '📅 <b>MarketPulse Weekly — ' + fmtRange(startISO, endISO) + '</b>',
+  '📅 <b>MarketPulse Weekly — ' + fmtRange(startISO, endISO) + '</b> · <i>' + MP_PHASE.LABEL + '</i>',
   '<i>Every line restates a dated, verified record from the public ledger — including the misses. Nothing is recalled from memory.</i>',
   ...(longTerm ? [longTerm] : []),
   sections.join('\n\n'),
