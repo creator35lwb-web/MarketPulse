@@ -7,9 +7,10 @@ const MP_LINKS = (() => {
   const REPOSITORY = 'https://github.com/creator35lwb-web/MarketPulse';
   const CHANNEL = 'https://t.me/n8nMarketPulse';
   // The feedback form is a Google Form Alton owns: anonymous, no sign-in (docs/feedback-form.md).
-  // Both values come from its pre-filled link. While they are empty, no feedback link is shown.
-  const FEEDBACK_FORM = '';
-  const FEEDBACK_DETAILS_FIELD = '';
+  // Both values come from its pre-filled link; the field is question 5, "Brief details". A fork
+  // that empties them shows no feedback link.
+  const FEEDBACK_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfxD7YzmLxOOCP580jiIK81aNF_Ky1S4QNpr6JdO0c9JT5cJQ/viewform';
+  const FEEDBACK_DETAILS_FIELD = 'entry.857131096';
   const PITCH = 'MarketPulse: a free daily US and China market brief for value investors. ' +
     'A long-term reading on fixed rules, and an AI short-term read that cites its data.';
 

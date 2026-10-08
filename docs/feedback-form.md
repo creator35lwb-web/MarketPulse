@@ -1,20 +1,17 @@
-# Feedback form (draft)
+# Feedback form
 
 The **Feedback** button under each Telegram post, and the **Give feedback** button on the dashboard, open this Google Form. The details of the brief the reader was looking at are already filled in. Alton owns the form, and its responses go to Alton's Google Sheet.
 
-**Status:** draft. The form has not been created yet.
+**Status:** live since 2026-10-08.
+- Short link, for posts and messages: https://forms.gle/UPscnXPE8oKkDHHx5
+- Question 5 is `entry.857131096`. The buttons fill it in.
+- The dashboard card appears with the Pages deploy of this change. The Telegram button switches from the dashboard to the form with the next workflow deploy.
 
-Until it exists:
-- The dashboard hides its feedback card.
-- The Telegram Feedback button opens the dashboard instead.
+To replace the form, set the two values from the new form's pre-filled link, `FEEDBACK_FORM` and `FEEDBACK_DETAILS_FIELD`:
+- in `src/n8n/public-links.js`
+- in the `LINKS` block of `docs/app.js`
 
-Once it exists:
-1. Set two values from its pre-filled link, `FEEDBACK_FORM` and `FEEDBACK_DETAILS_FIELD`:
-   - in `src/n8n/public-links.js`
-   - in the `LINKS` block of `docs/app.js`
-
-   `tests/share-feedback.test.mjs` keeps the two copies equal.
-2. The dashboard card appears with the next Pages deploy. The Telegram button switches to the form with the next workflow deploy.
+`tests/share-feedback.test.mjs` keeps the two copies equal. With both empty, the dashboard hides its feedback card and the Telegram button opens the dashboard.
 
 ## Settings
 
@@ -55,11 +52,11 @@ Once it exists:
    - The buttons fill this in with where the reader was and which brief it was, for example `telegram · US · 2026-10-07` or `dashboard · CN · 2026-10-07`.
    - When a reader reports that a number looks wrong, the report can be checked against the exact brief they saw.
 
-## What Alton sends back
+## Getting the pre-filled link
 
 1. In the form, open **⋮ → Get pre-filled link**.
 2. Type `DETAILS` in question 5 and leave the other questions empty.
-3. Click **Get link**, copy it, and send it back.
+3. Click **Get link** and copy it.
 
 The form's address and the ID of question 5 (`entry.<number>`) are read from that link. Nothing else in it is used.
 
