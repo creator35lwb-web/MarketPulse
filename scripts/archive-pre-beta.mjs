@@ -162,9 +162,9 @@ ${archives.map(editionSection).join('\n')}
 `;
 }
 
-// Git is found only in fixed system directories, never through a PATH that a user or a tool can write to.
-const GIT_DIRS = process.platform === 'win32' ? [String.raw`C:\Program Files\Git\cmd`] : ['/usr/bin', '/bin', '/usr/local/bin'];
-const git = (...args) => execFileSync('git', args, {cwd: ROOT, maxBuffer: 64 * 1024 * 1024, env: {...process.env, PATH: GIT_DIRS.join(path.delimiter)}});
+// Git runs from its standard install path, never found through a PATH that a user or a tool can write to.
+const GIT = process.platform === 'win32' ? String.raw`C:\Program Files\Git\cmd\git.exe` : '/usr/bin/git';
+const git = (...args) => execFileSync(GIT, args, {cwd: ROOT, maxBuffer: 64 * 1024 * 1024});
 
 // Newest first: the first version without a beta phase is the last one published before the beta.
 function findPreBeta(key) {
