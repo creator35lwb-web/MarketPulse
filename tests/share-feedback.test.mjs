@@ -9,7 +9,7 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 const escapeRegex = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const BUTTONS = [['📊 Dashboard', 'dashboard'], ['💬 Feedback', 'feedback'], ['📣 Share', 'share']];
 
-// The module with a feedback form set, as it will be once Alton creates the form.
+// The module with other form values, so the URL rules are tested apart from the live form.
 function linksWithForm(form, field) {
   const source = read('src/n8n/public-links.js')
     .replace(/const FEEDBACK_FORM = '[^']*';/, 'const FEEDBACK_FORM = ' + JSON.stringify(form) + ';')
@@ -30,7 +30,9 @@ test('button URLs: the edition opens on the dashboard, share opens Telegram, and
   assert.equal(MP_LINKS.forPost('CN', '2026-10-07').dashboard, MP_LINKS.DASHBOARD + '#cn');
   assert.equal(MP_LINKS.forPost('weekly', '2026-10-10').dashboard, MP_LINKS.DASHBOARD);
   assert.equal(us.share, 'https://t.me/share/url?url=' + encodeURIComponent(MP_LINKS.CHANNEL) + '&text=' + encodeURIComponent(MP_LINKS.PITCH));
-  if (!MP_LINKS.FEEDBACK_FORM) assert.equal(us.feedback, us.dashboard);
+  assert.equal(us.feedback, MP_LINKS.FEEDBACK_FORM
+    ? MP_LINKS.FEEDBACK_FORM + '?usp=pp_url&' + MP_LINKS.FEEDBACK_DETAILS_FIELD + '=' + encodeURIComponent('telegram · US · 2026-10-07')
+    : us.dashboard);
 
   const form = 'https://docs.google.com/forms/d/e/1FAIpQLSexample/viewform';
   const withForm = linksWithForm(form, 'entry.123');
