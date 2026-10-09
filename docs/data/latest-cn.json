@@ -7,73 +7,84 @@
     "reasonCodes": []
   },
   "edition": "CN",
-  "generatedAt": "2026-10-08T08:30:25.224Z",
-  "dateLabel": "Thursday, October 8, 2026",
+  "generatedAt": "2026-10-09T08:31:38.605Z",
+  "dateLabel": "Friday, October 9, 2026",
   "health": {
     "status": "OK",
     "missing": [],
-    "suspect": []
+    "suspect": [
+      {
+        "field": "sseCompositeChange",
+        "value": "+1859927722.66%",
+        "bound": 15
+      },
+      {
+        "field": "szseComponentChange",
+        "value": "+6165241145.45%",
+        "bound": 15
+      }
+    ]
   },
   "dashboard": {},
   "facts": {
-    "csi300": "4,310.28",
-    "csi300Change": "-1.09%",
-    "sseComposite": "3,811.90",
-    "sseCompositeChange": "-0.79%",
-    "szseComponent": "12,620.90",
-    "szseComponentChange": "-2.07%",
-    "hangSeng": "23,785.79",
-    "hangSengChange": "-2.04%",
-    "gold": "$4,153.70",
-    "goldChange": "+0.31%",
-    "usdCny": "6.7009",
-    "usdCnyChange": "+0.11%",
+    "csi300": "4,317.26",
+    "csi300Change": "+0.16%",
+    "sseComposite": "3,813.79",
+    "sseCompositeChange": "+1859927722.66%",
+    "szseComponent": "12,641.86",
+    "szseComponentChange": "+6165241145.45%",
+    "hangSeng": "24,211.35",
+    "hangSengChange": "+0.34%",
+    "gold": "$4,224.50",
+    "goldChange": "+1.62%",
+    "usdCny": "6.6817",
+    "usdCnyChange": "-0.18%",
     "gdpValue": "+4.96%",
     "cpiValue": "0.06%",
     "unemploymentValue": "4.62%",
-    "moutaiChange": "-0.22%",
-    "catlChange": "-1.50%",
-    "bydChange": "-1.91%",
-    "alibabaChange": "-1.04%",
-    "tencentChange": "-2.19%"
+    "moutaiChange": "+0.57%",
+    "catlChange": "+3.84%",
+    "bydChange": "+3.95%",
+    "alibabaChange": "+2.59%",
+    "tencentChange": "+3.26%"
   },
   "fearGreed": null,
   "screener": [
     {
       "label": "CSI 300",
       "factKey": "csi300Change",
-      "value": "4,310.28",
-      "change": "-1.09%"
+      "value": "4,317.26",
+      "change": "+0.16%"
     },
     {
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
-      "value": "3,811.90",
-      "change": "-0.79%"
+      "value": "3,813.79",
+      "change": "+1859927722.66%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
-      "value": "12,620.90",
-      "change": "-2.07%"
+      "value": "12,641.86",
+      "change": "+6165241145.45%"
     },
     {
       "label": "Hang Seng",
       "factKey": "hangSengChange",
-      "value": "23,785.79",
-      "change": "-2.04%"
+      "value": "24,211.35",
+      "change": "+0.34%"
     },
     {
       "label": "Gold",
       "factKey": "goldChange",
-      "value": "$4,153.70",
-      "change": "+0.31%"
+      "value": "$4,224.50",
+      "change": "+1.62%"
     },
     {
       "label": "USD/CNY",
       "factKey": "usdCnyChange",
-      "value": "6.7009",
-      "change": "+0.11%"
+      "value": "6.6817",
+      "change": "-0.18%"
     }
   ],
   "economic": [
@@ -96,10 +107,10 @@
       "value": "4.62%"
     }
   ],
-  "watchlist": "▼ Moutai (600519.SS): ¥1,255.79 (-0.22%)\n▼ CATL (300750.SZ): ¥286.75 (-1.50%)\n▼ BYD (002594.SZ): ¥81.72 (-1.91%)\n▼ Alibaba (9988.HK): HK$104.30 (-1.04%)\n▼ Tencent (0700.HK): HK$411.40 (-2.19%)",
+  "watchlist": "▲ Moutai (600519.SS): ¥1,263.00 (+0.57%)\n▲ CATL (300750.SZ): ¥297.75 (+3.84%)\n▲ BYD (002594.SZ): ¥84.95 (+3.95%)\n▲ Alibaba (9988.HK): HK$107.00 (+2.59%)\n▲ Tencent (0700.HK): HK$424.80 (+3.26%)",
   "trackRecord": {
-    "accuracy": "4/16 (25%) · 1 too flat to judge",
-    "last": "Cautiously Bearish (2026-09-28) → market moved +0.29% → Miss"
+    "accuracy": "4/16 (25%) · 2 too flat to judge",
+    "last": "Cautiously Bearish (2026-10-08) → market moved +0.16% → Too flat to judge"
   },
   "history": [
     {
@@ -288,28 +299,35 @@
       "date": "2026-10-08",
       "sentiment": "Cautiously Bearish",
       "verdict": "PASS",
+      "result": "flat",
+      "actualChange": "+0.16%"
+    },
+    {
+      "date": "2026-10-09",
+      "sentiment": "Cautiously Bullish",
+      "verdict": "PASS",
       "result": null,
       "actualChange": null
     }
   ],
-  "analysisModel": "gemini-3.6-flash",
-  "analysisProvider": "Google",
+  "analysisModel": "openai/gpt-oss-120b",
+  "analysisProvider": "Groq",
   "analysis": {
-    "sentiment": "Cautiously Bearish",
+    "sentiment": "Cautiously Bullish",
     "confidence": "Medium",
     "claims": [
       {
-        "text": "Mainland equity benchmark indices and the offshore benchmark market dropped across the board.",
+        "text": "Mainland equity benchmarks posted modest positive movement.",
         "basedOn": [
           "csi300Change",
           "sseCompositeChange",
           "szseComponentChange",
           "hangSengChange"
         ],
-        "direction": "supports_bearish"
+        "direction": "supports_bullish"
       },
       {
-        "text": "Key watchlist equities in consumer goods, electric vehicles, battery manufacturing, and technology declined.",
+        "text": "Key consumer and technology stocks on the watchlist recorded gains.",
         "basedOn": [
           "moutaiChange",
           "catlChange",
@@ -317,39 +335,39 @@
           "alibabaChange",
           "tencentChange"
         ],
-        "direction": "supports_bearish"
+        "direction": "supports_bullish"
       },
       {
-        "text": "Media reporting highlights cautious policy support and broader economic hurdles despite some investor interest.",
+        "text": "Precious metal prices rose while the local currency eased slightly against the dollar.",
+        "basedOn": [
+          "goldChange",
+          "usdCnyChange"
+        ],
+        "direction": "supports_bullish"
+      },
+      {
+        "text": "Today's headlines reflect both optimism about investor interest and caution about policy support.",
         "basedOn": [
           "headline_1",
           "headline_6",
           "headline_7"
         ],
         "direction": "neutral"
-      },
-      {
-        "text": "Precious metals registered gains while foreign exchange rates nudged slightly higher.",
-        "basedOn": [
-          "goldChange",
-          "usdCnyChange"
-        ],
-        "direction": "neutral"
       }
     ],
-    "interpretation": "In contrast to the previous market session, equity benchmarks faced widespread declines across onshore and offshore venues. Broad weakness across major corporate titles reflects investor hesitation regarding economic momentum and policy rollout pace. Navigating near term volatility requires focusing on structural business resilience rather than temporary benchmark swings.",
-    "wisdom": "Price volatility is an opportunity for disciplined investors to evaluate durable competitive advantages rather than reacting to broad market pullbacks."
+    "interpretation": "Equity markets and leading stocks have turned more positive, suggesting improved sentiment. However, mixed media signals and lingering policy uncertainty temper enthusiasm, so investors should stay measured.",
+    "wisdom": "Prioritize firms with durable competitive advantages and strong cash generation over short‑term market swings."
   },
   "news": [
     {
       "factKey": "headline_1",
-      "title": "China stocks end higher on policy support pledge",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPYkptS2lQcVZONC1KMWQ5ZHZxVk9XQkFqNEItM2RKNVNORU45aEhrUHJOallodERoV05FSXRyUllUbGJqbkhqOXBHVWNvZjE1TXNyd2hhTWloOUJGS2NRX3l6QktlTlk3c1owMWpfa0ktQ3U5ZHZPbkZpYVRMUkRlb2JzZEFMOGVkM19rTVJHZloxR3I1MjJ1WGxMckEwZw?oc=5"
+      "title": "China breaks step with global markets, and investors buy in",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNQ3h0djZqeHZyVGNZTGlJbXFQMmhSQ1NobzBncUpLV2dLcnBJV0JVQWhjUlhQcDZCVWVxSzJiSWNlelJtU1NoUkt3eTkxS1FBRUhZbWx6aExMLWtrXy1lVkZ1ZVE0blFHc1BRUmc4MDBoWVAwS3pDSjRFeDNBYUUyd3pqOU42R2ZpM0FUV19SVEFmejN2ZElnSThpbUExX1l2?oc=5"
     },
     {
       "factKey": "headline_2",
-      "title": "China breaks step with global markets, and investors buy in",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNQ3h0djZqeHZyVGNZTGlJbXFQMmhSQ1NobzBncUpLV2dLcnBJV0JVQWhjUlhQcDZCVWVxSzJiSWNlelJtU1NoUkt3eTkxS1FBRUhZbWx6aExMLWtrXy1lVkZ1ZVE0blFHc1BRUmc4MDBoWVAwS3pDSjRFeDNBYUUyd3pqOU42R2ZpM0FUV19SVEFmejN2ZElnSThpbUExX1l2?oc=5"
+      "title": "Chinese Economy Is Booming, But Stock Markets Haven’t Recovered in 20 Years",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQSmdkem43cFVrTUpINmRZWG96aTFWS01WeVlMOEIyM21BS21PbHlhRERYNld2aFJKT0RVR1dvV01YZFUyM0IwXzBRNmRMdDFvZmZINERZY1VfZWFHQ3JUSWJBM1JzblZvZ2hDSm5EYTNhejR2VDh1S1ZUZmNGQnBQX0VjcDI2dDlDQW5vY0FWeWloalR6a2JMN20ycWlHMVRBN2diMQ?oc=5"
     },
     {
       "factKey": "headline_3",
