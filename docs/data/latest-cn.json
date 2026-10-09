@@ -12,27 +12,16 @@
   "health": {
     "status": "OK",
     "missing": [],
-    "suspect": [
-      {
-        "field": "sseCompositeChange",
-        "value": "+1859927722.66%",
-        "bound": 15
-      },
-      {
-        "field": "szseComponentChange",
-        "value": "+6165241145.45%",
-        "bound": 15
-      }
-    ]
+    "suspect": []
   },
   "dashboard": {},
   "facts": {
     "csi300": "4,317.26",
     "csi300Change": "+0.16%",
     "sseComposite": "3,813.79",
-    "sseCompositeChange": "+1859927722.66%",
+    "sseCompositeChange": "+0.05%",
     "szseComponent": "12,641.86",
-    "szseComponentChange": "+6165241145.45%",
+    "szseComponentChange": "+0.17%",
     "hangSeng": "24,211.35",
     "hangSengChange": "+0.34%",
     "gold": "$4,224.50",
@@ -60,13 +49,13 @@
       "label": "SSE Composite",
       "factKey": "sseCompositeChange",
       "value": "3,813.79",
-      "change": "+1859927722.66%"
+      "change": "+0.05%"
     },
     {
       "label": "SZSE Component",
       "factKey": "szseComponentChange",
       "value": "12,641.86",
-      "change": "+6165241145.45%"
+      "change": "+0.17%"
     },
     {
       "label": "Hang Seng",

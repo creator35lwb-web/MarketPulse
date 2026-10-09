@@ -67,7 +67,11 @@ for (const idx of indices) {
       const price = meta.regularMarketPrice;
       // The exchange timestamp distinguishes a new trading session from a rerun.
       if (idx.symbol === '000300.SS' && meta.regularMarketTime) results.csi300MarketTime = meta.regularMarketTime;
-      const prevClose = meta.chartPreviousClose || meta.previousClose;
+      // A prior close below half or above double today's price is broken source data, not a
+      // market move: on 2026-10-09 Yahoo gave SSE and SZSE a prior close of 0.0002050505, and
+      // the post printed +1859927722.66%. Treat it as missing, so the change reads N/A.
+      const prevClose = [meta.chartPreviousClose, meta.previousClose]
+        .find(value => typeof value === 'number' && value > price / 2 && value < price * 2);
       if (price) {
         const formatted = idx.symbol === 'CNY=X' ? price.toFixed(4)
           : price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

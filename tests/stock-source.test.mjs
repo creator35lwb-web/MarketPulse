@@ -102,6 +102,51 @@ for (const [edition, name, expectedRequests] of [['US', 'Fetch All Market Data',
   });
 }
 
+// On 2026-10-09 Yahoo gave SSE and SZSE a prior close of 0.0002050505, and the China post printed
+// +1859927722.66%. A prior close outside half to double today's price is broken source data, so the
+// change reads N/A. A large move that is still possible stays published and flagged, as before.
+function chinaResponse(priorBySymbol) {
+  return options => {
+    if (!options.url.includes('finance.yahoo.com')) return marketResponse(options);
+    const symbol = decodeURIComponent(options.url.split('/chart/')[1].split('?')[0]);
+    return { chart: { result: [{
+      meta: { regularMarketPrice: 105, chartPreviousClose: 100, regularMarketTime: 1789066800, ...priorBySymbol[symbol] },
+      indicators: { quote: [{ close: [105] }] },
+    }] } };
+  };
+}
+const fetchChina = priorBySymbol => runFetchingNode('Fetch All China Market Data', chinaResponse(priorBySymbol));
+
+test('CN: a broken prior close reads N/A instead of an impossible change', async () => {
+  const broken = { chartPreviousClose: 0.0002050505, previousClose: null };
+  const { data } = await fetchChina({ '000001.SS': broken, '399001.SZ': broken });
+  assert.equal(data.sseComposite, '105.00');
+  assert.equal(data.sseCompositeChange, 'N/A');
+  assert.equal(data.szseComponentChange, 'N/A');
+  assert.equal(data.csi300Change, '+5.00%');
+  assert.equal(data.hangSengChange, '+5.00%');
+  assert.equal(data._health.status, 'OK');
+  assert.deepEqual(data._health.suspect || [], []);
+});
+
+test('CN: a usable alternate prior close replaces a broken chart close', async () => {
+  const { data } = await fetchChina({ '000001.SS': { chartPreviousClose: 0.0002050505, previousClose: 100 } });
+  assert.equal(data.sseCompositeChange, '+5.00%');
+});
+
+test('CN: a large but possible move is still published and flagged, not withheld', async () => {
+  const { data } = await fetchChina({ '000001.SS': { chartPreviousClose: 84 } });
+  assert.equal(data.sseCompositeChange, '+25.00%');
+  assert.ok(data._health.suspect.some(item => item.field === 'sseCompositeChange'));
+});
+
+test('CN: a prior close counts only strictly between half and double today\'s price', async () => {
+  for (const [prior, expected] of [[52.5, 'N/A'], [52.6, '+99.62%'], [209.9, '-49.98%'], [210, 'N/A']]) {
+    const { data } = await fetchChina({ '000001.SS': { chartPreviousClose: prior } });
+    assert.equal(data.sseCompositeChange, expected, String(prior));
+  }
+});
+
 for (const edition of ['US', 'CN']) {
   for (const prior of [undefined, null, 0, -1, NaN, Infinity, '100', {}, []]) {
     test(`${edition}: unavailable prior close ${String(prior)} never becomes a flat return`, async () => {
